@@ -27,7 +27,7 @@ public class AiClient {
     /**
      * 외부 AI API 호출 → ApiResponse<DescriptionDto> 로 파싱 → DescriptionDto 추출
      */
-    public Mono<DescriptionDto> generateDescription(String url) {
+    public Mono<DescriptionDto> generateDescription(String url, String sessionId) {
         log.info("[AiClient] aiBaseUrl = {}", aiBaseUrl);
         log.info("[AiClient] full endpoint = {}", aiBaseUrl + "/generation/description");
 
@@ -37,6 +37,7 @@ public class AiClient {
 
         return webClient.post()
                 .uri(aiBaseUrl + "/generation/description")
+                .cookie("Session", sessionId)
                 .bodyValue(req)
                 .retrieve()
                 // 4xx 클라이언트 에러면 Bad Request로 매핑

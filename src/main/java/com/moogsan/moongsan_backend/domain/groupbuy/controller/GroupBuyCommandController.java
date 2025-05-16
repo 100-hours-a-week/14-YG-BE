@@ -12,6 +12,7 @@ import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandServi
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyQueryService;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,8 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static com.moogsan.moongsan_backend.global.util.CookieUtils.extractCookie;
 
 @RestController
 @RequiredArgsConstructor
@@ -60,9 +63,12 @@ public class GroupBuyCommandController {
     // 공구 게시글 상세 설명 생성
     @PostMapping("/generation/description")
     public Mono<ResponseEntity<WrapperResponse<DescriptionDto>>> generate(
-            @RequestBody @Valid DescriptionGenerationRequest req) {
+            @RequestBody @Valid DescriptionGenerationRequest req,
+            HttpServletRequest servletRequest) {
 
-        return groupBuyService.generate(req.getUrl())
+        String sessionId = extractCookie(servletRequest, "SESSION");
+
+        return groupBuyService.generate(req.getUrl(), sessionId)
                 // 성공 시: 내부 WrapperResponse 로 감싸서 200 OK
                 .map(data -> {
                     WrapperResponse<DescriptionDto> body =
