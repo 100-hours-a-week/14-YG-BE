@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -37,12 +38,19 @@ public class AiClient {
 
         return webClient.post()
                 .uri(aiBaseUrl + "/generation/description")
-                .cookie("Session", sessionId)
+                .cookie("AccessToken", sessionId)
                 .bodyValue(req)
                 .retrieve()
                 // 4xx 클라이언트 에러면 Bad Request로 매핑
-                .onStatus(HttpStatusCode::is4xxClientError,
-                        resp -> Mono.error(new IllegalArgumentException("유효하지 않은 URL 형식입니다.")))
+                .onStatus(HttpStatusCode::is4xxClientError, response -> {
+                    if (response.statusCode() == HttpStatus.BAD_REQUEST) {
+                        return Mono.error(new IllegalArgumentException("요청 형식이 잘못되었습니다. (400 Bad Request)"));
+                    } else if (response.statusCode() == HttpStatus.UNAUTHORIZED) {
+                        return Mono.error(new SecurityException("인증 정보가 없습니다. (401 Unauthorized)"));
+                    } else {
+                        return Mono.error(new RuntimeException("클라이언트 오류가 발생했습니다. 상태 코드: " + response.statusCode()));
+                    }
+                })
                 // 5xx 서버 에러면 Internal Server Error로 매핑
                 .onStatus(HttpStatusCode::is5xxServerError,
                         resp -> Mono.error(new IllegalStateException("AI 서비스 호출 중 서버 오류가 발생했습니다.")))

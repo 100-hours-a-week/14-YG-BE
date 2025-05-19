@@ -66,7 +66,7 @@ public class GroupBuyCommandController {
             @RequestBody @Valid DescriptionGenerationRequest req,
             HttpServletRequest servletRequest) {
 
-        String sessionId = extractCookie(servletRequest, "SESSION");
+        String sessionId = extractCookie(servletRequest, "AccessToken");
 
         return groupBuyService.generate(req.getUrl(), sessionId)
                 // 성공 시: 내부 WrapperResponse 로 감싸서 200 OK
