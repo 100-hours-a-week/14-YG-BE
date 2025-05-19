@@ -7,28 +7,19 @@ import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.Descript
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.UpdateGroupBuyRequest;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.response.CommandGroupBuyResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.response.DescriptionDto;
-import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyUpdate.GroupBuyForUpdateResponse;
-import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService;
-import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyQueryService;
+import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.*;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
-import com.moogsan.moongsan_backend.domain.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
-import java.time.LocalDateTime;
-import java.util.List;
 
 import static com.moogsan.moongsan_backend.global.util.CookieUtils.extractCookie;
 
@@ -37,7 +28,13 @@ import static com.moogsan.moongsan_backend.global.util.CookieUtils.extractCookie
 @RequestMapping("/api/group-buys")
 public class GroupBuyCommandController {
 
-    private final GroupBuyCommandService groupBuyService;
+    private final CreateGroupBuy createGroupBuy;
+    private final GenerateDescription generateDescription;
+    private final UpdateGroupBuy updateGroupBuy;
+    private final DeleteGroupBuy deleteGroupBuy;
+    private final LeaveGroupBuy leaveGroupBuy;
+    private final EndGroupBuy endGroupBuy;
+
 
     /// 공구 게시글 작성 SUCCESS
     @PostMapping
@@ -45,7 +42,7 @@ public class GroupBuyCommandController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CreateGroupBuyRequest request) {
 
-        Long postId = groupBuyService.createGroupBuy(userDetails.getUser(), request);
+        Long postId = createGroupBuy.createGroupBuy(userDetails.getUser(), request);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -68,7 +65,7 @@ public class GroupBuyCommandController {
 
         String sessionId = extractCookie(servletRequest, "SESSION");
 
-        return groupBuyService.generate(req.getUrl(), sessionId)
+        return generateDescription.generateDescription(req.getUrl(), sessionId)
                 // 성공 시: 내부 WrapperResponse 로 감싸서 200 OK
                 .map(data -> {
                     WrapperResponse<DescriptionDto> body =
@@ -97,7 +94,7 @@ public class GroupBuyCommandController {
             @Valid @RequestBody UpdateGroupBuyRequest request,
             @PathVariable Long postId) {
 
-        groupBuyService.updateGroupBuy(userDetails.getUser(), request, postId);
+        updateGroupBuy.updateGroupBuy(userDetails.getUser(), request, postId);
 
         CommandGroupBuyResponse response = new CommandGroupBuyResponse(postId);
 
@@ -115,7 +112,7 @@ public class GroupBuyCommandController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId) {
 
-        groupBuyService.deleteGroupBuy(userDetails.getUser(), postId);
+        deleteGroupBuy.deleteGroupBuy(userDetails.getUser(), postId);
 
         return ResponseEntity.ok()
                 .body(WrapperResponse.<CommandGroupBuyResponse>builder()
@@ -129,7 +126,7 @@ public class GroupBuyCommandController {
     public ResponseEntity<WrapperResponse<EmptyResponse>> leaveGroupBuy(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId){
-        groupBuyService.leaveGroupBuy(userDetails.getUser(), postId);
+        leaveGroupBuy.leaveGroupBuy(userDetails.getUser(), postId);
 
         return ResponseEntity.ok(
                 WrapperResponse.<EmptyResponse>builder()
@@ -143,7 +140,7 @@ public class GroupBuyCommandController {
     public ResponseEntity<WrapperResponse<EmptyResponse>> endGroupBuy(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId){
-        groupBuyService.endGroupBuy(userDetails.getUser(), postId);
+        endGroupBuy.endGroupBuy(userDetails.getUser(), postId);
 
         return ResponseEntity.ok(
                 WrapperResponse.<EmptyResponse>builder()

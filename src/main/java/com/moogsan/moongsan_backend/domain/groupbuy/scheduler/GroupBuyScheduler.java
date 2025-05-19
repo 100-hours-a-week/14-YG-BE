@@ -1,6 +1,5 @@
 package com.moogsan.moongsan_backend.domain.groupbuy.scheduler;
 
-import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
