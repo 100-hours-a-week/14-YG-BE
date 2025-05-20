@@ -4,6 +4,7 @@ import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyL
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.ParticipatedList.ParticipatedListResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.mapper.GroupBuyQueryMapper;
+import com.moogsan.moongsan_backend.domain.groupbuy.util.FetchWishUtil;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,7 @@ public class GetGroupBuyParticipatedList {
 
     private final OrderRepository orderRepository;
     private final GroupBuyQueryMapper groupBuyQueryMapper;
+    private final FetchWishUtil fetchWishUtil;
 
     /// 참여 공구 리스트 조회: 주문 생성 순으로 커서 적용 추가 필요
     public PagedResponse<ParticipatedListResponse> getGroupBuyParticipatedList(
@@ -66,15 +68,10 @@ public class GetGroupBuyParticipatedList {
         List<GroupBuy> groupBuys = orders.stream()
                 .map(Order::getGroupBuy)
                 .toList();
-        Map<Long, Boolean> wishMap = fetchWishMap(userId, groupBuys);
+        Map<Long, Boolean> wishMap = fetchWishUtil.fetchWishMap(userId, groupBuys);
 
         // DTO 매핑
-        List<ParticipatedListResponse> posts = orders.stream()
-                .map(order -> {
-                    boolean wished = wishMap.getOrDefault(order.getGroupBuy().getId(), false);
-                    return groupBuyQueryMapper.toParticipatedListResponse(order, wished);
-                })
-                .toList();
+        List<ParticipatedListResponse> posts = groupBuyQueryMapper.toParticipatedListWishResponse(orders, wishMap);
 
         // 다음 커서 및 더보기 여부
         Long nextCursor = posts.isEmpty()

@@ -74,7 +74,7 @@ public class GroupBuyQueryController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
             LocalDateTime cursorCreatedAt,
             @RequestParam(value = "cursorPrice", required = false) Integer cursorPrice,
-            @RequestParam(value = "limit", defaultValue = "2147483647") Integer limit // defaultValue = "10" 변경 필요
+            @RequestParam(value = "limit", defaultValue = "10") Integer limit
     ) {
         Long userId;
         if (userDetails == null || userDetails.isEmpty()) {
@@ -134,14 +134,14 @@ public class GroupBuyQueryController {
     }
 
     /// 참여 공구 리스트 조회 SUCCESS V2 update - wish SUCCESS, 커서 적용 필요
-    @GetMapping("/user/participants")  // /users/me/participants
+    @GetMapping("/users/me/participants")
     public ResponseEntity<WrapperResponse<PagedResponse<ParticipatedListResponse>>> getGroupBuyParticipatedList(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(value = "sort") String sort,
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
             LocalDateTime cursorCreatedAt,
             @RequestParam(value = "cursor", required = false) Long cursor,
-            @RequestParam(value = "limit", defaultValue = "2147483647") Integer limit // defaultValue = "10" 추가 필요
+            @RequestParam(value = "limit", defaultValue = "10") Integer limit
     ) {
         PagedResponse<ParticipatedListResponse> pagedResponse = getGroupBuyParticipatedList.getGroupBuyParticipatedList(
                 userDetails.getUser().getId(), sort, cursorCreatedAt, cursor, limit);

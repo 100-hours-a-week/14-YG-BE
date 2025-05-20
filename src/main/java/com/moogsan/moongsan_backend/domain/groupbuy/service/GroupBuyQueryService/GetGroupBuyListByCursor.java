@@ -5,6 +5,7 @@ import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyL
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.mapper.GroupBuyQueryMapper;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
+import com.moogsan.moongsan_backend.domain.groupbuy.util.FetchWishUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -25,6 +26,7 @@ public class GetGroupBuyListByCursor {
 
     private final GroupBuyRepository groupBuyRepository;
     private final GroupBuyQueryMapper groupBuyQueryMapper;
+    private final FetchWishUtil fetchWishUtil;
 
     /// 공구 리스트 조회
     public PagedResponse<BasicListResponse> getGroupBuyListByCursor(
@@ -124,17 +126,10 @@ public class GetGroupBuyListByCursor {
 
 
         // DTO 매핑
-        Map<Long, Boolean> wishMap = fetchWishMap(userId, entities);
+        Map<Long, Boolean> wishMap = fetchWishUtil.fetchWishMap(userId, entities);
 
         // 4) DTO 매핑
-        List<BasicListResponse> posts = entities.stream()
-                .map(gb -> {
-                    // 로그인 안 됐거나 wishMap이 비어있으면 기본 false
-                    boolean wished = wishMap.getOrDefault(gb.getId(), false);
-                    // mapper 호출
-                    return groupBuyQueryMapper.toBasicListResponse(gb, wished);
-                })
-                .collect(Collectors.toList());
+        List<BasicListResponse> posts = groupBuyQueryMapper.toBasicListWishResponses(entities, wishMap);
 
         // 다음 커서 & hasMore 계산
         boolean hasMore = posts.size() == limit;

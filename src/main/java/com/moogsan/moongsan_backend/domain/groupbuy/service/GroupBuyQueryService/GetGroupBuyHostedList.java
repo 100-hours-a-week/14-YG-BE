@@ -5,6 +5,7 @@ import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyL
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.mapper.GroupBuyQueryMapper;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
+import com.moogsan.moongsan_backend.domain.groupbuy.util.FetchWishUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -15,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -25,6 +25,7 @@ public class GetGroupBuyHostedList {
 
     private final GroupBuyRepository groupBuyRepository;
     private final GroupBuyQueryMapper groupBuyQueryMapper;
+    private final FetchWishUtil fetchWishUtil;
 
     /// 주최 공구 리스트 조회
     public PagedResponse<HostedListResponse> getGroupBuyHostedList(
@@ -54,20 +55,9 @@ public class GetGroupBuyHostedList {
             );
         }
 
-        Map<Long, Boolean> wishMap = fetchWishMap(userId, groupBuys);
+        Map<Long, Boolean> wishMap = fetchWishUtil.fetchWishMap(userId, groupBuys);
 
-        List<HostedListResponse> posts = groupBuys.stream()
-                .map(gb -> {
-                    // Map에서 위시 여부 꺼내기 (없으면 false)
-                    boolean isWished = wishMap.getOrDefault(gb.getId(), false);
-
-                    // DTO 변환
-                    return groupBuyQueryMapper.toHostedListResponse(
-                            gb,
-                            isWished
-                    );
-                })
-                .collect(Collectors.toList());
+        List<HostedListResponse> posts = groupBuyQueryMapper.toHostedListWishResponses(groupBuys, wishMap);
 
         // 다음 커서 및 더보기 여부
         Long nextCursor = posts.isEmpty()

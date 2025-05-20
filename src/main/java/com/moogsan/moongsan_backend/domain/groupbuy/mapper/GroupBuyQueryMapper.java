@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
@@ -45,6 +46,19 @@ public class GroupBuyQueryMapper {
                 .unitAmount(gb.getUnitAmount())
                 .totalAmount(gb.getTotalAmount())
                 .build();
+    }
+
+    // 공구 리스트 관심 조회
+    public List<BasicListResponse> toBasicListWishResponses(
+            List<GroupBuy> groupBuys,
+            Map<Long, Boolean> wishMap
+    ) {
+        return groupBuys.stream()
+                .map(gb -> {
+                    boolean isWished = wishMap.getOrDefault(gb.getId(), false);
+                    return toBasicListResponse(gb, isWished);
+                })
+                .collect(Collectors.toList());
     }
 
     // 공구 리스트 조회용 DTO 변환
@@ -147,6 +161,19 @@ public class GroupBuyQueryMapper {
                 .build();
     }
 
+    // 주최 공구 관심 조회
+    public List<HostedListResponse> toHostedListWishResponses(
+            List<GroupBuy> groupBuys,
+            Map<Long, Boolean> wishMap
+    ) {
+        return groupBuys.stream()
+                .map(gb -> {
+                    boolean isWished = wishMap.getOrDefault(gb.getId(), false);
+                    return toHostedListResponse(gb, isWished);
+                })
+                .collect(Collectors.toList());
+    }
+
     // 주최 공구 리스트 조회
     public HostedListResponse toHostedListResponse(GroupBuy gb, Boolean isWish) {
         String img = gb.getImages().stream()
@@ -174,6 +201,15 @@ public class GroupBuyQueryMapper {
                 .build();
     }
 
+    // 참여 공구 관심 조회
+    public List<ParticipatedListResponse> toParticipatedListWishResponse(List<Order> orders, Map<Long, Boolean> wishMap) {
+        return orders.stream()
+                .map(order -> {
+                    boolean isWish = wishMap.getOrDefault(order.getGroupBuy().getId(), false);
+                    return toParticipatedListResponse(order, isWish);
+                })
+                .toList();
+    }
 
     // 참여 공구 리스트 조회
     public ParticipatedListResponse toParticipatedListResponse(Order o, boolean isWish) {
