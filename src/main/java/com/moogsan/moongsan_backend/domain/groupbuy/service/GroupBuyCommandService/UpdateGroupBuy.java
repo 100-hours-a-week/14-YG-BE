@@ -5,7 +5,7 @@ import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotFoundException;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotHostException;
-import com.moogsan.moongsan_backend.domain.groupbuy.mapper.ImageMapper;
+import com.moogsan.moongsan_backend.domain.image.mapper.ImageMapper;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +44,7 @@ public class UpdateGroupBuy {
         GroupBuy gb = groupBuy.updateForm(updateGroupBuyRequest);
 
         ///  TODO: 기존 이미지 처리 로직 필요!
-        imageMapper.mapImagesToGroupBuy(updateGroupBuyRequest.getImageUrls(), gb);
+        imageMapper.mapImagesToGroupBuy(updateGroupBuyRequest.getImageKeys(), gb);
 
         groupBuyRepository.save(gb);
 

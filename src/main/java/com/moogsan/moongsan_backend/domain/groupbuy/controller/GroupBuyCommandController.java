@@ -88,7 +88,7 @@ public class GroupBuyCommandController {
 
     // 공구 게시글 수정
     //  TODO V2
-    @PatchMapping("{postId}")
+    @PatchMapping("/{postId}")
     public ResponseEntity<WrapperResponse<CommandGroupBuyResponse>> updateGroupBuy(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody UpdateGroupBuyRequest request,
@@ -107,7 +107,7 @@ public class GroupBuyCommandController {
 
     // 공구 게시글 삭제
     //  TODO V2
-    @DeleteMapping("{postId}")
+    @DeleteMapping("/{postId}")
     public ResponseEntity<WrapperResponse<CommandGroupBuyResponse>> deleteGroupBuy(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId) {

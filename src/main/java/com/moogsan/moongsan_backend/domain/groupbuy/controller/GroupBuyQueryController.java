@@ -65,7 +65,7 @@ public class GroupBuyQueryController {
     /// 공구 리스트 조회  V2 update - wish SUCCESS
     @GetMapping
     public ResponseEntity<WrapperResponse<PagedResponse<BasicListResponse>>> getGroupBuyListByCursor(
-            @AuthenticationPrincipal Optional<CustomUserDetails> userDetails,
+            @AuthenticationPrincipal CustomUserDetails principal,
             @RequestParam(value = "category", required = false) Long categoryId,
             @RequestParam(value = "orderBy", defaultValue = "created") String orderBy,
             @RequestParam(value = "cursorId", required = false) Long cursorId,
@@ -76,12 +76,7 @@ public class GroupBuyQueryController {
             @RequestParam(value = "cursorPrice", required = false) Integer cursorPrice,
             @RequestParam(value = "limit", defaultValue = "10") Integer limit
     ) {
-        Long userId;
-        if (userDetails == null || userDetails.isEmpty()) {
-            userId = null;
-        } else {
-            userId = userDetails.get().getUser().getId();
-        }
+        Long userId = (principal != null) ? principal.getUser().getId() : null;
 
         PagedResponse<BasicListResponse> pagedResponse =
                 getGroupBuyListByCursor.getGroupBuyListByCursor(userId, categoryId, orderBy,

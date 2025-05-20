@@ -1,14 +1,11 @@
 package com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService;
 
-import com.moogsan.moongsan_backend.domain.groupbuy.client.AiClient;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.CreateGroupBuyRequest;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.domain.groupbuy.mapper.GroupBuyCommandMapper;
-import com.moogsan.moongsan_backend.domain.groupbuy.mapper.ImageMapper;
-import com.moogsan.moongsan_backend.domain.groupbuy.policy.DueSoonPolicy;
+import com.moogsan.moongsan_backend.domain.image.mapper.ImageMapper;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
-import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
