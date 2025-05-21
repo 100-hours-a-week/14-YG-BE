@@ -93,13 +93,15 @@ public class GroupBuyQueryController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
             LocalDateTime cursorCreatedAt,
             @RequestParam(value = "cursorPrice", required = false) Integer cursorPrice,
-            @RequestParam(value = "limit", defaultValue = "10") Integer limit
+            @RequestParam(value = "limit", defaultValue = "10") Integer limit,
+            @RequestParam(value = "openOnly", required = false) Boolean openOnly,
+            @RequestParam(value = "keyword", required = false) String keyword
     ) {
         Long userId = (principal != null) ? principal.getUser().getId() : null;
 
         PagedResponse<BasicListResponse> pagedResponse =
                 getGroupBuyListByCursor.getGroupBuyListByCursor(userId, categoryId, orderBy,
-                        cursorId, cursorCreatedAt, cursorPrice, limit);
+                        cursorId, cursorCreatedAt, cursorPrice, limit, openOnly, keyword);
         return ResponseEntity.ok(
                 WrapperResponse.<PagedResponse<BasicListResponse>>builder()
                         .message("전체 리스트를 성공적으로 조회했습니다.")
