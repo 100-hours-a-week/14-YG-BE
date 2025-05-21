@@ -87,6 +87,9 @@ public class GroupBuy extends BaseEntity {
 
     private String pickupChangeReason;
 
+    @Builder.Default
+    private boolean is_finalized = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id", nullable = false)
     private User user;
@@ -179,4 +182,13 @@ public class GroupBuy extends BaseEntity {
 
         return this;
     }
+
+    public boolean isFixed() {
+        return is_finalized;
+    }
+
+    public void setFixed(boolean fixed) {
+        this.is_finalized = fixed;
+    }
+
 }
