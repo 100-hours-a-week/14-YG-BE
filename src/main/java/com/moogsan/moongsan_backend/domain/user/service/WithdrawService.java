@@ -30,6 +30,7 @@ public class WithdrawService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorCode.NOT_FOUND, "존재하지 않는 사용자입니다."));
 
+        // 공구 참여 또는 주문 참여 시 삭제 불가
         boolean hasActiveOrders = orderRepository.existsByUserIdAndStatusNotIn(userId, List.of("CANCELED", "CONFIRMED"));
         boolean hasActiveGroupBuys = groupBuyRepository.existsGroupBuyByUserIdAndPostStatusNot(userId, "ENDED");
 
@@ -37,9 +38,11 @@ public class WithdrawService {
             throw new UserException(UserErrorCode.DUPLICATE_VALUE, "진행 중인 공구 또는 주문이 있습니다.");
         }
 
+        // DB에서 유저 삭제
         tokenRepository.deleteByUserId(userId);
         userRepository.deleteById(userId);
 
+        // 액세스 토큰 삭제
         jakarta.servlet.http.Cookie accessTokenCookie = new jakarta.servlet.http.Cookie("AccessToken", null);
         accessTokenCookie.setMaxAge(0);
         accessTokenCookie.setPath("/");
@@ -48,6 +51,7 @@ public class WithdrawService {
         response.addCookie(accessTokenCookie);
         response.addHeader("Set-Cookie", "AccessToken=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=None");
 
+        // 리프레시 토큰 삭제
         jakarta.servlet.http.Cookie refreshTokenCookie = new jakarta.servlet.http.Cookie("RefreshToken", null);
         refreshTokenCookie.setMaxAge(0);
         refreshTokenCookie.setPath("/");

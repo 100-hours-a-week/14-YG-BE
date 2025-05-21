@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class MyPageService {
+public class UpdateProfileService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -50,6 +50,14 @@ public class MyPageService {
         String name = request.getName() != null ? request.getName() : user.getName();
         String nickname = request.getNickname() != null ? request.getNickname() : user.getNickname();
         String phoneNumber = request.getPhoneNumber() != null ? request.getPhoneNumber() : user.getPhoneNumber();
+
+        if (!nickname.equals(user.getNickname()) && userRepository.existsByNickname(nickname)) {
+            throw new UserException(UserErrorCode.DUPLICATE_VALUE, "이미 등록된 닉네임입니다.");
+        }
+
+        if (!phoneNumber.equals(user.getPhoneNumber()) && userRepository.existsByPhoneNumber(phoneNumber)) {
+            throw new UserException(UserErrorCode.DUPLICATE_VALUE, "이미 등록된 전화번호입니다.");
+        }
 
         user.updateBasicInfo(name, nickname, phoneNumber);
     }

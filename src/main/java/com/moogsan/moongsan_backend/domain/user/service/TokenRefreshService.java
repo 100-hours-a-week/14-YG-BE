@@ -22,16 +22,16 @@ public class TokenRefreshService {
     private final UserRepository userRepository;
 
     public void refreshAccessToken(HttpServletRequest request, HttpServletResponse response) {
-        // 1. 쿠키에서 RefreshToken 추출
+        // 쿠키에서 RefreshToken 추출
         String refreshToken = extractRefreshTokenFromCookie(request);
         if (refreshToken == null || !jwtUtil.validateToken(refreshToken)) {
             throw new UserException(UserErrorCode.UNAUTHORIZED, "Refresh Token이 유효하지 않습니다.");
         }
 
-        // 2. userId 추출
+        // 토큰에서 userId 추출
         Long userId = jwtUtil.getUserIdFromToken(refreshToken);
 
-        // 3. DB의 refreshToken과 일치하는지 확인
+        // DB의 refreshToken과 일치하는지 확인
         Token storedToken = tokenRepository.findByUserId(userId)
                 .orElseThrow(() -> new UserException(UserErrorCode.NOT_FOUND, "저장된 Refresh Token이 없습니다."));
 
@@ -39,20 +39,19 @@ public class TokenRefreshService {
             throw new UserException(UserErrorCode.UNAUTHORIZED, "Refresh Token이 일치하지 않습니다.");
         }
 
-        // 4. AccessToken 재발급
+        // AccessToken 재발급
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorCode.NOT_FOUND, "유저 정보를 찾을 수 없습니다."));
 
         String newAccessToken = jwtUtil.generateAccessToken(user);
         long accessTokenExpireAt = jwtUtil.getAccessTokenExpireAt();
 
-        // 5. 쿠키에 새 AccessToken 설정
+        // 쿠키에 새 AccessToken 설정
         Cookie accessTokenCookie = new Cookie("AccessToken", newAccessToken);
         accessTokenCookie.setHttpOnly(true);
         accessTokenCookie.setSecure(true);
         accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge((int) (accessTokenExpireAt / 1000));
-        response.addCookie(accessTokenCookie);
+        accessTokenCookie.setMaxAge(60 * 60);
         response.addHeader("Set-Cookie", "AccessToken=" + newAccessToken + "; HttpOnly; Secure; Path=/; SameSite=None");
     }
 
