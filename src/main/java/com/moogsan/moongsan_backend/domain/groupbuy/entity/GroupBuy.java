@@ -182,4 +182,13 @@ public class GroupBuy extends BaseEntity {
 
         return this;
     }
+
+    public boolean isFixed() {
+        return is_finalized;
+    }
+
+    public void setFixed(boolean fixed) {
+        this.is_finalized = fixed;
+    }
+
 }
