@@ -2,6 +2,7 @@ package com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyQueryServic
 
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyDetail.DetailResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
+import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotFoundException;
 import com.moogsan.moongsan_backend.domain.groupbuy.mapper.GroupBuyQueryMapper;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
@@ -28,6 +29,10 @@ public class GetGroupBuyDetailInfo {
 
         GroupBuy groupBuy = groupBuyRepository.findWithImagesById(postId)
                 .orElseThrow(GroupBuyNotFoundException::new);
+
+        if (groupBuy.getPostStatus().equals("DELETED")) {
+            throw new GroupBuyInvalidStateException("삭제된 공구글은 조회할 수 없습니다.");
+        }
 
         //log.info("Checking participant: userId={}, postId={}", userId, postId);
         boolean isParticipant = orderRepository.existsParticipant(userId, postId, "CANCELED");

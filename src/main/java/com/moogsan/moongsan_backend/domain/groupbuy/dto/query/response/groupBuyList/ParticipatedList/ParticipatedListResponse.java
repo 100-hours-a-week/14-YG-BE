@@ -18,7 +18,7 @@ public class ParticipatedListResponse {
     private String imageKey;       // thumbnail 이미지
 
     // 숫자 데이터
-    private int unitPrice;         // 상품 단위 가격
+    private int orderPrice;         // 상품 단위 가격
     private int orderQuantity;     // 주문 개수(참여자)
     private int soldAmount;        // 판매 수량(totalAmount - leftAmount)
     private int totalAmount;       // 상품 전체 수량
