@@ -26,10 +26,18 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     boolean existsByUserIdAndStatusNotIn(Long userId, List<String> statuses);
 
     // 특정 공구의 참여 인원 수 확인
-    int countByGroupBuyId(Long postId);
+    int countByGroupBuyIdAndStatusNot(Long postId, String status);
 
     // 특정 공구의 주문 목록 확인
     List<Order> findByGroupBuyIdAndStatusNot(Long groupBuyId, String status);
+
+    // 모든 공구의 컨펌, 취소되지 않은 주문 검사
+    List<Order> findAllByCreatedAtBeforeAndStatusNotAndStatusNot(
+            LocalDateTime createdAt,
+            String excludedStatus1,
+            String excludedStatus2
+    );
+
 
     // 특정 유저의 특정 공구 참여 여부 확인
     @Query("""
