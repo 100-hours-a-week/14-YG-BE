@@ -32,6 +32,11 @@ public class OrderCreateService {
         GroupBuy groupBuy = groupBuyRepository.findById(request.getPostId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "공동구매 정보를 찾을 수 없습니다."));
 
+        // 공동구매 글의 상태가 열려있어야지만 주문 가능
+        if (!"OPEN".equals(groupBuy.getPostStatus())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "현재 주문이 불가능한 상태입니다.");
+        }
+
         // 해당 공구 내 CANCELED 상태가 아닌 주문 존재
         orderRepository.findByUserIdAndGroupBuyIdAndStatusNot(user.getId(), groupBuy.getId(), "CANCELED")
             .ifPresent(o -> {
