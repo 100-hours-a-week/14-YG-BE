@@ -6,17 +6,21 @@ import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.mapper.GroupBuyQueryMapper;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.groupbuy.util.FetchWishUtil;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Path;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -25,123 +29,67 @@ import java.util.stream.Collectors;
 public class GetGroupBuyListByCursor {
 
     private final GroupBuyRepository groupBuyRepository;
-    private final GroupBuyQueryMapper groupBuyQueryMapper;
     private final FetchWishUtil fetchWishUtil;
+    private final GroupBuyQueryMapper groupBuyQueryMapper;
 
-    /// 공구 리스트 조회
     public PagedResponse<BasicListResponse> getGroupBuyListByCursor(
             Long userId,
             Long categoryId,
-            String orderBy,        // e.g. "latest", "ending_soon", "price_asc", "due_soon_only"
+            String orderBy,
             Long cursorId,
             LocalDateTime cursorCreatedAt,
             Integer cursorPrice,
-            Integer limit
+            Integer limit,
+            Boolean openOnly,
+            String keyword
     ) {
-        // 페이징 객체 생성 (첫 페이지는 0번 인덱스, limit 만큼)
-        Pageable page = PageRequest.of(0, limit);
+        boolean isSearch = keyword != null && !keyword.isBlank();
 
-        // 각 정렬에 따라 cursor 유무 분기
-        List<GroupBuy> entities;
-        switch (orderBy) {
-            case "due_soon_only":
-                entities = groupBuyRepository.findDueSoonOnly(page);
+        // 1) 정렬 기준
+        Sort sort = isSearch
+                ? Sort.by("id").descending()
+                : switch (orderBy) {
+                    case "price_asc"    -> Sort.by("unitPrice").ascending()
+                            .and(Sort.by("createdAt").ascending())
+                            .and(Sort.by("id").ascending());
+                    case "ending_soon"  -> Sort.by("dueDate").ascending()
+                            .and(Sort.by("createdAt").descending())
+                            .and(Sort.by("id").descending());
+                    case "due_soon_only"-> Sort.by("dueDate").ascending()
+                            .and(Sort.by("id").ascending());
+                    default            -> Sort.by("createdAt").descending()
+                            .and(Sort.by("id").descending());
+        };
 
-                break;
+        // 2) 페이징 객체
+        Pageable page = PageRequest.of(0, limit, sort);
 
-            case "price_asc":
-                int lastPrice = (cursorPrice != null) ? cursorPrice : 0;
-                LocalDateTime lastCreatedForPrice = (cursorCreatedAt != null)
-                        ? cursorCreatedAt
-                        : LocalDateTime.now();
+        // 3) Specification 조립
+        Specification<GroupBuy> spec = Specification.where(excludeEndedOrDeleted())
+                .and(dueSoonOnlyEq(orderBy))
+                .and(categoryEq(categoryId))
+                .and(openOnlyEq(openOnly))
+                .and(keywordLike(keyword))
+                .and(cursorSpec(orderBy, cursorId, cursorCreatedAt, cursorPrice));
 
-                if (cursorId == null) {
-                    // 첫 페이지: 가격 오름차순
-                    if (categoryId != null) {
-                        entities = groupBuyRepository.findByCategoryPriceOrder(
-                                categoryId, page);
-                    } else {
-                        entities = groupBuyRepository.findAllPriceOrder(
-                                page);
-                    }
-                } else {
-                    // 다음 페이지: 가격 오름차순 커서
-                    if (categoryId != null) {
-                        entities = groupBuyRepository.findByCategoryPriceAscCursor(
-                                categoryId, lastPrice, lastCreatedForPrice, cursorId, page);
-                    } else {
-                        entities = groupBuyRepository.findByPriceAscCursor(
-                                lastPrice, lastCreatedForPrice, cursorId, page);
-                    }
-                }
-                break;
+        // 4) DB 조회 (필터+정렬+커서+페이징)
+        Page<GroupBuy> result = groupBuyRepository.findAll(spec, page);
+        List<GroupBuy> entities = result.getContent();
 
-            case "ending_soon":
-                LocalDateTime lastCreatedForDue = (cursorCreatedAt != null)
-                        ? cursorCreatedAt
-                        : LocalDateTime.now();
-
-                if (cursorId == null) {
-                    // 첫 페이지: 마감 임박순
-                    if (categoryId != null) {
-                        entities = groupBuyRepository.findByCategoryDueSoonOrder(
-                                categoryId, page);
-                    } else {
-                        entities = groupBuyRepository.findEndingSoon(page);
-                    }
-                } else {
-                    // 다음 페이지: 마감 임박순 커서
-                    if (categoryId != null) {
-                        entities = groupBuyRepository.findByCategoryEndingSoonCursor(
-                                categoryId, lastCreatedForDue, cursorId, page);
-                    } else {
-                        entities = groupBuyRepository.findByEndingSoonCursor(
-                                lastCreatedForDue, cursorId, page);
-                    }
-                }
-                break;
-
-            default:  // "latest"
-                if (cursorId == null) {
-                    // 첫 페이지: 최신순
-                    if (categoryId != null) {
-                        entities = groupBuyRepository.findByCategoryCreatedOrder(
-                                categoryId, page);
-                    } else {
-                        entities = groupBuyRepository.findAllCreatedOrder(
-                                page);
-                    }
-                } else {
-                    // 다음 페이지: 최신순 커서
-                    if (categoryId != null) {
-                        entities = groupBuyRepository.findByCategoryCreatedCursor(
-                                categoryId, cursorId, page);
-                    } else {
-                        entities = groupBuyRepository.findByCreatedCursor(
-                                cursorId, page);
-                    }
-                }
-                break;
-        }
-
-
-        // DTO 매핑
+        // 5) 찜 여부 맵 & DTO 변환
         Map<Long, Boolean> wishMap = fetchWishUtil.fetchWishMap(userId, entities);
-
-        // 4) DTO 매핑
         List<BasicListResponse> posts = groupBuyQueryMapper.toBasicListWishResponses(entities, wishMap);
 
-        // 다음 커서 & hasMore 계산
-        boolean hasMore = posts.size() == limit;
-
-        Long nextCursor      = null;
+        // 6) 다음 커서 계산
+        boolean hasMore = result.hasNext();
+        Long nextCursorId = null;
         Integer nextCursorPrice = null;
         LocalDateTime nextCreatedAt = null;
 
         if (hasMore) {
-            BasicListResponse last = posts.getLast();
-            nextCursor    = last.getPostId();
-            nextCreatedAt = last.getCreatedAt();
+            GroupBuy last = entities.getLast();
+            nextCursorId    = last.getId();
+            nextCreatedAt   = last.getCreatedAt();
             if ("price_asc".equals(orderBy)) {
                 nextCursorPrice = last.getUnitPrice();
             }
@@ -150,10 +98,113 @@ public class GetGroupBuyListByCursor {
         return PagedResponse.<BasicListResponse>builder()
                 .count(posts.size())
                 .posts(posts)
-                .nextCursor(nextCursor != null ? nextCursor.intValue() : null)  // int로 변환
+                .nextCursor(nextCursorId != null ? nextCursorId.intValue() : null)
                 .nextCursorPrice(nextCursorPrice)
                 .nextCreatedAt(nextCreatedAt)
                 .hasMore(hasMore)
                 .build();
+    }
+
+    // ────────────────────────────────────────────────────────────────────
+    // Specification 헬퍼 메서드들
+    // ────────────────────────────────────────────────────────────────────
+
+    private Specification<GroupBuy> excludeEndedOrDeleted() {
+        return (root, query, cb) ->
+                cb.not(root.get("postStatus").in("ENDED", "DELETED"));
+    }
+
+    private Specification<GroupBuy> dueSoonOnlyEq(String orderBy) {
+        return (root, query, cb) -> {
+            if (!"due_soon_only".equals(orderBy)) {
+                return cb.conjunction();
+            }
+            return cb.isTrue(root.get("dueSoon"));
+        };
+    }
+
+    private Specification<GroupBuy> categoryEq(Long categoryId) {
+        return (root, query, cb) ->
+                categoryId == null
+                        ? cb.conjunction()
+                        : cb.equal(root.get("category").get("id"), categoryId);
+    }
+
+    private Specification<GroupBuy> openOnlyEq(Boolean openOnly) {
+        return (root, query, cb) ->
+                Boolean.TRUE.equals(openOnly)
+                        ? cb.equal(root.get("postStatus"), "OPEN")
+                        : cb.conjunction();
+    }
+
+    private Specification<GroupBuy> keywordLike(String keyword) {
+        return (root, query, cb) -> {
+            if (keyword == null || keyword.isBlank()) {
+                return cb.conjunction();
+            }
+            String pattern = "%" + keyword.trim().toLowerCase() + "%";
+            Expression<String> title   = cb.lower(root.get("title"));
+            Expression<String> name    = cb.lower(root.get("name"));
+            Expression<String> descr   = cb.lower(root.get("description"));
+
+            return cb.or(
+                    cb.like(title,   pattern),
+                    cb.like(name,    pattern),
+                    cb.like(descr,   pattern)
+            );
+        };
+    }
+
+    private Specification<GroupBuy> cursorSpec(
+            String orderBy,
+            Long cursorId,
+            LocalDateTime cursorCreatedAt,
+            Integer cursorPrice
+    ) {
+        return (root, query, cb) -> {
+            if (cursorId == null) {
+                return cb.conjunction();
+            }
+            // 각 페이징 전략별 커서 조건
+            switch (orderBy) {
+                case "price_asc": {
+                    Path<Integer> price  = root.get("unitPrice");
+                    Path<LocalDateTime> created = root.get("createdAt");
+                    return cb.or(
+                            cb.lessThan(price, cursorPrice),
+                            cb.and(
+                                    cb.equal(price, cursorPrice),
+                                    cb.lessThan(created, cursorCreatedAt)
+                            ),
+                            cb.and(
+                                    cb.equal(price, cursorPrice),
+                                    cb.equal(created, cursorCreatedAt),
+                                    cb.lessThan(root.get("id"), cursorId)
+                            )
+                    );
+                }
+                case "ending_soon":
+                case "due_soon_only": {
+                    Path<LocalDateTime> dueDate = root.get("dueDate");
+                    return cb.or(
+                            cb.lessThan(dueDate, cursorCreatedAt),
+                            cb.and(
+                                    cb.equal(dueDate, cursorCreatedAt),
+                                    cb.lessThan(root.get("id"), cursorId)
+                            )
+                    );
+                }
+                default: { // latest
+                    Path<LocalDateTime> createdAt = root.get("createdAt");
+                    return cb.or(
+                            cb.lessThan(createdAt, cursorCreatedAt),
+                            cb.and(
+                                    cb.equal(createdAt, cursorCreatedAt),
+                                    cb.lessThan(root.get("id"), cursorId)
+                            )
+                    );
+                }
+            }
+        };
     }
 }

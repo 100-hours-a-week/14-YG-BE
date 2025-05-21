@@ -46,6 +46,10 @@ public class EndGroupBuy {
             throw new GroupBuyInvalidStateException("공구 종료는 공구 픽업 일자 이후에만 가능합니다.");
         }
 
+        if (!groupBuy.isFixed()) {
+            throw new GroupBuyInvalidStateException("공구 종료는 공구 체결 이후에만 가능합니다.");
+        }
+
         // 해당 공구의 주최자가 해당 유저인지 조회 -> 아니면 403
         if(!groupBuy.getUser().getId().equals(currentUser.getId())) {
             throw new GroupBuyNotHostException("공구 종료는 공구의 주최자만 요청 가능합니다.");
