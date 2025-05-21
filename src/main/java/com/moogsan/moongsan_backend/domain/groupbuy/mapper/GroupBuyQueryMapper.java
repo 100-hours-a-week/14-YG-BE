@@ -2,6 +2,7 @@ package com.moogsan.moongsan_backend.domain.groupbuy.mapper;
 
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.ImageResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyDetail.DetailResponse;
+import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyDetail.UserAccountResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyDetail.UserProfileResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.BasicList.BasicListResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.HostedList.HostedListResponse;
@@ -129,9 +130,15 @@ public class GroupBuyQueryMapper {
                 .authorId(u.getId())
                 .nickname(u.getNickname())
                 .name(u.getName())
-                .accountNumber(u.getAccountNumber())
-                .accountBank(u.getAccountBank())
                 .profileImageUrl(u.getImageKey())
+                .build();
+    }
+
+    // 공동구매 유저 계좌 정보 조회용 DTO
+    public UserAccountResponse toHostAccount(GroupBuy gb) {
+        return UserAccountResponse.builder()
+                .accountBank(gb.getUser().getAccountBank())
+                .accountNumber(gb.getUser().getAccountNumber())
                 .build();
     }
 
@@ -230,7 +237,7 @@ public class GroupBuyQueryMapper {
                 .postStatus(post.getPostStatus())
                 .location(post.getLocation())
                 .imageKey(img)
-                .unitPrice(post.getUnitPrice())
+                .orderPrice(post.getUnitPrice()*o.getQuantity())
                 .orderQuantity(o.getQuantity())
                 .orderStatus(o.getStatus())
                 .soldAmount(post.getTotalAmount() - post.getLeftAmount())

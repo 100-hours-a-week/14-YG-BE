@@ -2,6 +2,8 @@ package com.moogsan.moongsan_backend.domain.groupbuy.controller;
 
 import com.moogsan.moongsan_backend.domain.WrapperResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyDetail.DetailResponse;
+import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyDetail.UserAccountResponse;
+import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyDetail.UserProfileResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.BasicList.BasicListResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.HostedList.HostedListResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.PagedResponse;
@@ -31,6 +33,7 @@ public class GroupBuyQueryController {
     private final GetGroupBuyHostedList getGroupBuyHostedList;
     private final GetGroupBuyParticipatedList getGroupBuyParticipatedList;
     private final GetGroupBuyParticipantsInfo getGroupBuyParticipantsInfo;
+    private final GetGroupBuyHostAccountInfo getGroupBuyHostAccountInfo;
 
 
     /// 공구 게시글 수정 전 정보 조회 SUCCESS
@@ -58,6 +61,22 @@ public class GroupBuyQueryController {
                 WrapperResponse.<DetailResponse>builder()
                         .message("공구 게시글 상세 정보를 성공적으로 조회했습니다.")
                         .data(detail)
+                        .build()
+        );
+    }
+
+    @GetMapping("/{postId}/host/account")
+    public ResponseEntity<WrapperResponse<UserAccountResponse>> getGroupBuyHostAccountInfo(
+            @PathVariable Long postId,
+            @AuthenticationPrincipal CustomUserDetails principal) {
+
+        Long userId = (principal != null) ? principal.getUser().getId() : null;
+
+        UserAccountResponse accountResponse = getGroupBuyHostAccountInfo.getGroupBuyHostAccountInfo(userId, postId);
+        return ResponseEntity.ok(
+                WrapperResponse.<UserAccountResponse>builder()
+                        .message("공구 게시글 주최자 계좌 정보를 성공적으로 조회했습니다.")
+                        .data(accountResponse)
                         .build()
         );
     }
