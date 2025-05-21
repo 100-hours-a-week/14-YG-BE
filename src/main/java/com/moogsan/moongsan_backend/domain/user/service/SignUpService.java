@@ -29,61 +29,67 @@ public class SignUpService {
 
     @Transactional
     public LoginResponse signUp(SignUpRequest request, HttpServletResponse response) {
-        validateInput(request);
-        validateDuplicateUser(request);
+        try {
+            validateInput(request);
+            validateDuplicateUser(request);
 
-        // 회원정보 DB에 저장
-        User user = User.builder()
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .nickname(request.getNickname())
-                .name(request.getName())
-                .phoneNumber(request.getPhoneNumber())
-                .accountBank(request.getAccountBank())
-                .accountNumber(request.getAccountNumber())
-                .imageKey(request.getImageUrl())
-                .type("USER")
-                .status("ACTIVE")
-                .joinedAt(java.time.LocalDateTime.now())
-                .build();
+            // 회원정보 DB에 저장
+            User user = User.builder()
+                    .email(request.getEmail())
+                    .password(passwordEncoder.encode(request.getPassword()))
+                    .nickname(request.getNickname())
+                    .name(request.getName())
+                    .phoneNumber(request.getPhoneNumber())
+                    .accountBank(request.getAccountBank())
+                    .accountNumber(request.getAccountNumber())
+                    .imageKey(request.getImageUrl())
+                    .type("USER")
+                    .status("ACTIVE")
+                    .joinedAt(java.time.LocalDateTime.now())
+                    .build();
 
-        User savedUser = userRepository.save(user);
-        userRepository.flush();
-        String accessToken = jwtUtil.generateAccessToken(savedUser);
-        String refreshToken = jwtUtil.generateRefreshToken(savedUser);
-        Long accessTokenExpireAt = jwtUtil.getAccessTokenExpireAt();
+            User savedUser = userRepository.save(user);
+            userRepository.flush();
+            String accessToken = jwtUtil.generateAccessToken(savedUser);
+            String refreshToken = jwtUtil.generateRefreshToken(savedUser);
+            Long accessTokenExpireAt = jwtUtil.getAccessTokenExpireAt();
 
-        // AccessToken 쿠키로 설정
-        Cookie accessTokenCookie = new Cookie("AccessToken", accessToken);
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(true);
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge((int) (accessTokenExpireAt / 1000));
-        response.addHeader("Set-Cookie", "AccessToken=" + accessToken + "; HttpOnly; Secure; Path=/; SameSite=None");
+            // 액세스 토큰 쿠키로 설정
+            Cookie accessTokenCookie = new Cookie("AccessToken", accessToken);
+            accessTokenCookie.setHttpOnly(true);
+            accessTokenCookie.setSecure(true);
+            accessTokenCookie.setPath("/");
+            accessTokenCookie.setMaxAge((int) (accessTokenExpireAt / 1000));
+            response.addHeader("Set-Cookie", "AccessToken=" + accessToken + "; HttpOnly; Secure; Path=/; SameSite=None");
 
-        // RefreshToken 쿠키로 설정
-        Cookie refreshTokenCookie = new Cookie("RefreshToken", refreshToken);
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(true);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge((int) (jwtUtil.getRefreshTokenExpireMillis() / 1000));
-        response.addHeader("Set-Cookie", "RefreshToken=" + refreshToken + "; HttpOnly; Secure; Path=/; SameSite=None");
+            // 리프레시 토큰 쿠키로 설정
+            Cookie refreshTokenCookie = new Cookie("RefreshToken", refreshToken);
+            refreshTokenCookie.setHttpOnly(true);
+            refreshTokenCookie.setSecure(true);
+            refreshTokenCookie.setPath("/");
+            refreshTokenCookie.setMaxAge((int) (jwtUtil.getRefreshTokenExpireMillis() / 1000));
+            response.addHeader("Set-Cookie", "RefreshToken=" + refreshToken + "; HttpOnly; Secure; Path=/; SameSite=None");
 
-        // Token DB에 저장
-        Token newToken = new Token(
-            null,
-            savedUser.getId(),
-            refreshToken,
-            LocalDateTime.now().plusSeconds(jwtUtil.getRefreshTokenExpireMillis() / 1000)
-        );
-        tokenRepository.save(newToken);
+            // 리프레시 토큰을 DB에 저장
+            Token newToken = new Token(
+                null,
+                savedUser.getId(),
+                refreshToken,
+                LocalDateTime.now().plusSeconds(jwtUtil.getRefreshTokenExpireMillis() / 1000)
+            );
+            tokenRepository.save(newToken);
 
-        return new LoginResponse(
-                user.getNickname(),
-                user.getName(),
-                user.getImageKey(),
-                user.getType()
-        );
+            return new LoginResponse(
+                    user.getNickname(),
+                    user.getName(),
+                    user.getImageKey(),
+                    user.getType()
+            );
+        } catch (UserException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new UserException(UserErrorCode.INTERNAL_SERVER_ERROR);
+        }
     }
 
     private void validateInput(SignUpRequest request) {

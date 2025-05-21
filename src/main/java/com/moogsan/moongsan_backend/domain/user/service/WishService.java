@@ -45,7 +45,7 @@ public class WishService {
     // 관심 목록 삭제
     public void removeWish(Long userId, Long postId) {
         Wish wish = wishRepository.findByUserIdAndGroupBuyId(userId, postId)
-                .orElseThrow(() -> new EntityNotFoundException("관심 등록이 존재하지 않습니다."));
+                .orElseThrow(() -> new EntityNotFoundException("관심 목록이 존재하지 않습니다."));
 
         wishRepository.delete(wish);
     }

@@ -11,6 +11,7 @@ import com.moogsan.moongsan_backend.domain.user.repository.UserRepository;
 import com.moogsan.moongsan_backend.global.security.jwt.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,63 +30,81 @@ public class LoginService {
 
     @Transactional
     public LoginResponse login(LoginRequest request, HttpServletResponse response) {
-        // 1. 이메일로 사용자 조회
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new UserException(UserErrorCode.NOT_FOUND, "해당 이메일을 가진 사용자가 존재하지 않습니다."));
+        try {
+            if (request.getEmail() == null || request.getEmail().isBlank()) {
+                throw new UserException(UserErrorCode.INVALID_INPUT, "이메일은 필수 입력 값입니다.");
+            }
 
-        // 비밀번호 검증
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new UserException(UserErrorCode.UNAUTHORIZED, "비밀번호가 일치하지 않습니다.");
+            if (!request.getEmail().matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
+                throw new UserException(UserErrorCode.INVALID_INPUT, "올바른 이메일 형식이어야 합니다.");
+            }
+
+            if (request.getPassword() == null || request.getPassword().isBlank()) {
+                throw new UserException(UserErrorCode.INVALID_INPUT, "비밀번호는 필수 입력 값입니다.");
+            }
+
+            // 이메일 사용자 조회
+            User user = userRepository.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new UserException(UserErrorCode.NOT_FOUND, "이메일이 존재하지 않습니다."));
+
+            // 비밀번호 검증
+            if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+                throw new UserException(UserErrorCode.UNAUTHORIZED, "비밀번호가 일치하지 않습니다.");
+            }
+
+            // 탈퇴 복구 및 마지막 로그인 시간 기록
+            if (user.getDeletedAt() != null) {
+                user.setDeletedAt(null);
+            }
+            user.setLastLoginAt();
+
+            // JWT 토큰 발급
+            String accessToken = jwtUtil.generateAccessToken(user);
+            String refreshToken = jwtUtil.generateRefreshToken(user);
+            Long accessTokenExpireAt = jwtUtil.getAccessTokenExpireAt();
+            Long refreshTokenExpireMillis = jwtUtil.getRefreshTokenExpireMillis();
+
+            // 기존 리프레시 토큰 DB에서 제거
+            refreshTokenRepository.deleteByUserId(user.getId());
+
+            // 새로운 리프레시 토큰 DB에 저장
+            Token newToken = new Token(
+                    null,
+                    user.getId(),
+                    refreshToken,
+                    LocalDateTime.now().plusSeconds(refreshTokenExpireMillis / 1000)
+            );
+            refreshTokenRepository.save(newToken);
+
+            // 엑세스 쿠키 설정
+            Cookie accessTokenCookie = new Cookie("AccessToken", accessToken);
+            accessTokenCookie.setHttpOnly(true);
+            accessTokenCookie.setSecure(true);
+            accessTokenCookie.setPath("/");
+            accessTokenCookie.setMaxAge((int) (accessTokenExpireAt / 1000));
+            response.addCookie(accessTokenCookie);
+            response.addHeader("Set-Cookie", "AccessToken=" + accessToken + "; HttpOnly; Secure; Path=/; SameSite=None");
+
+            // 리프레시 토큰 설정
+            Cookie refreshTokenCookie = new Cookie("RefreshToken", refreshToken);
+            refreshTokenCookie.setHttpOnly(true);
+            refreshTokenCookie.setSecure(true);
+            refreshTokenCookie.setPath("/");
+            refreshTokenCookie.setMaxAge((int) (refreshTokenExpireMillis / 1000));
+            response.addCookie(refreshTokenCookie);
+            response.addHeader("Set-Cookie", "RefreshToken=" + refreshToken + "; HttpOnly; Secure; Path=/; SameSite=None");
+
+            // 최소 응답 정보 반환
+            return new LoginResponse(
+                    user.getNickname(),
+                    user.getName(),
+                    user.getImageKey(),
+                    user.getType()
+            );
+        } catch (UserException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new UserException(UserErrorCode.INTERNAL_SERVER_ERROR);
         }
-
-        // 탈퇴 복구 및 마지막 로그인 시간 기록
-        if (user.getDeletedAt() != null) {
-            user.setDeletedAt(null);
-        }
-        // 마지막 로그인 시간 갱신
-        user.setLastLoginAt();
-
-        // 3. JWT 토큰 발급
-        String accessToken = jwtUtil.generateAccessToken(user);
-        String refreshToken = jwtUtil.generateRefreshToken(user);
-        Long accessTokenExpireAt = jwtUtil.getAccessTokenExpireAt();
-        Long refreshTokenExpireMillis = jwtUtil.getRefreshTokenExpireMillis();
-
-        // 4. 기존 리프레시 토큰 제거
-        refreshTokenRepository.deleteByUserId(user.getId());
-
-        // 5. 새로운 리프레시 토큰 저장
-        Token newToken = new Token(
-                null,
-                user.getId(),
-                refreshToken,
-                LocalDateTime.now().plusSeconds(refreshTokenExpireMillis / 1000)
-        );
-        refreshTokenRepository.save(newToken);
-
-        // 6. 쿠키 설정
-        Cookie accessTokenCookie = new Cookie("AccessToken", accessToken);
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(true);
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge((int) (accessTokenExpireAt / 1000));
-        response.addCookie(accessTokenCookie);
-        response.addHeader("Set-Cookie", "AccessToken=" + accessToken + "; HttpOnly; Secure; Path=/; SameSite=None");
-
-        Cookie refreshTokenCookie = new Cookie("RefreshToken", refreshToken);
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(true);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge((int) (refreshTokenExpireMillis / 1000));
-        response.addCookie(refreshTokenCookie);
-        response.addHeader("Set-Cookie", "RefreshToken=" + refreshToken + "; HttpOnly; Secure; Path=/; SameSite=None");
-
-        // 7. 최소 응답 정보 반환
-        return new LoginResponse(
-                user.getNickname(),
-                user.getName(),
-                user.getImageKey(),
-                user.getType()
-        );
     }
 }
