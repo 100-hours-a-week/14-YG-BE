@@ -1,0 +1,154 @@
+-- ============================================
+-- Filename: V5__recreate_group_buy.sql
+-- Purpose : Drop and recreate group_buy table
+-- Scope   : Local development only
+-- ============================================
+-- -1. 참조 테이블 먼저 삭제
+DROP TABLE IF EXISTS orders;
+
+DROP TABLE IF EXISTS image;
+DROP TABLE IF EXISTS wish;
+DROP TABLE IF EXISTS message_read;
+DROP TABLE IF EXISTS chat_message;
+DROP TABLE IF EXISTS chat_participant;
+DROP TABLE IF EXISTS chat_room;
+
+
+-- 0. 참조 테이블 먼저 삭제
+DROP TABLE IF EXISTS group_buy_category;
+
+-- 1. 기존 테이블 삭제
+DROP TABLE IF EXISTS group_buy;
+
+-- 2. 테이블 재생성
+CREATE TABLE group_buy (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(400) NOT NULL,
+    name VARCHAR(400) NOT NULL,
+    url TEXT,
+    price INT NOT NULL,
+    unit_price INT NOT NULL,
+    total_amount INT NOT NULL,
+    left_amount INT NOT NULL,
+    unit_amount INT NOT NULL,
+    host_quantity INT NOT NULL,
+    description VARCHAR(1500) NOT NULL,
+    due_soon BOOLEAN NOT NULL DEFAULT FALSE,
+    badge VARCHAR(60),
+    due_date TIMESTAMP NOT NULL,
+    location VARCHAR(300) NOT NULL,
+    pickup_date TIMESTAMP NOT NULL,
+    wish_count INT NOT NULL DEFAULT 0,
+    view_count INT NOT NULL DEFAULT 0,
+    participant_count INT NOT NULL DEFAULT 0,
+    post_status VARCHAR(30) NOT NULL DEFAULT 'OPEN',
+    pickup_change_reason VARCHAR(765),
+    user_id BIGINT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+ALTER TABLE group_buy
+ADD COLUMN is_finalized BOOLEAN DEFAULT FALSE;
+
+-- 6. 이미지 테이블
+CREATE TABLE image (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    image_key VARCHAR(765) NOT NULL,
+    image_resized_key VARCHAR(765),
+    image_seq_no INT NOT NULL DEFAULT 0,
+    thumbnail BOOLEAN NOT NULL DEFAULT FALSE,
+    group_buy_id BIGINT NOT NULL,
+    FOREIGN KEY (group_buy_id) REFERENCES group_buy(id) ON DELETE CASCADE
+);
+
+-- 5. 공구글-카테고리 매핑 테이블
+CREATE TABLE group_buy_category (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    category_id BIGINT NOT NULL,
+    group_buy_id BIGINT NOT NULL,
+    FOREIGN KEY (category_id) REFERENCES category(id) ON DELETE CASCADE,
+    FOREIGN KEY (group_buy_id) REFERENCES group_buy(id) ON DELETE CASCADE,
+    UNIQUE (category_id, group_buy_id)
+);
+
+-- 8. 위시(관심) 테이블
+CREATE TABLE wish (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    post_id BIGINT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (post_id) REFERENCES group_buy(id) ON DELETE CASCADE,
+    UNIQUE (user_id, post_id),
+    INDEX idx_user_id (user_id),
+    INDEX idx_post_id (post_id)
+);
+
+-- 7. 주문 테이블
+CREATE TABLE orders (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    post_id BIGINT NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    price INT NOT NULL,
+    quantity INT NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    deleted_count INT DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (post_id) REFERENCES group_buy(id)
+);
+
+-- 1. 채팅방 테이블
+CREATE TABLE chat_room (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    post_id BIGINT NOT NULL COMMENT '참조: group_buy.id',
+    type VARCHAR(20) NOT NULL COMMENT '채팅방 유형 (anonymous, participant, dm)',
+    is_active BOOLEAN NOT NULL DEFAULT TRUE COMMENT '채팅방 활성 여부',
+    participants_count INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '참여 인원 수',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성 시각',
+    INDEX idx_chat_room_post (post_id),
+    FOREIGN KEY (post_id) REFERENCES group_buy(id) ON DELETE CASCADE
+);
+
+-- 2. 채팅방 참가자 테이블
+CREATE TABLE chat_participant (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    chat_room_id BIGINT NOT NULL COMMENT '참조: chat_room.id',
+    user_id BIGINT NOT NULL COMMENT '참조: users.id',
+    join_seq_no INT UNSIGNED DEFAULT NULL COMMENT '익명 채팅방 참여 순서',
+    INDEX idx_chat_participant_room (chat_room_id),
+    INDEX idx_chat_participant_user (user_id),
+    FOREIGN KEY (chat_room_id) REFERENCES chat_room(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- 3. 채팅 메시지 테이블 (MySQL에서 테스트용으로 운영 예정)
+CREATE TABLE chat_message (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    participant_id BIGINT NOT NULL COMMENT '참조: chat_participant.id',
+    chat_room_id BIGINT NOT NULL COMMENT '참조: chat_room.id',
+    content VARCHAR(4000) NOT NULL COMMENT '메시지 내용 (최대 4000자)',
+    view_count INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '읽은 인원 수',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '전송 시각',
+    INDEX idx_chat_message_participant (participant_id),
+    INDEX idx_chat_message_room (chat_room_id),
+    FOREIGN KEY (participant_id) REFERENCES chat_participant(id) ON DELETE CASCADE,
+    FOREIGN KEY (chat_room_id) REFERENCES chat_room(id) ON DELETE CASCADE
+);
+
+-- 4. 메시지 읽음 테이블 (MySQL에서 테스트 후 MongoDB로 이전 예정)
+CREATE TABLE message_read (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    participant_id BIGINT NOT NULL COMMENT '참조: chat_participant.id',
+    message_id BIGINT NOT NULL COMMENT '참조: chat_message.id',
+    read_at TIMESTAMP NULL COMMENT '읽은 시각',
+    INDEX idx_message_read_participant (participant_id),
+    INDEX idx_message_read_message (message_id),
+    FOREIGN KEY (participant_id) REFERENCES chat_participant(id) ON DELETE CASCADE,
+    FOREIGN KEY (message_id) REFERENCES chat_message(id) ON DELETE CASCADE
+);

@@ -9,6 +9,8 @@ import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.response.Command
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.response.DescriptionDto;
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.*;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
+import com.moogsan.moongsan_backend.global.exception.specific.DuplicateRequestException;
+import com.moogsan.moongsan_backend.global.lock.DuplicateRequestPreventer;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,7 @@ public class GroupBuyCommandController {
     private final DeleteGroupBuy deleteGroupBuy;
     private final LeaveGroupBuy leaveGroupBuy;
     private final EndGroupBuy endGroupBuy;
+    private final DuplicateRequestPreventer duplicateRequestPreventer;
 
 
     /// 공구 게시글 작성 SUCCESS
@@ -41,6 +44,14 @@ public class GroupBuyCommandController {
     public ResponseEntity<WrapperResponse<CommandGroupBuyResponse>> createGroupBuy(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CreateGroupBuyRequest request) {
+
+        // 중복 요청 차단 시작
+        Long userId = userDetails.getUser().getId();
+        String key = "group-buy:creating:" + userId;
+
+        if (!duplicateRequestPreventer.tryAcquireLock(key, 3)) {
+            throw new DuplicateRequestException();
+        }
 
         Long postId = createGroupBuy.createGroupBuy(userDetails.getUser(), request);
 
