@@ -13,6 +13,7 @@ import com.moogsan.moongsan_backend.domain.user.service.UserProfileService;
 import com.moogsan.moongsan_backend.domain.user.service.WithdrawService;
 import com.moogsan.moongsan_backend.domain.user.service.TokenRefreshService;
 import com.moogsan.moongsan_backend.domain.user.service.WishService;
+import com.moogsan.moongsan_backend.domain.user.service.CheckAccountService;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
 import com.moogsan.moongsan_backend.domain.WrapperResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,6 +39,7 @@ public class UserController {
     private final WithdrawService withdrawService;
     private final TokenRefreshService tokenRefreshService;
     private final WishService wishService;
+    private final CheckAccountService checkAccountService;
 
     // 회원가입 API
     @PostMapping("/users")
@@ -192,4 +194,17 @@ public class UserController {
         );
     }
 
+    @GetMapping("/users/check/account")
+    public ResponseEntity<WrapperResponse<Void>> checkAccount(
+            @RequestParam String name,
+            @RequestParam String accountBank,
+            @RequestParam String accountNumber) {
+        checkAccountService.checkBankAccountHolder(accountBank, accountNumber, name); // matched 확인, 예외 발생 시 자동 처리
+        return ResponseEntity.ok(
+                WrapperResponse.<Void>builder()
+                        .message("본인인증이 성공하였습니다.")
+                        .data(null)
+                        .build()
+        );
+    }
 }
