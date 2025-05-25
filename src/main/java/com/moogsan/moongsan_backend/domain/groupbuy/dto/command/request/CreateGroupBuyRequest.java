@@ -15,12 +15,14 @@ import java.util.List;
 @Builder
 public class CreateGroupBuyRequest {
 
-    @NotBlank(message = "제목은 필수 입력 항목입니다.")
-    @Size(min = 1, max = 100, message = "제목은 1자 이상, 100자 이하로 입력해주세요.")
+    @NotNull(message = "제목은 공백을 제외한 1자 이상, 100자 이하로 입력해주세요.")
+    @NotBlank(message = "제목은 공백을 제외한 1자 이상, 100자 이하로 입력해주세요.")
+    @Size(min = 1, max = 100, message = "제목은 공백을 제외한 1자 이상, 100자 이하로 입력해주세요.")
     private String title;
 
-    @NotBlank(message = "상품명은 필수 입력 항목입니다.")
-    @Size(min = 1, max = 100, message = "상품명은 1자 이상, 100자 이하로 입력해주세요.")
+    @NotNull(message = "상품명은 공백을 제외한 1자 이상, 100자 이하로 입력해주세요.")
+    @NotBlank(message = "상품명은 공백을 제외한 1자 이상, 100자 이하로 입력해주세요.")
+    @Size(min = 1, max = 100, message = "상품명은 공백을 제외한 1자 이상, 100자 이하로 입력해주세요.")
     private String name;
 
     @Size(min = 1, max = 2000, message = "URL은 1자 이상, 2000자 이하로 입력해주세요.")
@@ -43,8 +45,9 @@ public class CreateGroupBuyRequest {
     @Min(value = 0, message = "주최자 주문 수량은 0 이상이어야 합니다.")  /// 이후 1로 수정 필요
     private Integer hostQuantity;
 
-    @NotBlank(message = "상품 상세 설명은 필수 입력 항목입니다.")
-    @Size(min = 2, max = 2000, message = "상품 설명은 2자 이상, 2000자 이하로 입력해주세요.")
+    @NotNull(message = "상품 설명은 공백을 제외한 2자 이상, 2000자 이하로 입력해주세요.")
+    @NotBlank(message = "상품 설명은 공백을 제외한 2자 이상, 2000자 이하로 입력해주세요.")
+    @Size(min = 2, max = 2000, message = "상품 설명은 공백을 제외한 2자 이상, 2000자 이하로 입력해주세요.")
     private String description;
 
     @NotNull(message = "마감 일자는 필수 입력 항목입니다.")
@@ -52,7 +55,7 @@ public class CreateGroupBuyRequest {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime dueDate;
 
-    @NotBlank(message = "거래 장소는 필수 입력 항목입니다.")
+    @NotNull(message = "거래 장소는 필수 입력 항목입니다.")
     private String location;
 
     @NotNull(message = "픽업 일자는 필수 입력 항목입니다.")
