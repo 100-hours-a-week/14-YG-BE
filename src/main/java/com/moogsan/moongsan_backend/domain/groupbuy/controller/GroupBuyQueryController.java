@@ -3,7 +3,6 @@ package com.moogsan.moongsan_backend.domain.groupbuy.controller;
 import com.moogsan.moongsan_backend.domain.WrapperResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyDetail.DetailResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyDetail.UserAccountResponse;
-import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyDetail.UserProfileResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.BasicList.BasicListResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.HostedList.HostedListResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.PagedResponse;
@@ -11,6 +10,7 @@ import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyL
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.ParticipatedList.ParticipatedListResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.WishList.WishListResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyUpdate.GroupBuyForUpdateResponse;
+import com.moogsan.moongsan_backend.domain.groupbuy.facade.query.GroupBuyQueryFacade;
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyQueryService.*;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -20,26 +20,18 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/group-buys")
 public class GroupBuyQueryController {
-    private final GetGroupBuyEditInfo getGroupBuyEditInfo;
-    private final GetGroupBuyDetailInfo getGroupBuyDetailInfo;
-    private final GetGroupBuyListByCursor getGroupBuyListByCursor;
-    private final GetGroupBuyWishList getGroupBuyWishList;
-    private final GetGroupBuyHostedList getGroupBuyHostedList;
-    private final GetGroupBuyParticipatedList getGroupBuyParticipatedList;
-    private final GetGroupBuyParticipantsInfo getGroupBuyParticipantsInfo;
-    private final GetGroupBuyHostAccountInfo getGroupBuyHostAccountInfo;
 
+    private final GroupBuyQueryFacade queryFacade;
 
     /// 공구 게시글 수정 전 정보 조회 SUCCESS
     @GetMapping("/{postId}/edit")
     public ResponseEntity<WrapperResponse<GroupBuyForUpdateResponse>> getGroupBuyEditInfo(@PathVariable Long postId) {
-        GroupBuyForUpdateResponse groupBuyForUpdate = getGroupBuyEditInfo.getGroupBuyEditInfo(postId);
+        GroupBuyForUpdateResponse groupBuyForUpdate = queryFacade.getGroupBuyEditInfo(postId);
         return ResponseEntity.ok(
                 WrapperResponse.<GroupBuyForUpdateResponse>builder()
                         .message("공구 게시글 수정을 성공적으로 조회했습니다.")
@@ -56,7 +48,7 @@ public class GroupBuyQueryController {
 
         Long userId = (principal != null) ? principal.getUser().getId() : null;
 
-        DetailResponse detail = getGroupBuyDetailInfo.getGroupBuyDetailInfo(userId, postId);
+        DetailResponse detail = queryFacade.getGroupBuyDetailInfo(userId, postId);
         return ResponseEntity.ok(
                 WrapperResponse.<DetailResponse>builder()
                         .message("공구 게시글 상세 정보를 성공적으로 조회했습니다.")
@@ -72,7 +64,7 @@ public class GroupBuyQueryController {
 
         Long userId = (principal != null) ? principal.getUser().getId() : null;
 
-        UserAccountResponse accountResponse = getGroupBuyHostAccountInfo.getGroupBuyHostAccountInfo(userId, postId);
+        UserAccountResponse accountResponse = queryFacade.getGroupBuyHostAccountInfo(userId, postId);
         return ResponseEntity.ok(
                 WrapperResponse.<UserAccountResponse>builder()
                         .message("공구 게시글 주최자 계좌 정보를 성공적으로 조회했습니다.")
@@ -100,7 +92,7 @@ public class GroupBuyQueryController {
         Long userId = (principal != null) ? principal.getUser().getId() : null;
 
         PagedResponse<BasicListResponse> pagedResponse =
-                getGroupBuyListByCursor.getGroupBuyListByCursor(userId, categoryId, orderBy,
+                queryFacade.getGroupBuyListByCursor(userId, categoryId, orderBy,
                         cursorId, cursorCreatedAt, cursorPrice, limit, openOnly, keyword);
         return ResponseEntity.ok(
                 WrapperResponse.<PagedResponse<BasicListResponse>>builder()
@@ -121,7 +113,7 @@ public class GroupBuyQueryController {
             @RequestParam(value = "cursorId", required = false) Long cursorId,
             @RequestParam(value = "limit", defaultValue = "10") Integer limit
     ) {
-        PagedResponse<WishListResponse> pagedResponse = getGroupBuyWishList.getGroupBuyWishList(
+        PagedResponse<WishListResponse> pagedResponse = queryFacade.getGroupBuyWishList(
                 userDetails.getUser().getId(), sort, cursorCreatedAt, cursorId, limit);
         return ResponseEntity.ok(
                 WrapperResponse.<PagedResponse<WishListResponse>>builder()
@@ -136,11 +128,11 @@ public class GroupBuyQueryController {
     public ResponseEntity<WrapperResponse<PagedResponse<HostedListResponse>>> getGroupBuyHostedList(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(value = "sort") String sort,
-            @RequestParam(value = "cursor", required = false) Long cursor,
+            @RequestParam(value = "cursor", required = false) Long cursorId,
             @RequestParam(value = "limit", defaultValue = "10") Integer limit
     ) {
-        PagedResponse<HostedListResponse> pagedResponse = getGroupBuyHostedList.getGroupBuyHostedList(
-                userDetails.getUser().getId(), sort, cursor, limit);
+        PagedResponse<HostedListResponse> pagedResponse = queryFacade.getGroupBuyHostedList(
+                userDetails.getUser().getId(), sort, cursorId, limit);
         return ResponseEntity.ok(
                 WrapperResponse.<PagedResponse<HostedListResponse>>builder()
                         .message("주최 공구 리스트를 성공적으로 조회했습니다.")
@@ -156,11 +148,11 @@ public class GroupBuyQueryController {
             @RequestParam(value = "sort") String sort,
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
             LocalDateTime cursorCreatedAt,
-            @RequestParam(value = "cursor", required = false) Long cursor,
+            @RequestParam(value = "cursor", required = false) Long cursorId,
             @RequestParam(value = "limit", defaultValue = "10") Integer limit
     ) {
-        PagedResponse<ParticipatedListResponse> pagedResponse = getGroupBuyParticipatedList.getGroupBuyParticipatedList(
-                userDetails.getUser().getId(), sort, cursorCreatedAt, cursor, limit);
+        PagedResponse<ParticipatedListResponse> pagedResponse = queryFacade.getGroupBuyParticipatedList(
+                userDetails.getUser().getId(), sort, cursorCreatedAt, cursorId, limit);
         return ResponseEntity.ok(
                 WrapperResponse.<PagedResponse<ParticipatedListResponse>>builder()
                         .message("참여 공구 리스트를 성공적으로 조회했습니다.")
@@ -174,7 +166,7 @@ public class GroupBuyQueryController {
     public ResponseEntity<WrapperResponse<ParticipantListResponse>> getGroupBuyParticipantsInfo(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId) {
-        ParticipantListResponse participantList = getGroupBuyParticipantsInfo.getGroupBuyParticipantsInfo(
+        ParticipantListResponse participantList = queryFacade.getGroupBuyParticipantsInfo(
                 userDetails.getUser().getId(), postId);
         return ResponseEntity.ok(
                 WrapperResponse.<ParticipantListResponse>builder()

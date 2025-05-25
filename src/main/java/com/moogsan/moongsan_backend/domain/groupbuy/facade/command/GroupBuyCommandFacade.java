@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.domain.groupbuy.facade;
+package com.moogsan.moongsan_backend.domain.groupbuy.facade.command;
 
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.*;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.response.DescriptionDto;

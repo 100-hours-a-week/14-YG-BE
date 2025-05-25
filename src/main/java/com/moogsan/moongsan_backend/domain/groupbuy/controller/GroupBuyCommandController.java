@@ -7,6 +7,7 @@ import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.Descript
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.UpdateGroupBuyRequest;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.response.CommandGroupBuyResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.response.DescriptionDto;
+import com.moogsan.moongsan_backend.domain.groupbuy.facade.command.GroupBuyCommandFacade;
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.*;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
 import com.moogsan.moongsan_backend.global.exception.specific.DuplicateRequestException;
@@ -30,14 +31,8 @@ import static com.moogsan.moongsan_backend.global.util.CookieUtils.extractCookie
 @RequestMapping("/api/group-buys")
 public class GroupBuyCommandController {
 
-    private final CreateGroupBuy createGroupBuy;
-    private final GenerateDescription generateDescription;
-    private final UpdateGroupBuy updateGroupBuy;
-    private final DeleteGroupBuy deleteGroupBuy;
-    private final LeaveGroupBuy leaveGroupBuy;
-    private final EndGroupBuy endGroupBuy;
+    private final GroupBuyCommandFacade groupBuyFacade;
     private final DuplicateRequestPreventer duplicateRequestPreventer;
-
 
     /// 공구 게시글 작성 SUCCESS
     @PostMapping
@@ -53,7 +48,7 @@ public class GroupBuyCommandController {
             throw new DuplicateRequestException();
         }
 
-        Long postId = createGroupBuy.createGroupBuy(userDetails.getUser(), request);
+        Long postId = groupBuyFacade.createGroupBuy(userDetails.getUser(), request);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -70,13 +65,13 @@ public class GroupBuyCommandController {
 
     // 공구 게시글 상세 설명 생성
     @PostMapping("/generation/description")
-    public Mono<ResponseEntity<WrapperResponse<DescriptionDto>>> generate(
+    public Mono<ResponseEntity<WrapperResponse<DescriptionDto>>> generateDescription(
             @RequestBody @Valid DescriptionGenerationRequest req,
             HttpServletRequest servletRequest) {
 
         String sessionId = extractCookie(servletRequest, "AccessToken");
 
-        return generateDescription.generateDescription(req.getUrl(), sessionId)
+        return groupBuyFacade.generateDescription(req.getUrl(), sessionId)
                 // 성공 시: 내부 WrapperResponse 로 감싸서 200 OK
                 .map(data -> {
                     WrapperResponse<DescriptionDto> body =
@@ -105,7 +100,7 @@ public class GroupBuyCommandController {
             @Valid @RequestBody UpdateGroupBuyRequest request,
             @PathVariable Long postId) {
 
-        updateGroupBuy.updateGroupBuy(userDetails.getUser(), request, postId);
+        groupBuyFacade.updateGroupBuy(userDetails.getUser(), request, postId);
 
         CommandGroupBuyResponse response = new CommandGroupBuyResponse(postId);
 
@@ -123,7 +118,7 @@ public class GroupBuyCommandController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId) {
 
-        deleteGroupBuy.deleteGroupBuy(userDetails.getUser(), postId);
+        groupBuyFacade.deleteGroupBuy(userDetails.getUser(), postId);
 
         return ResponseEntity.ok()
                 .body(WrapperResponse.<CommandGroupBuyResponse>builder()
@@ -137,7 +132,7 @@ public class GroupBuyCommandController {
     public ResponseEntity<WrapperResponse<EmptyResponse>> leaveGroupBuy(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId){
-        leaveGroupBuy.leaveGroupBuy(userDetails.getUser(), postId);
+        groupBuyFacade.leaveGroupBuy(userDetails.getUser(), postId);
 
         return ResponseEntity.ok(
                 WrapperResponse.<EmptyResponse>builder()
@@ -151,7 +146,7 @@ public class GroupBuyCommandController {
     public ResponseEntity<WrapperResponse<EmptyResponse>> endGroupBuy(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId){
-        endGroupBuy.endGroupBuy(userDetails.getUser(), postId);
+        groupBuyFacade.endGroupBuy(userDetails.getUser(), postId);
 
         return ResponseEntity.ok(
                 WrapperResponse.<EmptyResponse>builder()
@@ -159,8 +154,5 @@ public class GroupBuyCommandController {
                         .build()
         );
     }
-
-    // 검색 -> post가 아니라 get이어야 하지 않나?
-    //  TODO V2
 
 }
