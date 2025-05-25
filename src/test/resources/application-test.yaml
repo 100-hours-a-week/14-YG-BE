@@ -5,6 +5,8 @@ spring:
     driver-class-name: org.h2.Driver
     username: sa
     password:
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.data.jpa.JpaAuditingAutoConfiguration
   h2:
     console:
       enabled: true

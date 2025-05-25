@@ -8,7 +8,7 @@ import java.time.Duration;
 
 @Component
 @RequiredArgsConstructor
-public class DuplicateRequestPreventer {
+public abstract class DuplicateRequestPreventer {
 
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -29,4 +29,6 @@ public class DuplicateRequestPreventer {
     public void releaseLock(String key) {
         redisTemplate.delete(key);
     }
+
+    public abstract void checkAndSet(String key, long ttl);
 }

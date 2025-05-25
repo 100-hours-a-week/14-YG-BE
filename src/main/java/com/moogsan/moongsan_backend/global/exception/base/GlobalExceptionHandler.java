@@ -42,13 +42,23 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             MethodArgumentNotValidException ex,
             HttpHeaders headers,
             HttpStatusCode status,
-            WebRequest request) {
+            WebRequest request
+    ) {
+        // FieldError 리스트를 {필드명 → 메시지} 맵으로 변환
+        Map<String, String> errors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .collect(Collectors.toMap(
+                        FieldError::getField,
+                        FieldError::getDefaultMessage,
+                        (existing, replacement) -> existing  // 동일 필드 중복 시 첫 메시지 유지
+                ));
 
         return ResponseEntity
                 .badRequest()
-                .body(WrapperResponse.<Object>builder()
+                .body(WrapperResponse.<Map<String, String>>builder()
                         .message("입력 형식이 올바르지 않습니다.")
-                        .data(null)
+                        .data(errors)
                         .build());
     }
 
