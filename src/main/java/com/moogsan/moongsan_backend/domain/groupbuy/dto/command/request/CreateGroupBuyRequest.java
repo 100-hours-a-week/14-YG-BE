@@ -55,7 +55,7 @@ public class CreateGroupBuyRequest {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime dueDate;
 
-    @NotNull(message = "거래 장소는 필수 입력 항목입니다.")
+    @NotNull(message = "거래 장소는 공백을 제외한 2자 이상, 85자 이하로 입력해주세요.")
     @NotBlank(message = "거래 장소는 공백을 제외한 2자 이상, 85자 이하로 입력해주세요.")
     @Size(min = 2, max = 85, message = "거래 장소는 공백을 제외한 2자 이상, 85자 이하로 입력해주세요.")
     private String location;

@@ -44,7 +44,7 @@ class CreateGroupBuyTest {
     private ObjectMapper objectMapper;
 
     @Test
-    @DisplayName("공구 게시글 성공 시 201 반환")
+    @DisplayName("공구 게시글 생성 성공 시 201 반환")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuySuccess() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -80,7 +80,7 @@ class CreateGroupBuyTest {
     /// title
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - title 없음")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - title 없음")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_without_title() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -1050,7 +1050,7 @@ class CreateGroupBuyTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.location").value("거래 장소는 필수 입력 항목입니다."));
+                .andExpect(jsonPath("$.data.location").value("거래 장소는 공백을 제외한 2자 이상, 85자 이하로 입력해주세요."));
     }
 
     @Test

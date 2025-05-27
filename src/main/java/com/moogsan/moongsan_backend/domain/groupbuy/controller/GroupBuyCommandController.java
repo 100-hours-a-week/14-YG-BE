@@ -11,6 +11,7 @@ import com.moogsan.moongsan_backend.domain.groupbuy.facade.command.GroupBuyComma
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.*;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
 import com.moogsan.moongsan_backend.global.exception.specific.DuplicateRequestException;
+import com.moogsan.moongsan_backend.global.exception.specific.UnauthenticatedAccessException;
 import com.moogsan.moongsan_backend.global.lock.DuplicateRequestPreventer;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -40,6 +41,10 @@ public class GroupBuyCommandController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CreateGroupBuyRequest request) {
 
+        if (userDetails == null) {
+            throw new UnauthenticatedAccessException("로그인이 필요합니다.");
+        }
+
         // 중복 요청 차단 시작
         Long userId = userDetails.getUser().getId();
         String key = "group-buy:creating:" + userId;
@@ -63,11 +68,16 @@ public class GroupBuyCommandController {
                         .build());
     }
 
-    // 공구 게시글 상세 설명 생성
+    /// 공구 게시글 상세 설명 생성
     @PostMapping("/generation/description")
     public Mono<ResponseEntity<WrapperResponse<DescriptionDto>>> generateDescription(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody @Valid DescriptionGenerationRequest req,
             HttpServletRequest servletRequest) {
+
+        if (userDetails == null) {
+            throw new UnauthenticatedAccessException("로그인이 필요합니다.");
+        }
 
         String sessionId = extractCookie(servletRequest, "AccessToken");
 
@@ -75,7 +85,7 @@ public class GroupBuyCommandController {
                 // 성공 시: 내부 WrapperResponse 로 감싸서 200 OK
                 .map(data -> {
                     WrapperResponse<DescriptionDto> body =
-                            new WrapperResponse<>("상품 상세 설명이 생성되었습니다.", data);
+                            new WrapperResponse<>("상품 상세 설명이 성공적으로 생성되었습니다.", data);
                     return ResponseEntity.ok(body);
                 })
                 // URL 포맷 검증 등으로 IllegalArgumentException 발생 시 400 Bad Request
@@ -92,13 +102,17 @@ public class GroupBuyCommandController {
                 });
     }
 
-    // 공구 게시글 수정
+    /// 공구 게시글 수정
     //  TODO V2
     @PatchMapping("/{postId}")
     public ResponseEntity<WrapperResponse<CommandGroupBuyResponse>> updateGroupBuy(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody UpdateGroupBuyRequest request,
             @PathVariable Long postId) {
+
+        if (userDetails == null) {
+            throw new UnauthenticatedAccessException("로그인이 필요합니다.");
+        }
 
         groupBuyFacade.updateGroupBuy(userDetails.getUser(), request, postId);
 
@@ -111,12 +125,16 @@ public class GroupBuyCommandController {
                         .build());
     }
 
-    // 공구 게시글 삭제
+    /// 공구 게시글 삭제
     //  TODO V2
     @DeleteMapping("/{postId}")
     public ResponseEntity<WrapperResponse<CommandGroupBuyResponse>> deleteGroupBuy(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId) {
+
+        if (userDetails == null) {
+            throw new UnauthenticatedAccessException("로그인이 필요합니다.");
+        }
 
         groupBuyFacade.deleteGroupBuy(userDetails.getUser(), postId);
 
@@ -132,6 +150,11 @@ public class GroupBuyCommandController {
     public ResponseEntity<WrapperResponse<EmptyResponse>> leaveGroupBuy(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId){
+
+        if (userDetails == null) {
+            throw new UnauthenticatedAccessException("로그인이 필요합니다.");
+        }
+
         groupBuyFacade.leaveGroupBuy(userDetails.getUser(), postId);
 
         return ResponseEntity.ok(
@@ -141,11 +164,16 @@ public class GroupBuyCommandController {
         );
     }
 
-    // 공구 게시글 공구 종료
+    /// 공구 게시글 공구 종료
     @PatchMapping("/{postId}/end")
     public ResponseEntity<WrapperResponse<EmptyResponse>> endGroupBuy(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId){
+
+        if (userDetails == null) {
+            throw new UnauthenticatedAccessException("로그인이 필요합니다.");
+        }
+
         groupBuyFacade.endGroupBuy(userDetails.getUser(), postId);
 
         return ResponseEntity.ok(
