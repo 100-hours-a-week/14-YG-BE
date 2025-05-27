@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class MyPageImageRequest {
+public class UpdateProfileImageRequest {
 
     @NotBlank
     private String imageUrl;
