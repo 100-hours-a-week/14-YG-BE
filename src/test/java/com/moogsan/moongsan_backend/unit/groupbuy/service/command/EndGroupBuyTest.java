@@ -170,6 +170,7 @@ public class EndGroupBuyTest {
         when(before.getUser()).thenReturn(hostUser);
 
         assertThatThrownBy(() -> endGroupBuy.endGroupBuy(participant, 1L))
-                .isInstanceOf(GroupBuyNotHostException.class);
+                .isInstanceOf(GroupBuyNotHostException.class)
+                .hasMessageContaining("공구 종료는 공구의 주최자만 요청 가능합니다.");
     }
 }

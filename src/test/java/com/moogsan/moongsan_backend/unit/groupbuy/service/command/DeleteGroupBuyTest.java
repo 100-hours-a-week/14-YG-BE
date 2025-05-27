@@ -74,7 +74,8 @@ public class DeleteGroupBuyTest {
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> deleteGroupBuy.deleteGroupBuy(hostUser, 1L))
-                .isInstanceOf(GroupBuyNotFoundException.class);
+                .isInstanceOf(GroupBuyNotFoundException.class)
+                .hasMessageContaining("존재하지 않는 공구입니다");
     }
 
     @Test
@@ -85,7 +86,8 @@ public class DeleteGroupBuyTest {
         when(before.getPostStatus()).thenReturn("ENDED");
 
         assertThatThrownBy(() -> deleteGroupBuy.deleteGroupBuy(hostUser, 1L))
-                .isInstanceOf(GroupBuyInvalidStateException.class);
+                .isInstanceOf(GroupBuyInvalidStateException.class)
+                .hasMessageContaining("공구 삭제는 공구가 열려있는 상태에서만 가능합니다.");
     }
 
     @Test
@@ -98,7 +100,8 @@ public class DeleteGroupBuyTest {
                 .thenReturn(LocalDateTime.now().minusDays(1));
 
         assertThatThrownBy(() -> deleteGroupBuy.deleteGroupBuy(hostUser, 1L))
-                .isInstanceOf(GroupBuyInvalidStateException.class);
+                .isInstanceOf(GroupBuyInvalidStateException.class)
+                .hasMessageContaining("공구 삭제는 공구가 열려있는 상태에서만 가능합니다.");
     }
 
     @Test
@@ -113,7 +116,8 @@ public class DeleteGroupBuyTest {
                 .thenReturn(1);
 
         assertThatThrownBy(() -> deleteGroupBuy.deleteGroupBuy(hostUser, 1L))
-                .isInstanceOf(GroupBuyInvalidStateException.class);
+                .isInstanceOf(GroupBuyInvalidStateException.class)
+                .hasMessageContaining("참여자가 1명 이상일 경우 공구를 삭제할 수 없습니다.");
     }
 
     @Test
@@ -130,6 +134,7 @@ public class DeleteGroupBuyTest {
         when(before.getUser()).thenReturn(hostUser);
 
         assertThatThrownBy(() -> deleteGroupBuy.deleteGroupBuy(otherUser, 1L))
-                .isInstanceOf(GroupBuyNotHostException.class);
+                .isInstanceOf(GroupBuyNotHostException.class)
+                .hasMessageContaining("공구 삭제는 공구의 주최자만 요청 가능합니다.");
     }
 }

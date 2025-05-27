@@ -77,28 +77,30 @@ class UpdateGroupBuyTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 공구글 - 404 예외")
+    @DisplayName("존재하지 않는 공구글 - 404 ")
     void updateGroupBuy_notFound() {
         when(groupBuyRepository.findById(1L))
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> updateGroupBuy.updateGroupBuy(hostUser, updateRequest, 1L))
-                .isInstanceOf(GroupBuyNotFoundException.class);
+                .isInstanceOf(GroupBuyNotFoundException.class)
+                .hasMessageContaining("존재하지 않는 공구입니다");
     }
 
     @Test
-    @DisplayName("공구글 status가 OPEN이 아님 - 409 예외")
+    @DisplayName("공구글 status가 OPEN이 아님 - 409")
     void updateGroupBuy_postStatus_not_open() {
         when(groupBuyRepository.findById(1L))
                 .thenReturn(Optional.of(before));
         when(before.getPostStatus()).thenReturn("CLOSED");
 
         assertThatThrownBy(() -> updateGroupBuy.updateGroupBuy(hostUser, updateRequest, 1L))
-                .isInstanceOf(GroupBuyInvalidStateException.class);
+                .isInstanceOf(GroupBuyInvalidStateException.class)
+                .hasMessageContaining("공구 수정은 공구가 열려있는 상태에서만 가능합니다.");
     }
 
     @Test
-    @DisplayName("dueDate가 현재보다 과거 - 409 예외")
+    @DisplayName("dueDate가 현재보다 과거 - 409")
     void updateGroupBuy_dueDate_past() {
         when(groupBuyRepository.findById(1L))
                 .thenReturn(Optional.of(before));
@@ -107,11 +109,12 @@ class UpdateGroupBuyTest {
                 .thenReturn(LocalDateTime.now().minusDays(1));
 
         assertThatThrownBy(() -> updateGroupBuy.updateGroupBuy(hostUser, updateRequest, 1L))
-                .isInstanceOf(GroupBuyInvalidStateException.class);
+                .isInstanceOf(GroupBuyInvalidStateException.class)
+                .hasMessageContaining("공구 수정은 공구가 열려있는 상태에서만 가능합니다.");
     }
 
     @Test
-    @DisplayName("공구글 작성자가 아님 - 403 예외")
+    @DisplayName("공구글 작성자가 아님 - 403")
     void updateGroupBuy_notHost() {
         User otherUser = User.builder().id(2L).build();
         when(groupBuyRepository.findById(1L)).thenReturn(Optional.of(before));
@@ -120,6 +123,7 @@ class UpdateGroupBuyTest {
         when(before.getUser()).thenReturn(hostUser);
 
         assertThatThrownBy(() -> updateGroupBuy.updateGroupBuy(otherUser, updateRequest, 1L))
-                .isInstanceOf(GroupBuyNotHostException.class);
+                .isInstanceOf(GroupBuyNotHostException.class)
+                .hasMessageContaining("공구 수정은 공구의 주최자만 요청 가능합니다.");
     }
 }

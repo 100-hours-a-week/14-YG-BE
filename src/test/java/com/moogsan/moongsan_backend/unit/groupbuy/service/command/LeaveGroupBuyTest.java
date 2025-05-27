@@ -72,7 +72,8 @@ public class LeaveGroupBuyTest {
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> leaveGroupBuy.leaveGroupBuy(participant, 1L))
-                .isInstanceOf(GroupBuyNotFoundException.class);
+                .isInstanceOf(GroupBuyNotFoundException.class)
+                .hasMessageContaining("존재하지 않는 공구입니다");
     }
 
     @Test
@@ -84,7 +85,8 @@ public class LeaveGroupBuyTest {
                 .thenReturn("ENDED");
 
         assertThatThrownBy(() -> leaveGroupBuy.leaveGroupBuy(participant, 1L))
-                .isInstanceOf(GroupBuyInvalidStateException.class);
+                .isInstanceOf(GroupBuyInvalidStateException.class)
+                .hasMessageContaining("공구 참여 취소는 공구가 열려있는 상태에서만 가능합니다.");
     }
 
     @Test
@@ -97,7 +99,8 @@ public class LeaveGroupBuyTest {
                 .thenReturn(LocalDateTime.now().minusDays(1));
 
         assertThatThrownBy(() -> leaveGroupBuy.leaveGroupBuy(participant, 1L))
-                .isInstanceOf(GroupBuyInvalidStateException.class);
+                .isInstanceOf(GroupBuyInvalidStateException.class)
+                .hasMessageContaining("공구 참여 취소는 공구가 열려있는 상태에서만 가능합니다.");
     }
 
     @Test
@@ -113,6 +116,7 @@ public class LeaveGroupBuyTest {
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> leaveGroupBuy.leaveGroupBuy(participant, 1L))
-                .isInstanceOf(OrderNotFoundException.class);
+                .isInstanceOf(OrderNotFoundException.class)
+                .hasMessageContaining("존재하지 않는 주문입니다.");
     }
 }
