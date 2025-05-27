@@ -42,15 +42,10 @@ public class LeaveGroupBuy {
         Order order = orderRepository.findByUserIdAndGroupBuyIdAndStatusNot(currentUser.getId(), groupBuy.getId(), "CANCELED")
                 .orElseThrow(OrderNotFoundException::new);
 
-        // 해당 주문의 상태가 canceled가 아닌지 조회 -> 아니면 409
-        if (order.getStatus().equals("CANCELED")) {
-            throw new OrderInvalidStateException("이미 취소된 주문입니다.");
-        }
-
         // 해당 주문의 상태가 paid인지 조회
-        if (order.getStatus().equals("PAID")) {
-            // 별도의 환불 로직 처리 필요
-        }
+        //if (order.getStatus().equals("PAID")) {
+        //    // 별도의 환불 로직 처리 필요
+        //}
 
         // 남은 수량, 참여 인원 수 업데이트
         int returnQuantity = order.getQuantity();

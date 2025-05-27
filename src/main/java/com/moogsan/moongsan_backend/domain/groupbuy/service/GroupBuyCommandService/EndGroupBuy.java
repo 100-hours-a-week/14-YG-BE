@@ -26,8 +26,8 @@ public class EndGroupBuy {
         GroupBuy groupBuy = groupBuyRepository.findById(postId)
                 .orElseThrow(GroupBuyNotFoundException::new);
 
-        // 해당 공구가 CLOSED인지 조회 -> 아니면 409
-        if (!groupBuy.getPostStatus().equals("CLOSED")) {
+        // 해당 공구가 OPEN인지 조회 -> 아니면 409
+        if (groupBuy.getPostStatus().equals("OPEN")) {
             throw new GroupBuyInvalidStateException("공구 종료는 모집 마감 이후에만 가능합니다.");
         }
 
@@ -57,6 +57,8 @@ public class EndGroupBuy {
 
         //공구 게시글 status ENDED로 변경
         groupBuy.changePostStatus("ENDED");
+
+        groupBuyRepository.save(groupBuy);
 
         // TODO V2, V3에서는 참여자 채팅방 해제 카운트 시작(2주- CS 고려), 익명 채팅방 즉시 해제
 

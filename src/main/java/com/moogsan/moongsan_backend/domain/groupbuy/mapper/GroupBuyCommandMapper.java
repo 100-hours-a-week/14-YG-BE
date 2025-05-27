@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 public class GroupBuyCommandMapper {
 
     // 공구 게시글 생성 팩토리 메서드
-    public static GroupBuy create(CreateGroupBuyRequest req, User host) {
+    public GroupBuy create(CreateGroupBuyRequest req, User host) {
         int unitPrice = (int) Math.round((double) req.getPrice() / req.getTotalAmount());
         int leftAmount = req.getTotalAmount() - req.getHostQuantity();
 

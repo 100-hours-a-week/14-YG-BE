@@ -112,7 +112,7 @@ class CreateGroupBuyTest {
     }
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - title 공백")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - title 공백")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_blank_title() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -145,7 +145,7 @@ class CreateGroupBuyTest {
     }
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - title 최소값 미만")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - title 최소값 미만")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_title_too_short() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -178,7 +178,7 @@ class CreateGroupBuyTest {
     }
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - title 최대 값 초과")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - title 최대 값 초과")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_title_too_long() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -216,7 +216,7 @@ class CreateGroupBuyTest {
     /// name
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - name 없음")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - name 없음")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_without_name() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -248,7 +248,7 @@ class CreateGroupBuyTest {
     }
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - name 공백")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - name 공백")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_blank_name() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -281,7 +281,7 @@ class CreateGroupBuyTest {
     }
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - name 최소값 미만")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - name 최소값 미만")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_name_too_short() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -314,7 +314,7 @@ class CreateGroupBuyTest {
     }
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - name 최대 값 초과")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - name 최대 값 초과")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_name_too_long() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -352,7 +352,7 @@ class CreateGroupBuyTest {
     ///  url
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - url 최소값 미만")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - url 최소값 미만")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_url_too_short() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -385,7 +385,7 @@ class CreateGroupBuyTest {
     }
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - url 최대 값 초과")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - url 최대 값 초과")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_url_too_long() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -439,7 +439,7 @@ class CreateGroupBuyTest {
     }
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - 잘못된 url 형식")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - 잘못된 url 형식")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_invalid_url() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -475,7 +475,7 @@ class CreateGroupBuyTest {
     ///  price
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - price 없음")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - price 없음")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_without_price() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -507,7 +507,7 @@ class CreateGroupBuyTest {
     }
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - price 최소값 미만")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - price 최소값 미만")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_price_too_small() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -543,7 +543,7 @@ class CreateGroupBuyTest {
     /// totalAmount
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - totalAmount 없음")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - totalAmount 없음")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_without_totalAmount() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -575,7 +575,7 @@ class CreateGroupBuyTest {
     }
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - totalAmount 최소값 미만")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - totalAmount 최소값 미만")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_totalAmount_too_small() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -611,7 +611,7 @@ class CreateGroupBuyTest {
     /// unitAmount
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - unitAmount 없음")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - unitAmount 없음")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_without_unitAmount() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -643,7 +643,7 @@ class CreateGroupBuyTest {
     }
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - unitAmount 최소값 미만")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - unitAmount 최소값 미만")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_unitAmount_too_small() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -679,7 +679,7 @@ class CreateGroupBuyTest {
     /// hostQuantity
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - hostQuantity 없음")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - hostQuantity 없음")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_without_hostQuantity() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -749,7 +749,7 @@ class CreateGroupBuyTest {
     /// description
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - description 없음")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - description 없음")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_without_description() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -781,7 +781,7 @@ class CreateGroupBuyTest {
     }
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - description 공백")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - description 공백")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_blank_description() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -814,7 +814,7 @@ class CreateGroupBuyTest {
     }
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - description 최소값 미만")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - description 최소값 미만")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_description_too_short() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -847,7 +847,7 @@ class CreateGroupBuyTest {
     }
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - description 최대 값 초과")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - description 최대 값 초과")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_description_too_long() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -916,7 +916,7 @@ class CreateGroupBuyTest {
     /// dueDate
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - dueDate 없음")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - dueDate 없음")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_without_dueDate() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -948,7 +948,7 @@ class CreateGroupBuyTest {
     }
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - dueDate 최소값 미만")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - dueDate 최소값 미만")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_dueDate_too_early() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -1022,7 +1022,7 @@ class CreateGroupBuyTest {
     ///  location
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - location 없음")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - location 없음")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_without_location() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -1054,7 +1054,7 @@ class CreateGroupBuyTest {
     }
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - location 공백")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - location 공백")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_blank_location() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -1087,7 +1087,7 @@ class CreateGroupBuyTest {
     }
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - location 최소값 미만")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - location 최소값 미만")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_location_too_short() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -1120,7 +1120,7 @@ class CreateGroupBuyTest {
     }
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - location 최대 값 초과")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - location 최대 값 초과")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_location_too_long() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -1158,7 +1158,7 @@ class CreateGroupBuyTest {
     /// pickupDate
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - pickupDate 없음")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - pickupDate 없음")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_without_pickupDate() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -1190,7 +1190,7 @@ class CreateGroupBuyTest {
     }
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - pickupDate 최소값 미만")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - pickupDate 최소값 미만")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_pickupDate_too_early() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -1226,7 +1226,7 @@ class CreateGroupBuyTest {
     ///  imageKeys
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - imageKeys 없음")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - imageKeys 없음")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_without_imageKeys() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -1258,7 +1258,7 @@ class CreateGroupBuyTest {
     }
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - imageKeys 최소 값 미만")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - imageKeys 최소 값 미만")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_imageKeys_too_small() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -1291,7 +1291,7 @@ class CreateGroupBuyTest {
     }
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - imageKeys 최대 값 초과")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - imageKeys 최대 값 초과")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_imageKeys_too_large() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -1327,7 +1327,7 @@ class CreateGroupBuyTest {
     }
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - imageKeys 공백")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - imageKeys 공백")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_blank_imageKeys() throws Exception {
         // ====== 요청 바디 준비 ======
@@ -1360,7 +1360,7 @@ class CreateGroupBuyTest {
     }
 
     @Test
-    @DisplayName("공구 게시글 실패 시 400 반환 - imageKeys 형식 오류")
+    @DisplayName("공구 게시글 생성 실패 시 400 반환 - imageKeys 형식 오류")
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_invalid_imageKeys() throws Exception {
         // ====== 요청 바디 준비 ======
