@@ -1,9 +1,9 @@
 package com.moogsan.moongsan_backend.domain.user.controller;
 
-import com.moogsan.moongsan_backend.domain.user.dto.request.MyPageAccountRequest;
-import com.moogsan.moongsan_backend.domain.user.dto.request.MyPageBasicRequest;
-import com.moogsan.moongsan_backend.domain.user.dto.request.MyPagePasswordRequest;
-import com.moogsan.moongsan_backend.domain.user.dto.request.MyPageImageRequest;
+import com.moogsan.moongsan_backend.domain.user.dto.request.UpdateProfileAccountRequest;
+import com.moogsan.moongsan_backend.domain.user.dto.request.UpdateProfileRequest;
+import com.moogsan.moongsan_backend.domain.user.dto.request.UpdateProfilePasswordRequest;
+import com.moogsan.moongsan_backend.domain.user.dto.request.UpdateProfileImageRequest;
 import com.moogsan.moongsan_backend.domain.user.service.UpdateProfileService;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
 import com.moogsan.moongsan_backend.domain.WrapperResponse;
@@ -23,7 +23,7 @@ public class UpdateProfileController {
     @PatchMapping("/image")
     public ResponseEntity<WrapperResponse<Void>> updateProfileImage(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody MyPageImageRequest request) {
+            @RequestBody UpdateProfileImageRequest request) {
         updateProfileService.updateProfileImage(userDetails.getUser().getId(), request);
         return ResponseEntity.ok(
                 WrapperResponse.<Void>builder()
@@ -37,7 +37,7 @@ public class UpdateProfileController {
     @PatchMapping("/password")
     public ResponseEntity<WrapperResponse<Void>> updatePassword(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody MyPagePasswordRequest request) {
+            @RequestBody UpdateProfilePasswordRequest request) {
         updateProfileService.updatePassword(userDetails.getUser().getId(), request);
         return ResponseEntity.ok(
                 WrapperResponse.<Void>builder()
@@ -51,7 +51,7 @@ public class UpdateProfileController {
     @PatchMapping("/account")
     public ResponseEntity<WrapperResponse<Void>> updateAccountInfo(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody MyPageAccountRequest request) {
+            @RequestBody UpdateProfileAccountRequest request) {
         updateProfileService.updateAccountInfo(userDetails.getUser().getId(), request);
         return ResponseEntity.ok(
                 WrapperResponse.<Void>builder()
@@ -65,7 +65,7 @@ public class UpdateProfileController {
     @PatchMapping
     public ResponseEntity<WrapperResponse<Void>> updateBasicInfo(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody MyPageBasicRequest request) {
+            @RequestBody UpdateProfileRequest request) {
         updateProfileService.updateBasicInfo(userDetails.getUser().getId(), request);
         return ResponseEntity.ok(
                 WrapperResponse.<Void>builder()

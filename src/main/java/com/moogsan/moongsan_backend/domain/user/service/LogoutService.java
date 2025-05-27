@@ -39,7 +39,6 @@ public class LogoutService {
             accessTokenCookie.setPath("/");
             accessTokenCookie.setHttpOnly(true);
             accessTokenCookie.setSecure(true);
-            response.addCookie(accessTokenCookie);
             response.addHeader("Set-Cookie", "AccessToken=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=None");
 
             // 리프레시 토큰 삭제
@@ -48,7 +47,6 @@ public class LogoutService {
             refreshTokenCookie.setPath("/");
             refreshTokenCookie.setHttpOnly(true);
             refreshTokenCookie.setSecure(true);
-            response.addCookie(refreshTokenCookie);
             response.addHeader("Set-Cookie", "RefreshToken=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=None");
 
         } catch (UserException e) {

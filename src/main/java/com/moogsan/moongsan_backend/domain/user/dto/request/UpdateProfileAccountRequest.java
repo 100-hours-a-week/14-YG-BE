@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class MyPageAccountRequest {
+public class UpdateProfileAccountRequest {
 
     @NotBlank(message = "은행명은 필수입니다.")
     private String accountBank; // 계좌 은행명
