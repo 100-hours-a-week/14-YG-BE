@@ -108,7 +108,7 @@ public class GetGroupBuyListByCursorTest {
     }
 
     @Test
-    @DisplayName("전체 공구 리스트 조회 실패 시 401 반환 - 비인증 사용자 접근 불가")
+    @DisplayName("전체 공구 리스트 조회 성공 시 200 반환 - 비인증 사용자 접근 가능")
     void getGroupBuyListByCursor_unauthorized() throws Exception {
         mockMvc.perform(get("/api/group-buys")
                         .param("sort", "created")
@@ -116,7 +116,7 @@ public class GetGroupBuyListByCursorTest {
                         .param("cursorId", "50")
                         .param("limit", "5")
                 )
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isOk());
     }
 
 }
