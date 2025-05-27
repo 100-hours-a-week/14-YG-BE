@@ -51,11 +51,13 @@ public class CreateGroupBuyRequest {
     private String description;
 
     @NotNull(message = "마감 일자는 필수 입력 항목입니다.")
-    @Future(message = "마감일자는 현재 시간 이후여야 합니다.")
+    @Future(message = "마감 일자는 현재 시간 이후여야 합니다.")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime dueDate;
 
-    @NotNull(message = "거래 장소는 필수 입력 항목입니다.")
+    @NotNull(message = "거래 장소는 공백을 제외한 2자 이상, 85자 이하로 입력해주세요.")
+    @NotBlank(message = "거래 장소는 공백을 제외한 2자 이상, 85자 이하로 입력해주세요.")
+    @Size(min = 2, max = 85, message = "거래 장소는 공백을 제외한 2자 이상, 85자 이하로 입력해주세요.")
     private String location;
 
     @NotNull(message = "픽업 일자는 필수 입력 항목입니다.")
@@ -63,9 +65,12 @@ public class CreateGroupBuyRequest {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime pickupDate;
 
-    @NotNull(message = "이미지 리스트는 필수입니다.")
-    @Size(min=1, max = 5, message = "이미지는 1장 이상, 5장 이하까지 등록할 수 있습니다.")
+    @NotNull(message = "이미지는 1장 이상, 5장 이하로 등록해주세요.")
+    @Size(min=1, max = 5, message = "이미지는 1장 이상, 5장 이하로 등록해주세요.")
     private List<
-            @NotBlank(message = "이미지 파일은 공백이 될 수 없습니다."
+            @NotBlank(message = "이미지는 반드시 images/로 시작해야 합니다")
+            @Pattern(
+                    regexp = "^.*images/.*$",
+                    message = "이미지는 반드시 images/로 시작해야 합니다"
             ) String> imageKeys;
 }

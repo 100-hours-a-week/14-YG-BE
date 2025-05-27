@@ -12,3 +12,20 @@ spring:
       enabled: true
   flyway:
     enabled: false
+  main:
+    allow-bean-definition-overriding: true   # 있으면 충돌 방지용
+
+ai:
+  service:
+    base-url: http://localhost:18080  # 더미 주소
+
+cloud:
+  aws:
+    credentials:
+      access-key: dummy-access-key
+      secret-key: dummy-secret-key
+    region:
+      static: ap-northeast-2
+    s3:
+      bucket: dummy-bucket
+

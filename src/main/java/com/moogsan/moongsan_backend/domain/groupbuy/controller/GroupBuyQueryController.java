@@ -13,6 +13,7 @@ import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyU
 import com.moogsan.moongsan_backend.domain.groupbuy.facade.query.GroupBuyQueryFacade;
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyQueryService.*;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
+import com.moogsan.moongsan_backend.global.exception.specific.UnauthenticatedAccessException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -30,11 +31,19 @@ public class GroupBuyQueryController {
 
     /// 공구 게시글 수정 전 정보 조회 SUCCESS
     @GetMapping("/{postId}/edit")
-    public ResponseEntity<WrapperResponse<GroupBuyForUpdateResponse>> getGroupBuyEditInfo(@PathVariable Long postId) {
+    public ResponseEntity<WrapperResponse<GroupBuyForUpdateResponse>> getGroupBuyEditInfo(
+            @PathVariable Long postId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+
+        if (userDetails == null) {
+            throw new UnauthenticatedAccessException("로그인이 필요합니다.");
+        }
+
         GroupBuyForUpdateResponse groupBuyForUpdate = queryFacade.getGroupBuyEditInfo(postId);
         return ResponseEntity.ok(
                 WrapperResponse.<GroupBuyForUpdateResponse>builder()
-                        .message("공구 게시글 수정을 성공적으로 조회했습니다.")
+                        .message("공구 게시글 수정용 정보를 성공적으로 조회했습니다.")
                         .data(groupBuyForUpdate)
                         .build()
         );
@@ -44,9 +53,9 @@ public class GroupBuyQueryController {
     @GetMapping("/{postId}")
     public ResponseEntity<WrapperResponse<DetailResponse>> getGroupBuyDetailInfo(
         @PathVariable Long postId,
-        @AuthenticationPrincipal CustomUserDetails principal) {
+        @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        Long userId = (principal != null) ? principal.getUser().getId() : null;
+        Long userId = (userDetails != null) ? userDetails.getUser().getId() : null;
 
         DetailResponse detail = queryFacade.getGroupBuyDetailInfo(userId, postId);
         return ResponseEntity.ok(
@@ -57,14 +66,19 @@ public class GroupBuyQueryController {
         );
     }
 
+    ///  주최자 계좌 정보 조회 V2 update
     @GetMapping("/{postId}/host/account")
     public ResponseEntity<WrapperResponse<UserAccountResponse>> getGroupBuyHostAccountInfo(
             @PathVariable Long postId,
-            @AuthenticationPrincipal CustomUserDetails principal) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        Long userId = (principal != null) ? principal.getUser().getId() : null;
+        if (userDetails == null) {
+            throw new UnauthenticatedAccessException("로그인이 필요합니다.");
+        }
 
-        UserAccountResponse accountResponse = queryFacade.getGroupBuyHostAccountInfo(userId, postId);
+        UserAccountResponse accountResponse = queryFacade.getGroupBuyHostAccountInfo(
+                userDetails.getUser().getId(), postId
+        );
         return ResponseEntity.ok(
                 WrapperResponse.<UserAccountResponse>builder()
                         .message("공구 게시글 주최자 계좌 정보를 성공적으로 조회했습니다.")
@@ -96,7 +110,7 @@ public class GroupBuyQueryController {
                         cursorId, cursorCreatedAt, cursorPrice, limit, openOnly, keyword);
         return ResponseEntity.ok(
                 WrapperResponse.<PagedResponse<BasicListResponse>>builder()
-                        .message("전체 리스트를 성공적으로 조회했습니다.")
+                        .message("전체 공구 리스트를 성공적으로 조회했습니다.")
                         .data(pagedResponse)
                         .build()
         );
@@ -113,6 +127,11 @@ public class GroupBuyQueryController {
             @RequestParam(value = "cursorId", required = false) Long cursorId,
             @RequestParam(value = "limit", defaultValue = "10") Integer limit
     ) {
+
+        if (userDetails == null) {
+            throw new UnauthenticatedAccessException("로그인이 필요합니다.");
+        }
+
         PagedResponse<WishListResponse> pagedResponse = queryFacade.getGroupBuyWishList(
                 userDetails.getUser().getId(), sort, cursorCreatedAt, cursorId, limit);
         return ResponseEntity.ok(
@@ -128,9 +147,14 @@ public class GroupBuyQueryController {
     public ResponseEntity<WrapperResponse<PagedResponse<HostedListResponse>>> getGroupBuyHostedList(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(value = "sort") String sort,
-            @RequestParam(value = "cursor", required = false) Long cursorId,
+            @RequestParam(value = "cursorId", required = false) Long cursorId,
             @RequestParam(value = "limit", defaultValue = "10") Integer limit
     ) {
+
+        if (userDetails == null) {
+            throw new UnauthenticatedAccessException("로그인이 필요합니다.");
+        }
+
         PagedResponse<HostedListResponse> pagedResponse = queryFacade.getGroupBuyHostedList(
                 userDetails.getUser().getId(), sort, cursorId, limit);
         return ResponseEntity.ok(
@@ -148,9 +172,14 @@ public class GroupBuyQueryController {
             @RequestParam(value = "sort") String sort,
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
             LocalDateTime cursorCreatedAt,
-            @RequestParam(value = "cursor", required = false) Long cursorId,
+            @RequestParam(value = "cursorId", required = false) Long cursorId,
             @RequestParam(value = "limit", defaultValue = "10") Integer limit
     ) {
+
+        if (userDetails == null) {
+            throw new UnauthenticatedAccessException("로그인이 필요합니다.");
+        }
+
         PagedResponse<ParticipatedListResponse> pagedResponse = queryFacade.getGroupBuyParticipatedList(
                 userDetails.getUser().getId(), sort, cursorCreatedAt, cursorId, limit);
         return ResponseEntity.ok(
@@ -166,6 +195,11 @@ public class GroupBuyQueryController {
     public ResponseEntity<WrapperResponse<ParticipantListResponse>> getGroupBuyParticipantsInfo(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId) {
+
+        if (userDetails == null) {
+            throw new UnauthenticatedAccessException("로그인이 필요합니다.");
+        }
+
         ParticipantListResponse participantList = queryFacade.getGroupBuyParticipantsInfo(
                 userDetails.getUser().getId(), postId);
         return ResponseEntity.ok(
