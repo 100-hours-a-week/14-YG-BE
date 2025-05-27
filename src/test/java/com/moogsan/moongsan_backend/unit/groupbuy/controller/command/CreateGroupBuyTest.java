@@ -1,7 +1,7 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.controller.command;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moogsan.moongsan_backend.domain.groupbuy.controller.GroupBuyCommandController;
+import com.moogsan.moongsan_backend.domain.groupbuy.controller.command.CreateGroupBuyController;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.CreateGroupBuyRequest;
 import com.moogsan.moongsan_backend.domain.groupbuy.facade.command.GroupBuyCommandFacade;
 import com.moogsan.moongsan_backend.support.fake.InMemoryDuplicateRequestPreventer;
@@ -27,7 +27,7 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = GroupBuyCommandController.class)
+@WebMvcTest(controllers = CreateGroupBuyController.class)
 @Import(InMemoryDuplicateRequestPreventer.class)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc(addFilters = false)

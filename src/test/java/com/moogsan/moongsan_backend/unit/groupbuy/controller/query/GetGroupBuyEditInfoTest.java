@@ -1,10 +1,8 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.controller.query;
 
-import com.moogsan.moongsan_backend.domain.groupbuy.controller.GroupBuyQueryController;
-import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyDetail.UserAccountResponse;
+import com.moogsan.moongsan_backend.domain.groupbuy.controller.query.GroupBuyEditController;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyUpdate.GroupBuyForUpdateResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.facade.query.GroupBuyQueryFacade;
-import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyQueryService.GetGroupBuyEditInfo;
 import com.moogsan.moongsan_backend.support.security.WithMockCustomUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,7 +21,7 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(GroupBuyQueryController.class)
+@WebMvcTest(GroupBuyEditController.class)
 @AutoConfigureMockMvc(addFilters = false)
 public class GetGroupBuyEditInfoTest {
 

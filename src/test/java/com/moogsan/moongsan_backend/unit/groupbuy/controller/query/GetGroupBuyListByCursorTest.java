@@ -1,11 +1,9 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.controller.query;
 
-import com.moogsan.moongsan_backend.domain.groupbuy.controller.GroupBuyQueryController;
+import com.moogsan.moongsan_backend.domain.groupbuy.controller.query.GroupBuyListController;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.BasicList.BasicListResponse;
-import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.HostedList.HostedListResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.PagedResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.facade.query.GroupBuyQueryFacade;
-import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyQueryService.GetGroupBuyListByCursor;
 import com.moogsan.moongsan_backend.support.security.WithMockCustomUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,7 +24,7 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = GroupBuyQueryController.class)
+@WebMvcTest(controllers = GroupBuyListController.class)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc(addFilters = false)
 public class GetGroupBuyListByCursorTest {
