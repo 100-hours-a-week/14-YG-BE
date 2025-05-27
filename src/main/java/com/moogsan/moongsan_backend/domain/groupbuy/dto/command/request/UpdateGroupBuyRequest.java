@@ -1,6 +1,7 @@
 package com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.moogsan.moongsan_backend.domain.groupbuy.validator.RequireReasonIfPickupDateChanged;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import org.hibernate.validator.constraints.URL;
@@ -9,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@RequireReasonIfPickupDateChanged
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
