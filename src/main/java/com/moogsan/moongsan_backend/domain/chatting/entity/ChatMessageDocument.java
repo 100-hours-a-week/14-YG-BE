@@ -1,5 +1,6 @@
 package com.moogsan.moongsan_backend.domain.chatting.entity;
 
+import com.moogsan.moongsan_backend.domain.BaseEntity;
 import com.moogsan.moongsan_backend.domain.chatting.BaseDocument;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -14,13 +15,12 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @AllArgsConstructor
 @Builder
 @Document(collection = "chat_messages")
-public class ChatMessageDocument extends BaseDocument {
+public class ChatMessage extends BaseDocument {
     @Id
-    private String id;
+    private Long id;
 
     @Field("chat_room_id")
     private Long chatRoomId;
-    private Long messageSeq;
 
     @Field("participant_id")
     private Long chatParticipantId;
