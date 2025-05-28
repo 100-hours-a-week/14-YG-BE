@@ -1,5 +1,6 @@
 package com.moogsan.moongsan_backend.domain.user.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -46,17 +47,6 @@ public class SignUpRequest {
     @Pattern(regexp = "^\\d+$", message = "계좌번호는 숫자만 입력해야 합니다.")
     private String accountNumber; // 계좌 번호
 
-    private String imageUrl; // 프로필 이미지 URL (회원가입 시에는 null)
-
-
-    public SignUpRequest(String email, String password, String nickname, String name, String phoneNumber, String accountBank, String accountNumber) {
-        this.email = email;
-        this.password = password;
-        this.nickname = nickname;
-        this.name = name;
-        this.phoneNumber = phoneNumber;
-        this.accountBank = accountBank;
-        this.accountNumber = accountNumber;
-        this.imageUrl = null;
-    }
+    @JsonProperty("imageUrl")
+    private String imageUrl; // 프로필 이미지 URL
 }

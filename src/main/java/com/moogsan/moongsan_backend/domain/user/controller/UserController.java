@@ -194,6 +194,7 @@ public class UserController {
         );
     }
 
+    // 계좌 정보 실명 인증
     @GetMapping("/users/check/account")
     public ResponseEntity<WrapperResponse<Void>> checkAccount(
             @RequestParam String name,

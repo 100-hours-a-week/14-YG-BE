@@ -7,6 +7,7 @@ import com.moogsan.moongsan_backend.domain.user.dto.request.UpdateProfileImageRe
 import com.moogsan.moongsan_backend.domain.user.service.UpdateProfileService;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
 import com.moogsan.moongsan_backend.domain.WrapperResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -37,7 +38,7 @@ public class UpdateProfileController {
     @PatchMapping("/password")
     public ResponseEntity<WrapperResponse<Void>> updatePassword(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody UpdateProfilePasswordRequest request) {
+            @Valid @RequestBody UpdateProfilePasswordRequest request) {
         updateProfileService.updatePassword(userDetails.getUser().getId(), request);
         return ResponseEntity.ok(
                 WrapperResponse.<Void>builder()
@@ -51,7 +52,7 @@ public class UpdateProfileController {
     @PatchMapping("/account")
     public ResponseEntity<WrapperResponse<Void>> updateAccountInfo(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody UpdateProfileAccountRequest request) {
+            @Valid @RequestBody UpdateProfileAccountRequest request) {
         updateProfileService.updateAccountInfo(userDetails.getUser().getId(), request);
         return ResponseEntity.ok(
                 WrapperResponse.<Void>builder()
