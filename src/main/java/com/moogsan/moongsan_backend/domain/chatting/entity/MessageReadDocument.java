@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Builder
 @Document(collection = "message_read")
 @CompoundIndex(name = "idx_part_msg", def = "{'participant_id':1,'chat_message_id':1}", unique = true)
-public class MessageRead {
+public class MessageReadDocument {
     @Id
     private Long id;
 
