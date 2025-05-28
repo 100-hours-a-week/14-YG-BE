@@ -1,16 +1,13 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.controller.command;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moogsan.moongsan_backend.domain.groupbuy.controller.GroupBuyCommandController;
-import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.CreateGroupBuyRequest;
+import com.moogsan.moongsan_backend.domain.groupbuy.controller.command.UpdateGroupBuyController;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.UpdateGroupBuyRequest;
 import com.moogsan.moongsan_backend.domain.groupbuy.facade.command.GroupBuyCommandFacade;
-import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.UpdateGroupBuy;
 import com.moogsan.moongsan_backend.support.fake.InMemoryDuplicateRequestPreventer;
 import com.moogsan.moongsan_backend.support.security.WithMockCustomUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -28,7 +25,7 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = GroupBuyCommandController.class)
+@WebMvcTest(controllers = UpdateGroupBuyController.class)
 @Import(InMemoryDuplicateRequestPreventer.class)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc(addFilters = false)

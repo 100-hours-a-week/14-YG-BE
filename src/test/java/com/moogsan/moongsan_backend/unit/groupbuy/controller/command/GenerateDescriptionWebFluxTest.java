@@ -1,33 +1,25 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.controller.command;
 
-import com.moogsan.moongsan_backend.domain.groupbuy.controller.GroupBuyCommandController;
-import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.DescriptionGenerationRequest;
-import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.response.DescriptionDto;
+import com.moogsan.moongsan_backend.domain.groupbuy.controller.command.GenerateDescriptionController;
 import com.moogsan.moongsan_backend.domain.groupbuy.facade.command.GroupBuyCommandFacade;
 import com.moogsan.moongsan_backend.support.fake.InMemoryDuplicateRequestPreventer;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.MediaType;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import reactor.core.publisher.Mono;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.csrf;
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockUser;
 
-@WebFluxTest(GroupBuyCommandController.class)
+@WebFluxTest(GenerateDescriptionController.class)
 @Import({InMemoryDuplicateRequestPreventer.class,
         GenerateDescriptionWebFluxTest.TestSecurityOff.class
 })

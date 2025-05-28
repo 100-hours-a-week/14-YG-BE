@@ -35,11 +35,6 @@ public class DeleteGroupBuy {
             throw new GroupBuyInvalidStateException("공구 삭제는 공구가 열려있는 상태에서만 가능합니다.");
         }
 
-        if (groupBuy.getPostStatus().equals("DELETED")
-                || groupBuy.getDueDate().isBefore(LocalDateTime.now())) {
-            throw new GroupBuyInvalidStateException("이미 삭제된 공구입니다.");
-        }
-
         // 해당 공구의 참여자가 0명인지 조회 -> 아니면 409
         int participantCount = orderRepository.countByGroupBuyIdAndStatusNot(postId, "CANCELED");
         if(participantCount != 0) {
