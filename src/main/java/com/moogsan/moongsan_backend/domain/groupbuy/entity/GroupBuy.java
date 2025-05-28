@@ -1,6 +1,7 @@
 package com.moogsan.moongsan_backend.domain.groupbuy.entity;
 
 import com.moogsan.moongsan_backend.domain.BaseEntity;
+import com.moogsan.moongsan_backend.domain.chatting.entity.ChatRoom;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.UpdateGroupBuyRequest;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.domain.groupbuy.policy.DueSoonPolicy;
@@ -88,7 +89,7 @@ public class GroupBuy extends BaseEntity {
     private String pickupChangeReason;
 
     @Builder.Default
-    private boolean is_finalized = false;
+    private boolean isFinalized = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id", nullable = false)
@@ -104,6 +105,12 @@ public class GroupBuy extends BaseEntity {
                orphanRemoval = true)
     @OrderBy("imageSeqNo ASC")
     private List<Image> images = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "groupBuy",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true)
+    private List<ChatRoom> chatRooms = new ArrayList<>();
 
     @Transient
     public double getSoldRatio() {
@@ -184,11 +191,11 @@ public class GroupBuy extends BaseEntity {
     }
 
     public boolean isFixed() {
-        return is_finalized;
+        return isFinalized;
     }
 
     public void setFixed(boolean fixed) {
-        this.is_finalized = fixed;
+        this.isFinalized = fixed;
     }
 
 }
