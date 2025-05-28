@@ -116,16 +116,16 @@ public class User implements UserDetails {
 
     public void updateAccount(@NotBlank(message = "은행명은 필수입니다.") String accountBank,
                               @NotBlank(message = "계좌번호는 필수입니다.")
-                              @Pattern(regexp = "^\\d+$", message = "계좌번호는 숫자만 입력해야 합니다.") String accountNumber) {
+                              @Pattern(regexp = "^\\d+$", message = "계좌번호는 숫자만 입력해야 합니다.") String accountNumber,
+                              @NotBlank(message = "실명은 필수입니다.") String name) {
         this.accountBank = accountBank;
         this.accountNumber = accountNumber;
+        this.name = name;
         this.modifiedAt = LocalDateTime.now();
     }
 
-    public void updateBasicInfo(@Size(min = 2, max = 50, message = "이름은 2자 이상 50자 이하여야 합니다.") String name,
-                                 @Size(min = 2, max = 12, message = "닉네임은 2자 이상 12자 이하여야 합니다.") String nickname,
+    public void updateBasicInfo(@Size(min = 2, max = 12, message = "닉네임은 2자 이상 12자 이하여야 합니다.") String nickname,
                                  @Pattern(regexp = "^\\d{10,11}$", message = "전화번호는 하이픈(-) 없이 10~11자리 숫자여야 합니다.") String phoneNumber) {
-        this.name = name;
         this.nickname = nickname;
         this.phoneNumber = phoneNumber;
         this.modifiedAt = LocalDateTime.now();
