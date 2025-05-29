@@ -48,4 +48,8 @@ public class Order extends BaseEntity {
     @Builder.Default
     @Column(name = "deleted_count")
     private Integer deletedCount = 0;
+
+    public void updateStatus(String status) {
+        this.status = status;
+    }
 }

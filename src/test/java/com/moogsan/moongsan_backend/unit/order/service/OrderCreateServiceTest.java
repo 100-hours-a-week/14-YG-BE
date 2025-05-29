@@ -8,8 +8,10 @@ import com.moogsan.moongsan_backend.domain.order.dto.response.OrderCreateRespons
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.order.service.OrderCreateService;
+import com.moogsan.moongsan_backend.domain.order.service.OrderStatusUpdateService;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import com.moogsan.moongsan_backend.domain.user.repository.UserRepository;
+import com.moogsan.moongsan_backend.global.exception.base.BusinessException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,7 +21,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import org.springframework.web.server.ResponseStatusException;
 
 class OrderCreateServiceTest {
 
@@ -86,8 +87,8 @@ class OrderCreateServiceTest {
         when(groupBuyRepository.findById(postId)).thenReturn(Optional.of(groupBuy));
 
         assertThatThrownBy(() -> orderCreateService.createOrder(request, userId))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("주문이 불가능한 상태입니다.");
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("현재 주문이 불가능한 상태입니다.");
     }
 
     @Test
@@ -101,8 +102,8 @@ class OrderCreateServiceTest {
                 .thenReturn(Optional.of(mock(Order.class)));
 
         assertThatThrownBy(() -> orderCreateService.createOrder(request, userId))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("이미 공동구매에 참여하였습니다.");
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("이미 공동구매에 참여하였습니다.");
     }
 
     @Test
@@ -116,8 +117,8 @@ class OrderCreateServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> orderCreateService.createOrder(request, userId))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("수량은 주문 단위의 배수여야 합니다.");
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("수량은 주문 단위의 배수여야 합니다.");
     }
 
     @Test
@@ -131,8 +132,8 @@ class OrderCreateServiceTest {
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> orderCreateService.createOrder(request, userId))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("남은 수량을 초과하여 주문할 수 없습니다.");
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("남은 수량을 초과하여 주문할 수 없습니다.");
     }
 
     @Test
@@ -142,8 +143,8 @@ class OrderCreateServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> orderCreateService.createOrder(request, userId))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("유저 정보를 찾을 수 없습니다.");
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("유저 정보를 찾을 수 없습니다.");
     }
 
     @Test
@@ -154,7 +155,22 @@ class OrderCreateServiceTest {
         when(groupBuyRepository.findById(postId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> orderCreateService.createOrder(request, userId))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("공동구매 정보를 찾을 수 없습니다.");
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("공동구매 정보를 찾을 수 없습니다.");
+    }
+
+    @Test
+    @DisplayName("주문 상태 변경 성공")
+    void updateOrderStatus_success() {
+        Order order = mock(Order.class);
+        String newStatus = "COMPLETED";
+
+        when(orderRepository.findByUserIdAndGroupBuyIdAndStatusNot(userId, postId, "CANCELED"))
+                .thenReturn(Optional.of(order));
+
+        OrderStatusUpdateService service = new OrderStatusUpdateService(orderRepository);
+        service.updateOrderStatus(postId, userId, newStatus);
+
+        verify(order).updateStatus(newStatus);
     }
 }

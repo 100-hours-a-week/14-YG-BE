@@ -5,6 +5,7 @@ import com.moogsan.moongsan_backend.domain.order.controller.OrderController;
 import com.moogsan.moongsan_backend.domain.order.dto.request.OrderCreateRequest;
 import com.moogsan.moongsan_backend.domain.order.dto.response.OrderCreateResponse;
 import com.moogsan.moongsan_backend.domain.order.service.OrderCreateService;
+import com.moogsan.moongsan_backend.domain.order.service.OrderStatusUpdateService;
 import com.moogsan.moongsan_backend.support.security.WithMockCustomUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,7 @@ class OrderControllerTest {
     @Autowired private ObjectMapper objectMapper;
 
     @MockBean private OrderCreateService orderCreateService;
+    @MockBean private OrderStatusUpdateService orderStatusUpdateService;
 
     @Test
     @DisplayName("POST /api/orders - 주문 생성 성공")

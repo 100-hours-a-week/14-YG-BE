@@ -12,8 +12,8 @@ import com.moogsan.moongsan_backend.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
+import com.moogsan.moongsan_backend.global.exception.base.BusinessException;
+import com.moogsan.moongsan_backend.global.exception.code.ErrorCode;
 
 @Service
 @RequiredArgsConstructor
@@ -27,30 +27,30 @@ public class OrderCreateService {
     @Transactional
     public OrderCreateResponse createOrder(OrderCreateRequest request, Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "유저 정보를 찾을 수 없습니다."));
 
         GroupBuy groupBuy = groupBuyRepository.findById(request.getPostId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "공동구매 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "공동구매 정보를 찾을 수 없습니다."));
 
         // 공동구매 글의 상태가 열려있어야지만 주문 가능
         if (!"OPEN".equals(groupBuy.getPostStatus())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "현재 주문이 불가능한 상태입니다.");
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "현재 주문이 불가능한 상태입니다.");
         }
 
         // 해당 공구 내 CANCELED 상태가 아닌 주문 존재
         orderRepository.findByUserIdAndGroupBuyIdAndStatusNot(user.getId(), groupBuy.getId(), "CANCELED")
             .ifPresent(o -> {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 공동구매에 참여하였습니다.");
+                throw new BusinessException(ErrorCode.DUPLICATE_REQUEST, "이미 공동구매에 참여하였습니다.");
             });
 
         // 입력 수량이 해당 공구의 주문 단위의 배수가 아님
         if (request.getQuantity() % groupBuy.getUnitAmount() != 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "수량은 주문 단위의 배수여야 합니다.");
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "수량은 주문 단위의 배수여야 합니다.");
         }
 
         // 입력 수량이 해당 공구의 남은 수량을 초과
         if (request.getQuantity() > groupBuy.getLeftAmount()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "남은 수량을 초과하여 주문할 수 없습니다.");
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "남은 수량을 초과하여 주문할 수 없습니다.");
         }
 
         String orderName = request.getName() != null ? request.getName() : user.getName();
@@ -82,5 +82,24 @@ public class OrderCreateService {
             .hostAccountBank(groupBuy.getUser().getAccountBank())
             .hostAccountNumber(groupBuy.getUser().getAccountNumber())
             .build();
+    }
+
+    public OrderCreateResponse getOrderIfNotCanceled(Long postId, Long userId) {
+        GroupBuy groupBuy = groupBuyRepository.findById(postId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "공동구매 정보를 찾을 수 없습니다."));
+
+        Order order = orderRepository.findByUserIdAndGroupBuyIdAndStatusNot(userId, postId, "CANCELED")
+                .orElse(null);
+
+        if (order == null) return null;
+
+        return OrderCreateResponse.builder()
+                .productName(groupBuy.getName())
+                .quantity(order.getQuantity())
+                .price(order.getPrice())
+                .hostName(groupBuy.getUser().getName())
+                .hostAccountBank(groupBuy.getUser().getAccountBank())
+                .hostAccountNumber(groupBuy.getUser().getAccountNumber())
+                .build();
     }
 }
