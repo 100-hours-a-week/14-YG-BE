@@ -47,10 +47,10 @@ dependencyManagement {
 }
 
 flyway {
-	url = 'jdbc:mysql://localhost:3306/moongsan_local_db'
-	user = 'root'
-	password = 'pass'
-	schemas = ['moongsan_local_db']
+	url = System.getenv("FLYWAY_URL")
+	user = System.getenv("FLYWAY_USER")
+	password = System.getenv("FLYWAY_PASSWORD")
+	schemas = [System.getenv("FLYWAY_SCHEMAS")]
 	locations = ['filesystem:src/main/resources/db/migration']
 	driver = 'com.mysql.cj.jdbc.Driver'
 }
@@ -60,6 +60,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 	implementation "software.amazon.awssdk:s3"
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'

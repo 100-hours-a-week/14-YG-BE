@@ -92,4 +92,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Exclude POST /api/users from filtering
         return path.equals("/api/users") && method.equalsIgnoreCase("POST");
     }
+    @Override
+    protected boolean shouldNotFilterAsyncDispatch() {
+        return false;  // ASYNC 디스패치에서도 필터 동작
+    }
 }
