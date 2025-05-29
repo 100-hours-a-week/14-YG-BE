@@ -1,14 +1,10 @@
 package com.moogsan.moongsan_backend.domain.chatting.service.query;
 
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.Sorts;
 import com.moogsan.moongsan_backend.domain.chatting.dto.query.ChatMessagePageResponse;
 import com.moogsan.moongsan_backend.domain.chatting.dto.query.ChatMessageResponse;
 import com.moogsan.moongsan_backend.domain.chatting.entity.ChatMessageDocument;
 import com.moogsan.moongsan_backend.domain.chatting.entity.ChatParticipant;
 import com.moogsan.moongsan_backend.domain.chatting.entity.ChatRoom;
-import com.moogsan.moongsan_backend.domain.chatting.exception.specific.ChatRoomInvalidStateException;
 import com.moogsan.moongsan_backend.domain.chatting.exception.specific.ChatRoomNotFoundException;
 import com.moogsan.moongsan_backend.domain.chatting.exception.specific.NotParticipantException;
 import com.moogsan.moongsan_backend.domain.chatting.mapper.ChatMessageMapper;
@@ -18,7 +14,6 @@ import com.moogsan.moongsan_backend.domain.chatting.repository.ChatRoomRepositor
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -27,9 +22,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,7 +30,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class PollMessages {
+public class GetPastMessages {
 
     private static final int PAGE_SIZE = 10;
     private final ChatMessageRepository chatMessageRepository;
@@ -46,7 +39,7 @@ public class PollMessages {
     private final ChatRoomRepository chatRoomRepository;
     private final MongoTemplate mongoTemplate;
 
-    public ChatMessagePageResponse pollMessages(
+    public ChatMessagePageResponse getPastMessages(
             User currentUser,
             Long chatRoomId,
             String cursorId
@@ -65,16 +58,12 @@ public class PollMessages {
 
         // 커서 기반 필터 생성
         Query q = new Query();
-        if (cursorId == null) {
+        if (cursorId == null || !ObjectId.isValid(cursorId)) {
             q.addCriteria(Criteria.where("chatRoomId").is(chatRoomId));
         } else {
             q.addCriteria(new Criteria().andOperator(
                     Criteria.where("chatRoomId").is(chatRoomId),
-                    new Criteria().orOperator(
-                            new Criteria().andOperator(
-                                    Criteria.where("_id").lt(new ObjectId(cursorId))
-                            )
-                    )
+                    Criteria.where("_id").lt(new ObjectId(cursorId))
             ));
         }
 
