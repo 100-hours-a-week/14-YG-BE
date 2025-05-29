@@ -11,6 +11,7 @@ import com.moogsan.moongsan_backend.domain.chatting.mapper.ChatMessageMapper;
 import com.moogsan.moongsan_backend.domain.chatting.repository.ChatMessageRepository;
 import com.moogsan.moongsan_backend.domain.chatting.repository.ChatParticipantRepository;
 import com.moogsan.moongsan_backend.domain.chatting.repository.ChatRoomRepository;
+import com.moogsan.moongsan_backend.domain.chatting.service.query.GetLatestMessages;
 import com.moogsan.moongsan_backend.domain.chatting.util.MessageSequenceGenerator;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class CreateChatMessage {
     private final ChatMessageRepository chatMessageRepository;
     private final MessageSequenceGenerator messageSequenceGenerator;
     private final ChatMessageMapper chatMessageMapper;
+    private final GetLatestMessages getLatestMessages;
 
     public void createChatMessage(User currentUser, CreateChatMessageRequest request, Long chatRoomId) {
 
@@ -57,6 +59,8 @@ public class CreateChatMessage {
         // 메세지 작성
         ChatMessageDocument document = chatMessageMapper
                 .toMessageDocument(chatRoom, participant.getId(), request, nextSeq);
+
+        getLatestMessages.notifyNewMessage(document, currentUser.getNickname(), currentUser.getImageKey());
 
         chatMessageRepository.save(document);
     }
