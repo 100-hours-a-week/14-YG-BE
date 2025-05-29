@@ -1,7 +1,6 @@
 package com.moogsan.moongsan_backend.domain.chatting.controller.query;
 
 import com.moogsan.moongsan_backend.domain.WrapperResponse;
-import com.moogsan.moongsan_backend.domain.chatting.Facade.query.ChattingQueryFacade;
 import com.moogsan.moongsan_backend.domain.chatting.dto.command.response.CommandChattingReponse;
 import com.moogsan.moongsan_backend.domain.chatting.dto.query.ChatMessageResponse;
 import com.moogsan.moongsan_backend.domain.chatting.service.query.GetLatestMessages;
@@ -17,17 +16,22 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/chats/participant")
+@RequestMapping("/api/chat-rooms")
 public class GetLatestMessagesController {
 
-    private final ChattingQueryFacade chattingQueryFacade;
+    private final GetLatestMessages getLatestMessages;
 
     @GetMapping("/{chatRoomId}/polling/latest")
-    public DeferredResult<List<ChatMessageResponse>> getLatestMessages(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
+    public ResponseEntity<WrapperResponse<DeferredResult<List<ChatMessageResponse>>>> getLatestMessages(
+            @AuthenticationPrincipal CustomUserDetails currentUser,
             @PathVariable Long chatRoomId,
             @RequestParam(required = false) String lastMessageId
     ) {
-        return chattingQueryFacade.getLatesetMessages(userDetails.getUser(), chatRoomId, lastMessageId);
+        DeferredResult<List<ChatMessageResponse>> result = getLatestMessages.getLatesetMessages(currentUser.getUser(), chatRoomId, lastMessageId);
+        return ResponseEntity.ok(
+                WrapperResponse.<DeferredResult<List<ChatMessageResponse>>>builder()
+                        .message("최신 메세지가 성공적으로 조회되었습니다.")
+                        .data(result)
+                        .build());
     }
 }
