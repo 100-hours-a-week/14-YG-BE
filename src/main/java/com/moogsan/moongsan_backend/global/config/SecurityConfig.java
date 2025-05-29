@@ -82,6 +82,8 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
+                "https://test.moongsan.com",
+                "https://dev.moongsan.com",
                 "http://localhost:3000",
                 "http://localhost:5173",
                 "https://moongsan.com"
