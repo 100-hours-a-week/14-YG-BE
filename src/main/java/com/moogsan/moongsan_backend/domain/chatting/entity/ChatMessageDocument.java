@@ -16,10 +16,11 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Document(collection = "chat_messages")
 public class ChatMessageDocument extends BaseDocument {
     @Id
-    private Long id;
+    private String id;
 
     @Field("chat_room_id")
     private Long chatRoomId;
+    private Long messageSeq;
 
     @Field("participant_id")
     private Long chatParticipantId;
