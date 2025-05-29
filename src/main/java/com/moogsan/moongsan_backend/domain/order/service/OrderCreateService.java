@@ -24,6 +24,7 @@ public class OrderCreateService {
     private final OrderRepository orderRepository;
     private final DueSoonPolicy dueSoonPolicy;
 
+    // 주문 생성 서비스
     @Transactional
     public OrderCreateResponse createOrder(OrderCreateRequest request, Long userId) {
         User user = userRepository.findById(userId)
@@ -35,6 +36,12 @@ public class OrderCreateService {
         // 공동구매 글의 상태가 열려있어야지만 주문 가능
         if (!"OPEN".equals(groupBuy.getPostStatus())) {
             throw new BusinessException(ErrorCode.BAD_REQUEST, "현재 주문이 불가능한 상태입니다.");
+        }
+
+        // 동일 postId, userId로 CANCELED 주문이 3건 이상이면 차단
+        long canceledCount = orderRepository.countByUserIdAndGroupBuyIdAndStatus(user.getId(), groupBuy.getId(), "CANCELED");
+        if (canceledCount > 3) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "주문을 3회 이상 취소하였습니다.");
         }
 
         // 해당 공구 내 CANCELED 상태가 아닌 주문 존재
@@ -84,6 +91,7 @@ public class OrderCreateService {
             .build();
     }
 
+    // 주문 조회 서비스
     public OrderCreateResponse getOrderIfNotCanceled(Long postId, Long userId) {
         GroupBuy groupBuy = groupBuyRepository.findById(postId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "공동구매 정보를 찾을 수 없습니다."));

@@ -21,6 +21,7 @@ public class OrderController {
     private final OrderCreateService orderCreateService;
     private final OrderStatusUpdateService orderStatusUpdateService;
 
+    // 주문 등록
     @PostMapping("/orders")
     public ResponseEntity<?> createOrder(
             @Valid @RequestBody OrderCreateRequest orderCreateRequest,
@@ -35,6 +36,7 @@ public class OrderController {
         );
     }
 
+    // 주문 조회
     @GetMapping("/orders/{postId}")
     public ResponseEntity<?> getOrder(
             @PathVariable("postId") Long postId,
@@ -59,6 +61,7 @@ public class OrderController {
                         .build());
     }
 
+    // 주문 상태 변경
     @PatchMapping("/orders/{postId}/status")
     public ResponseEntity<?> updateOrderStatus(
             @PathVariable Long postId,

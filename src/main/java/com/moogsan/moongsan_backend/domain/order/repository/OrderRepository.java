@@ -28,6 +28,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     // 특정 공구의 참여 인원 수 확인
     int countByGroupBuyIdAndStatusNot(Long postId, String status);
 
+    // 주문 취소 횟수 카운트
+    long countByUserIdAndGroupBuyIdAndStatus(Long userId, Long groupBuyId, String status);
+
     // 특정 공구의 주문 목록 확인
     List<Order> findByGroupBuyIdAndStatusNot(Long groupBuyId, String status);
 
