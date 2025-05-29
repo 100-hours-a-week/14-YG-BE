@@ -22,11 +22,16 @@ public class GetLatestMessagesController {
     private final GetLatestMessages getLatestMessages;
 
     @GetMapping("/{chatRoomId}/polling/latest")
-    public DeferredResult<List<ChatMessageResponse>> getLatestMessages(
+    public ResponseEntity<WrapperResponse<DeferredResult<List<ChatMessageResponse>>>> getLatestMessages(
             @AuthenticationPrincipal CustomUserDetails currentUser,
             @PathVariable Long chatRoomId,
             @RequestParam(required = false) String lastMessageId
     ) {
-        return getLatestMessages.getLatesetMessages(currentUser.getUser(), chatRoomId, lastMessageId);
+        DeferredResult<List<ChatMessageResponse>> result = getLatestMessages.getLatesetMessages(currentUser.getUser(), chatRoomId, lastMessageId);
+        return ResponseEntity.ok(
+                WrapperResponse.<DeferredResult<List<ChatMessageResponse>>>builder()
+                        .message("최신 메세지가 성공적으로 조회되었습니다.")
+                        .data(result)
+                        .build());
     }
 }
