@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.domain.groupbuy.controller.command.CreateGroupBuyController;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.CreateGroupBuyRequest;
 import com.moogsan.moongsan_backend.domain.groupbuy.facade.command.GroupBuyCommandFacade;
+import com.moogsan.moongsan_backend.global.lock.DuplicateRequestPreventer;
 import com.moogsan.moongsan_backend.support.fake.InMemoryDuplicateRequestPreventer;
 import com.moogsan.moongsan_backend.support.security.WithMockCustomUser;
 import org.junit.jupiter.api.DisplayName;
@@ -28,7 +29,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = CreateGroupBuyController.class)
-@Import(InMemoryDuplicateRequestPreventer.class)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc(addFilters = false)
 class CreateGroupBuyTest {
@@ -39,6 +39,10 @@ class CreateGroupBuyTest {
     @SuppressWarnings("removal")
     @MockBean
     private GroupBuyCommandFacade groupBuyCommandFacade;
+
+    @SuppressWarnings("removal")
+    @MockBean
+    private DuplicateRequestPreventer duplicateRequestPreventer;
 
     @Autowired
     private ObjectMapper objectMapper;
