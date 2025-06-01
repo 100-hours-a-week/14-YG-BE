@@ -2,8 +2,11 @@ package com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyQueryServic
 
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.BasicList.BasicListResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.PagedResponse;
+import com.moogsan.moongsan_backend.domain.groupbuy.entity.Category;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
+import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.CategoryNotFoundException;
 import com.moogsan.moongsan_backend.domain.groupbuy.mapper.GroupBuyQueryMapper;
+import com.moogsan.moongsan_backend.domain.groupbuy.repository.CategoryRepository;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.groupbuy.util.FetchWishUtil;
 import jakarta.persistence.criteria.Expression;
@@ -29,6 +32,7 @@ import java.util.Map;
 public class GetGroupBuyListByCursor {
 
     private final GroupBuyRepository groupBuyRepository;
+    private final CategoryRepository categoryRepository;
     private final FetchWishUtil fetchWishUtil;
     private final GroupBuyQueryMapper groupBuyQueryMapper;
 
@@ -44,6 +48,13 @@ public class GetGroupBuyListByCursor {
             String keyword
     ) {
         boolean isSearch = keyword != null && !keyword.isBlank();
+
+        if (categoryId != null) {
+            Category category = categoryRepository.findById(categoryId)
+                    .orElseThrow(CategoryNotFoundException::new);
+
+        }
+
 
         // 1) 정렬 기준
         Sort sort = isSearch
@@ -114,6 +125,7 @@ public class GetGroupBuyListByCursor {
                 cb.not(root.get("postStatus").in("ENDED", "DELETED"));
     }
 
+
     private Specification<GroupBuy> dueSoonOnlyEq(String orderBy) {
         return (root, query, cb) -> {
             if (!"due_soon_only".equals(orderBy)) {
@@ -124,10 +136,21 @@ public class GetGroupBuyListByCursor {
     }
 
     private Specification<GroupBuy> categoryEq(Long categoryId) {
-        return (root, query, cb) ->
-                categoryId == null
-                        ? cb.conjunction()
-                        : cb.equal(root.get("category").get("id"), categoryId);
+        return (root, query, cb) -> {
+            if (categoryId == null) {
+                return cb.conjunction();
+            }
+            // 1) root: GroupBuy
+            // 2) join("groupBuyCategories"): GroupBuy ↔ GroupBuyCategory (List<GroupBuyCategory>)
+            // 3) get("category"): GroupBuyCategory 안의 Category 엔티티
+            // 4) get("id"): Category 엔티티의 PK (category_id)
+            return cb.equal(
+                    root.join("groupBuyCategories")   // 엔티티 필드명: groupBuyCategories
+                            .get("category")              // GroupBuyCategory 엔티티의 category 필드
+                            .get("id"),                   // Category 엔티티의 id 필드
+                    categoryId
+            );
+        };
     }
 
     private Specification<GroupBuy> openOnlyEq(Boolean openOnly) {

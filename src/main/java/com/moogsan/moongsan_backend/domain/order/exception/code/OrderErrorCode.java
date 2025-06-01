@@ -4,7 +4,7 @@ import com.moogsan.moongsan_backend.global.exception.code.ErrorCodeType;
 import org.springframework.http.HttpStatus;
 
 public enum OrderErrorCode implements ErrorCodeType {
-    ORDER_NOT_FOUNDED("NOT_FOUNDED", HttpStatus.FORBIDDEN),
+    ORDER_NOT_FOUND("NOT_FOUNDED", HttpStatus.FORBIDDEN),
     INVALID_STATE("INVALID_STATE", HttpStatus.CONFLICT);
 
     private final String code;
