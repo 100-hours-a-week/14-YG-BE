@@ -1,6 +1,7 @@
 package com.moogsan.moongsan_backend.domain.chatting.controller.query;
 
 import com.moogsan.moongsan_backend.domain.WrapperResponse;
+import com.moogsan.moongsan_backend.domain.chatting.Facade.query.ChattingQueryFacade;
 import com.moogsan.moongsan_backend.domain.chatting.dto.command.response.CommandChattingReponse;
 import com.moogsan.moongsan_backend.domain.chatting.dto.query.ChatMessageResponse;
 import com.moogsan.moongsan_backend.domain.chatting.service.query.GetLatestMessages;
@@ -16,17 +17,17 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/chat-rooms")
+@RequestMapping("/api/chats/participant")
 public class GetLatestMessagesController {
 
-    private final GetLatestMessages getLatestMessages;
+    private final ChattingQueryFacade chattingQueryFacade;
 
     @GetMapping("/{chatRoomId}/polling/latest")
     public DeferredResult<List<ChatMessageResponse>> getLatestMessages(
-            @AuthenticationPrincipal CustomUserDetails currentUser,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long chatRoomId,
             @RequestParam(required = false) String lastMessageId
     ) {
-        return getLatestMessages.getLatesetMessages(currentUser.getUser(), chatRoomId, lastMessageId);
+        return chattingQueryFacade.getLatesetMessages(userDetails.getUser(), chatRoomId, lastMessageId);
     }
 }
