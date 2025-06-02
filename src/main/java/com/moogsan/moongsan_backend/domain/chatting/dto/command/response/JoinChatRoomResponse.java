@@ -1,3 +1,4 @@
 package com.moogsan.moongsan_backend.domain.chatting.dto.command.response;
 
-public record JoinChatRoomResponse (Long postId) {}
+public class JoinChatRoomResponse {
+}
