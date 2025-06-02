@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/chat-rooms")
+@RequestMapping("/api/chats/participant")
 public class CreateChatMessageController {
     private final ChattingCommandFacade chattingCommandFacade;
 
@@ -30,7 +30,7 @@ public class CreateChatMessageController {
 
         return ResponseEntity.ok(
                 WrapperResponse.<CommandChattingReponse>builder()
-                        .message("메세지가 성공적으로 작성되었습니다.") /// ?
+                        .message("메세지가 성공적으로 작성되었습니다.")
                         .build());
     }
 }
