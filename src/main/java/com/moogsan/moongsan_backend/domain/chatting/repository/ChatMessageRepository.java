@@ -9,4 +9,6 @@ import java.util.List;
 public interface ChatMessageRepository extends MongoRepository<ChatMessageDocument, String> {
     @Query("{ 'chatRoomId': ?0, '_id': { $gt: ?1 } }")
     List<ChatMessageDocument> findMessagesAfter(Long chatRoomId, String lastMessageId);
+
+    ChatMessageDocument findTopByChatRoomIdOrderByCreatedAtDesc(Long chatRoomId);
 }
