@@ -1,6 +1,8 @@
 package com.moogsan.moongsan_backend.domain.chatting.controller.query;
 
+import com.moogsan.moongsan_backend.domain.WrapperResponse;
 import com.moogsan.moongsan_backend.domain.chatting.Facade.query.ChattingQueryFacade;
+import com.moogsan.moongsan_backend.domain.chatting.dto.command.response.CommandChattingReponse;
 import com.moogsan.moongsan_backend.domain.chatting.dto.query.ChatMessagePageResponse;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
 import com.moogsan.moongsan_backend.global.exception.specific.UnauthenticatedAccessException;
@@ -19,64 +21,25 @@ import java.util.concurrent.Executors;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/chat-rooms")
+@RequestMapping("/api/chats/participant")
 public class GetPastMessagesController {
 
     private final ChattingQueryFacade chattingQueryFacade;
     private final ExecutorService executor = Executors.newCachedThreadPool();
 
     @GetMapping("/{chatRoomId}/polling/past")
-    public DeferredResult<ResponseEntity<ChatMessagePageResponse>> getPastMessages(
+    public ResponseEntity<WrapperResponse<ChatMessagePageResponse>> getPastMessages(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable("chatRoomId") Long chatRoomId,
             @RequestParam(required = false, defaultValue = "0") String cursorId
     ) {
 
-        if (userDetails == null) throw new UnauthenticatedAccessException("로그인이 필요합니다.");
+        ChatMessagePageResponse response = chattingQueryFacade.getPastMessages(userDetails.getUser(), chatRoomId, cursorId);
 
-        log.info("Polling for messages after id={}", cursorId);
-
-        DeferredResult<ResponseEntity<ChatMessagePageResponse>> result =
-                new DeferredResult<>(30_000L, ResponseEntity.noContent().build());
-
-        result.onTimeout(() ->
-                log.warn("롱폴링 타임아웃 chatRoomId={} lastMessageId={}", chatRoomId, cursorId)
-        );
-
-        result.onError((err) ->
-                log.error("롱폴링 처리 중 에러", err)
-        );
-
-        executor.submit(new DelegatingSecurityContextRunnable(() -> {
-            try {
-                while (!result.isSetOrExpired()) {
-                    ChatMessagePageResponse response = chattingQueryFacade
-                            .getPastMessages(userDetails.getUser(), chatRoomId, cursorId);
-                    if (!response.getChatMessageResponses().isEmpty()) {
-                        log.info("📤 응답 반환 준비 완료: {}개 메시지",
-                                response.getChatMessageResponses().size());
-
-                        result.setResult(ResponseEntity.ok(response));
-                        break;
-                    }
-                    Thread.sleep(1_000);
-                }
-            } catch (InterruptedException ie) {
-                Thread.currentThread().interrupt();
-                ChatMessagePageResponse empty = ChatMessagePageResponse.builder()
-                        .chatMessageResponses(Collections.emptyList())
-                        .hasNext(false)
-                        .build();
-                result.setErrorResult(ResponseEntity.status(500).body(empty));
-            } catch (Exception ex) {
-                log.error("롱폴링 처리 오류", ex);
-                ChatMessagePageResponse empty = ChatMessagePageResponse.builder()
-                        .chatMessageResponses(Collections.emptyList())
-                        .hasNext(false)
-                        .build();
-                result.setErrorResult(ResponseEntity.status(500).body(empty));
-            }
-        }));
-        return result;
+        return ResponseEntity.ok(
+                WrapperResponse.<ChatMessagePageResponse>builder()
+                        .message("과거 메세지 리스트를 성공적으로 조회하였습니다.")
+                        .data(response)
+                        .build());
     }
 }

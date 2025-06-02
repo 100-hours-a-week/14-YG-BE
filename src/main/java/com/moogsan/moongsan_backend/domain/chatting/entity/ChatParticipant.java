@@ -22,12 +22,12 @@ public class ChatParticipant {
 
     @Builder.Default
     @Column(nullable = false)
-    private int join_seq_no = 0;
+    private int joinSeqNo = 0;
 
     @Column(nullable = false)
-    private LocalDateTime joined_at;
+    private LocalDateTime joinedAt;
 
-    private LocalDateTime left_at;
+    private LocalDateTime leftAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_room_id", nullable = false)
@@ -39,10 +39,10 @@ public class ChatParticipant {
 
     ///  도메인 메서드
     public boolean isActive() {
-        return left_at == null;
+        return leftAt == null;
     }
 
     public void markLeft() {
-        this.left_at = LocalDateTime.now();
+        this.leftAt = LocalDateTime.now();
     }
 }

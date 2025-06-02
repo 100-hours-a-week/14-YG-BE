@@ -7,7 +7,8 @@ import com.moogsan.moongsan_backend.domain.chatting.entity.ChatParticipant;
 import com.moogsan.moongsan_backend.domain.chatting.entity.ChatRoom;
 import com.moogsan.moongsan_backend.domain.chatting.exception.specific.ChatRoomNotFoundException;
 import com.moogsan.moongsan_backend.domain.chatting.exception.specific.NotParticipantException;
-import com.moogsan.moongsan_backend.domain.chatting.mapper.ChatMessageMapper;
+import com.moogsan.moongsan_backend.domain.chatting.mapper.ChatMessageCommandMapper;
+import com.moogsan.moongsan_backend.domain.chatting.mapper.ChatMessageQueryMapper;
 import com.moogsan.moongsan_backend.domain.chatting.repository.ChatMessageRepository;
 import com.moogsan.moongsan_backend.domain.chatting.repository.ChatParticipantRepository;
 import com.moogsan.moongsan_backend.domain.chatting.repository.ChatRoomRepository;
@@ -33,8 +34,7 @@ import java.util.stream.Collectors;
 public class GetPastMessages {
 
     private static final int PAGE_SIZE = 10;
-    private final ChatMessageRepository chatMessageRepository;
-    private final ChatMessageMapper chatMessageMapper;
+    private final ChatMessageQueryMapper chatMessageQueryMapper;
     private final ChatParticipantRepository chatParticipantRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final MongoTemplate mongoTemplate;
@@ -50,7 +50,7 @@ public class GetPastMessages {
                 .orElseThrow(ChatRoomNotFoundException::new);
 
         // 참여자인지 조회 -> 아니면 403
-        boolean isParticipant = chatParticipantRepository.existsByChatRoom_IdAndUser_Id(chatRoomId, currentUser.getId());
+        boolean isParticipant = chatParticipantRepository.existsByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoomId, currentUser.getId());
 
         if(!isParticipant) {
             throw new NotParticipantException("참여자만 메세지를 조회할 수 있습니다.");
@@ -118,7 +118,7 @@ public class GetPastMessages {
                     User user = participantIdToUser.get(doc.getChatParticipantId());
                     String nickname = (user != null ? user.getNickname() : "알수없음");
                     String imageKey = (user != null ? user.getImageKey() : null);
-                    return chatMessageMapper.toMessageResponse(doc, nickname, imageKey);
+                    return chatMessageQueryMapper.toMessageResponse(doc, nickname, imageKey);
                 })
                 .collect(Collectors.toList());
 
