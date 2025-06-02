@@ -4,7 +4,9 @@ import com.moogsan.moongsan_backend.domain.chatting.dto.command.request.CreateCh
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 
 public interface ChattingCommandFacade {
-    void joinChatRoom(User user, Long groupBuyId);
+    Long joinChatRoom(User user, Long groupBuyId);
 
     void createChatMessage(User user, CreateChatMessageRequest request, Long chatRoomId);
+
+    void leaveChatRoom(User user, Long groupBuyId);
 }
