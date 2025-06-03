@@ -72,6 +72,8 @@ public class GetLatestMessages {
         Long chatRoomId = newMessage.getChatRoomId();
         List<DeferredResult<List<ChatMessageResponse>>> results = listeners.getOrDefault(chatRoomId, new ArrayList<>());
 
+        log.info("🔔 notifyNewMessage 호출됨: chatRoomId={}, messageId={}", chatRoomId, newMessage.getId());
+        log.info("🧍‍♂️ 응답 대기 중인 클라이언트 수: {}", results.size());
         ChatMessageResponse response = chatMessageQueryMapper.toMessageResponse(newMessage, nickname, imageKey);
         for (DeferredResult<List<ChatMessageResponse>> r : results) {
             r.setResult(List.of(response));
