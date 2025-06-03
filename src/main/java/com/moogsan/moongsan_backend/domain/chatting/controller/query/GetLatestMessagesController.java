@@ -13,6 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -23,11 +24,35 @@ public class GetLatestMessagesController {
     private final ChattingQueryFacade chattingQueryFacade;
 
     @GetMapping("/{chatRoomId}/polling/latest")
-    public DeferredResult<List<ChatMessageResponse>> getLatestMessages(
+    public DeferredResult<WrapperResponse<List<ChatMessageResponse>>> getLatestMessages(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long chatRoomId,
             @RequestParam(required = false) String lastMessageId
     ) {
-        return chattingQueryFacade.getLatesetMessages(userDetails.getUser(), chatRoomId, lastMessageId);
+        DeferredResult<WrapperResponse<List<ChatMessageResponse>>> wrapperResult = new DeferredResult<>(30_000L);
+
+        DeferredResult<List<ChatMessageResponse>> rawResult = chattingQueryFacade.
+                getLatesetMessages(userDetails.getUser(), chatRoomId, lastMessageId);
+
+        rawResult.onTimeout(() -> {
+            wrapperResult.setResult(
+                    WrapperResponse.<List<ChatMessageResponse>>builder()
+                            .message("타임아웃")
+                            .data(Collections.emptyList())
+                            .build()
+            );
+        });
+
+        rawResult.setResultHandler(result -> {
+            @SuppressWarnings("unchecked")
+            List<ChatMessageResponse> messages = (List<ChatMessageResponse>) result;
+            wrapperResult.setResult(
+                    WrapperResponse.<List<ChatMessageResponse>>builder()
+                            .message("최신 메세지를 성공적으로 수신하였습니다. <<long polling>>")
+                            .data(messages)
+                            .build()
+            );
+        });
+        return wrapperResult;
     }
 }
