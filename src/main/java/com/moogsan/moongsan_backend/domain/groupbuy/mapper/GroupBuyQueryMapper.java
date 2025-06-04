@@ -1,5 +1,6 @@
 package com.moogsan.moongsan_backend.domain.groupbuy.mapper;
 
+import com.moogsan.moongsan_backend.domain.chatting.entity.ChatRoom;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.ImageResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyDetail.DetailResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyDetail.UserAccountResponse;
@@ -172,18 +173,28 @@ public class GroupBuyQueryMapper {
     // 주최 공구 관심 조회
     public List<HostedListResponse> toHostedListWishResponses(
             List<GroupBuy> groupBuys,
-            Map<Long, Boolean> wishMap
+            Map<Long, Boolean> wishMap,
+            List<ChatRoom> chatRooms
     ) {
+        Map<Long, Long> chatRoomIdMap = chatRooms.stream()
+                .collect(Collectors.toMap(
+                        cr -> cr.getGroupBuy().getId(),  // key: 해당 ChatRoom이 연결된 GroupBuy ID
+                        ChatRoom::getId                            // value: ChatRoom ID
+                ));
         return groupBuys.stream()
                 .map(gb -> {
+                    Long groupBuyId = gb.getId();
                     boolean isWished = wishMap.getOrDefault(gb.getId(), false);
-                    return toHostedListResponse(gb, isWished);
+                    Long chatRoomId = chatRoomIdMap.get(groupBuyId);
+                    return toHostedListResponse(gb, isWished, chatRoomId);
                 })
                 .collect(Collectors.toList());
     }
 
     // 주최 공구 리스트 조회
-    public HostedListResponse toHostedListResponse(GroupBuy gb, Boolean isWish) {
+    public HostedListResponse toHostedListResponse(
+            GroupBuy gb, Boolean isWish, Long chatRoomId
+    ) {
         String img = gb.getImages().stream()
                 .findFirst()
                 .map(Image::getImageKey)
@@ -195,6 +206,7 @@ public class GroupBuyQueryMapper {
 
         return HostedListResponse.builder()
                 .postId(gb.getId())
+                .chatRoomId(chatRoomId)
                 .title(gb.getTitle())
                 .postStatus(gb.getPostStatus())
                 .location(gb.getLocation())
@@ -210,17 +222,26 @@ public class GroupBuyQueryMapper {
     }
 
     // 참여 공구 관심 조회
-    public List<ParticipatedListResponse> toParticipatedListWishResponse(List<Order> orders, Map<Long, Boolean> wishMap) {
+    public List<ParticipatedListResponse> toParticipatedListWishResponse(List<Order> orders, Map<Long, Boolean> wishMap, List<ChatRoom> chatRooms) {
+        Map<Long, Long> chatRoomIdMap = chatRooms.stream()
+                .collect(Collectors.toMap(
+                        cr -> cr.getGroupBuy().getId(),  // key: 해당 ChatRoom이 연결된 GroupBuy ID
+                        ChatRoom::getId                            // value: ChatRoom ID
+                ));
         return orders.stream()
                 .map(order -> {
+                    Long groupBuyId = order.getGroupBuy().getId();
                     boolean isWish = wishMap.getOrDefault(order.getGroupBuy().getId(), false);
-                    return toParticipatedListResponse(order, isWish);
+                    Long chatRoomId = chatRoomIdMap.get(groupBuyId);
+                    return toParticipatedListResponse(order, isWish, chatRoomId);
                 })
                 .toList();
     }
 
     // 참여 공구 리스트 조회
-    public ParticipatedListResponse toParticipatedListResponse(Order o, boolean isWish) {
+    public ParticipatedListResponse toParticipatedListResponse(
+            Order o, boolean isWish, Long chatRoomId
+    ) {
         GroupBuy post = o.getGroupBuy();
 
         String img = post.getImages().stream()
@@ -234,6 +255,7 @@ public class GroupBuyQueryMapper {
 
         return ParticipatedListResponse.builder()
                 .postId(post.getId())
+                .chatRoomId(chatRoomId)
                 .title(post.getTitle())
                 .postStatus(post.getPostStatus())
                 .location(post.getLocation())
