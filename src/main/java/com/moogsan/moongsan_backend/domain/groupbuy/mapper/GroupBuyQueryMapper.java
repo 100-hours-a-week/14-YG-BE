@@ -127,7 +127,7 @@ public class GroupBuyQueryMapper {
     // 공동구매 유저 프로필 조회용 DTO
     private UserProfileResponse toUserProfile(User u) {
         return UserProfileResponse.builder()
-                .authorId(u.getId())
+                .userId(u.getId())
                 .nickname(u.getNickname())
                 .profileImageUrl(u.getImageKey())
                 .build();
