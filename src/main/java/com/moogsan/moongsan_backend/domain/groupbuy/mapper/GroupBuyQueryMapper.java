@@ -90,7 +90,7 @@ public class GroupBuyQueryMapper {
     }
 
     // 상세 페이지 조회용 DTO
-    public DetailResponse toDetailResponse(GroupBuy gb, Boolean isParticipant, Boolean isWish) {
+    public DetailResponse toDetailResponse(GroupBuy gb, Boolean isHost, Boolean isParticipant, Boolean isWish) {
         List<ImageResponse> imageUrls = gb.getImages().stream()
                 .map(img -> ImageResponse.builder()
                         .imageKey(img.getImageKey())
@@ -117,6 +117,7 @@ public class GroupBuyQueryMapper {
                 .dueSoon(gb.isAlmostSoldOut())
                 .pickupDate(gb.getPickupDate())
                 .location(gb.getLocation())
+                .isHost(isHost)
                 .isParticipant(isParticipant)
                 .isWish(isWish)
                 .createdAt(gb.getCreatedAt())
