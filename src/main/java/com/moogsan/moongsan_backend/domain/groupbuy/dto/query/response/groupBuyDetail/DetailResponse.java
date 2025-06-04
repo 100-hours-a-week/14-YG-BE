@@ -35,6 +35,7 @@ public class DetailResponse {
     // 상태/플래그
     private boolean dueSoon;                // 마감 임박 여부
     private boolean isWish;                 // 관심 여부
+    private boolean isHost;                 // 주최 여부
     private boolean isParticipant;          // 참여 여부
 
     // 날짜
@@ -48,6 +49,11 @@ public class DetailResponse {
     @JsonProperty("isWish")
     public boolean isWish() {
         return isWish;
+    }
+
+    @JsonProperty("isHost")
+    public boolean isHost() {
+        return isHost;
     }
 
     @JsonProperty("isParticipant")

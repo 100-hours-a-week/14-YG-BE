@@ -90,7 +90,7 @@ public class GroupBuyQueryMapper {
     }
 
     // 상세 페이지 조회용 DTO
-    public DetailResponse toDetailResponse(GroupBuy gb, Boolean isParticipant, Boolean isWish) {
+    public DetailResponse toDetailResponse(GroupBuy gb, Boolean isHost, Boolean isParticipant, Boolean isWish) {
         List<ImageResponse> imageUrls = gb.getImages().stream()
                 .map(img -> ImageResponse.builder()
                         .imageKey(img.getImageKey())
@@ -117,6 +117,7 @@ public class GroupBuyQueryMapper {
                 .dueSoon(gb.isAlmostSoldOut())
                 .pickupDate(gb.getPickupDate())
                 .location(gb.getLocation())
+                .isHost(isHost)
                 .isParticipant(isParticipant)
                 .isWish(isWish)
                 .createdAt(gb.getCreatedAt())
@@ -127,9 +128,8 @@ public class GroupBuyQueryMapper {
     // 공동구매 유저 프로필 조회용 DTO
     private UserProfileResponse toUserProfile(User u) {
         return UserProfileResponse.builder()
-                .authorId(u.getId())
+                .userId(u.getId())
                 .nickname(u.getNickname())
-                .name(u.getName())
                 .profileImageUrl(u.getImageKey())
                 .build();
     }
@@ -137,6 +137,7 @@ public class GroupBuyQueryMapper {
     // 공동구매 유저 계좌 정보 조회용 DTO
     public UserAccountResponse toHostAccount(GroupBuy gb) {
         return UserAccountResponse.builder()
+                .name(gb.getUser().getName())
                 .accountBank(gb.getUser().getAccountBank())
                 .accountNumber(gb.getUser().getAccountNumber())
                 .build();
