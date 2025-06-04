@@ -129,7 +129,6 @@ public class GroupBuyQueryMapper {
         return UserProfileResponse.builder()
                 .authorId(u.getId())
                 .nickname(u.getNickname())
-                .name(u.getName())
                 .profileImageUrl(u.getImageKey())
                 .build();
     }
@@ -137,6 +136,7 @@ public class GroupBuyQueryMapper {
     // 공동구매 유저 계좌 정보 조회용 DTO
     public UserAccountResponse toHostAccount(GroupBuy gb) {
         return UserAccountResponse.builder()
+                .name(gb.getUser().getName())
                 .accountBank(gb.getUser().getAccountBank())
                 .accountNumber(gb.getUser().getAccountNumber())
                 .build();
