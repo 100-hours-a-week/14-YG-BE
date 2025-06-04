@@ -1,5 +1,7 @@
 package com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyQueryService;
 
+import com.moogsan.moongsan_backend.domain.chatting.entity.ChatRoom;
+import com.moogsan.moongsan_backend.domain.chatting.repository.ChatRoomRepository;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.HostedList.HostedListResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.PagedResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -24,6 +27,7 @@ import java.util.Map;
 public class GetGroupBuyHostedList {
 
     private final GroupBuyRepository groupBuyRepository;
+    private final ChatRoomRepository chatRoomRepository;
     private final GroupBuyQueryMapper groupBuyQueryMapper;
     private final FetchWishUtil fetchWishUtil;
 
@@ -57,7 +61,18 @@ public class GetGroupBuyHostedList {
 
         Map<Long, Boolean> wishMap = fetchWishUtil.fetchWishMap(userId, groupBuys);
 
-        List<HostedListResponse> posts = groupBuyQueryMapper.toHostedListWishResponses(groupBuys, wishMap);
+        List<Long> groupBuyIds = groupBuys.stream()
+                .map(GroupBuy::getId)
+                .collect(Collectors.toList());
+
+
+        List<ChatRoom> chatRooms = chatRoomRepository.findByGroupBuy_IdInAndType(
+                groupBuyIds,
+                "PARTICIPANT"
+        );
+
+        List<HostedListResponse> posts = groupBuyQueryMapper
+                .toHostedListWishResponses(groupBuys, wishMap, chatRooms);
 
         // 다음 커서 및 더보기 여부
         Long nextCursor = posts.isEmpty()
