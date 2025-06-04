@@ -1,23 +1,22 @@
-# 1단계: Builder
-FROM python:3.11-slim AS builder
-
+# --- Builder 이미지
+FROM eclipse-temurin:21-jdk AS builder
 WORKDIR /app
+COPY gradlew gradlew.bat ./
+RUN chmod +x gradlew
 
-COPY requirements.txt .
-RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
+COPY build.gradle settings.gradle ./
+COPY gradle ./gradle
+COPY src ./src
+RUN ./gradlew clean bootJar -x test
 
-# 2단계: Runtime
-FROM python:3.11-slim
-
+# --- Runtime 이미지
+FROM eclipse-temurin:21-jdk
 WORKDIR /app
-
-# 런타임에는 site-packages만 복사 (실행에 필요한 패키지만)
-COPY --from=builder /usr/local/lib/python3.11 /usr/local/lib/python3.11
-COPY --from=builder /usr/local/bin /usr/local/bin
-
-# 소스코드만 선택적으로 복사 (환경 변수 제외)
-COPY app/ ./
-# 포트 명시 (선택)
-EXPOSE 8100
-
-ENTRYPOINT ["bash", "-c", "uvicorn main:app --host 0.0.0.0 --port 8100 --log-level debug --access-log | tee -a /var/log/moongsan/ai_moongsan.log"]
+# secrets 파일 복사 (없으면 빈 파일이라도 만들어 주세요)
+COPY config/application.yml ./config/application-secrets.yml
+# 로그 디렉터리 생성 및 권한 부여
+RUN mkdir -p /var/moongsan/log && chown -R 1000:1000 /var/moongsan/log
+# Builder에서 생성된 JAR 복사
+COPY --from=builder /app/build/libs/*.jar app.jar
+# 기동 시 로그를 파일에 남기면서 출력
+CMD ["sh", "-c", "java -jar app.jar | tee -a /var/moongsan/log/be_moongsan.log"]
