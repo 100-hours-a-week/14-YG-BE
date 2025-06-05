@@ -103,6 +103,7 @@ public class GroupBuyQueryMapper {
 
         return DetailResponse.builder()
                 .postId(gb.getId())
+                .chatRoomId(gb.getParticipantChatRoom().getId())
                 .title(gb.getTitle())
                 .name(gb.getName())
                 .postStatus(gb.getPostStatus())
