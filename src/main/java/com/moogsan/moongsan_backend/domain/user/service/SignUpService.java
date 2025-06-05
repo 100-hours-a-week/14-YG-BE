@@ -97,8 +97,11 @@ public class SignUpService {
             throw new UserException(UserErrorCode.INVALID_INPUT, "이메일의 형식이 올바르지 않습니다.");
         }
 
-        if (request.getPassword() == null || !request.getPassword().matches("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^*+=-])[A-Za-z\\d!@#$%^*+=-]{8,30}$")) {
-            throw new UserException(UserErrorCode.INVALID_INPUT, "비밀번호가 올바르지 않습니다.\n(숫자와 영어, 특수문자로 이루어진 8자 이상, 30자 이하의 문자열,\n특수 문자(!@#$%^*+=-) 한개 이상 입력)");
+        if (request.getPassword() == null || (
+                !request.getPassword().matches("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^*+=-])[A-Za-z\\d!@#$%^*+=-]{8,30}$")
+                && !request.getPassword().startsWith("{oauth}-")
+        )) {
+            throw new UserException(UserErrorCode.INVALID_INPUT, "비밀번호가 올바르지 않습니다.\n(숫자와 영어, 특수문자로 이루어진 8자 이상, 30자 이하의 문자열,\n또는 OAuth 인증 시 자동 생성된 비밀번호)");
         }
 
         if (request.getNickname() == null || request.getNickname().length() < 2 || request.getNickname().length() > 12) {

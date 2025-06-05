@@ -12,6 +12,9 @@ public enum UserErrorCode implements ErrorCodeType {
     // 401 Unauthorized
     UNAUTHORIZED("UNAUTHORIZED", HttpStatus.UNAUTHORIZED, "로그인 필요"),
 
+    // 401 Signup Required
+    SIGNUP_REQUIRED("SIGNUP_REQUIRED", HttpStatus.UNAUTHORIZED, "회원가입이 필요합니다."),
+
     // 403 Forbidden
     FORBIDDEN("FORBIDDEN", HttpStatus.FORBIDDEN, "권한 없음"),
 

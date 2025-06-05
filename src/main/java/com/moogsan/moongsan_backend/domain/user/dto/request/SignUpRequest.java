@@ -21,10 +21,11 @@ public class SignUpRequest {
     @Email(message = "이메일의 형식이 올바르지 않습니다.")
     private String email; // 이메일
 
-    @Size(min = 8, max = 30, message = "비밀번호는 8자 이상 30자 이하여야 합니다.")
+    @Size(min = 8, max = 60, message = "비밀번호는 8자 이상 30자 이하여야 합니다.")
     @Pattern(
-            regexp = "^(?=.*[!@#$%^*+=-])[A-Za-z\\d!@#$%^*+=-]{8,30}$",
-            message = "비밀번호는 8~30자이며, 반드시 하나 이상의 특수문자(!@#$%^*+=-)를 포함해야 합니다."
+            regexp = "^\\{oauth\\}-[a-f0-9\\-]{36}$|^(?=.*[!@#$%^*+=-])[A-Za-z\\d!@#$%^*+=-]{8,60}$",
+            message = "비밀번호는 8~30자이며, 반드시 하나 이상의 특수문자(!@#$%^*+=-)를 포함해야 합니다. " +
+                    "OAuth 비밀번호는 '{oauth}-UUID' 형식이어야 합니다."
     )
     private String password; // 비밀번호
 
