@@ -26,7 +26,6 @@ import java.net.URI;
 public class CreateGroupBuyController {
 
     private final GroupBuyCommandFacade groupBuyFacade;
-    private final DuplicateRequestPreventer duplicateRequestPreventer;
 
     @PostMapping
     public ResponseEntity<WrapperResponse<CommandGroupBuyResponse>> createGroupBuy(
@@ -34,13 +33,6 @@ public class CreateGroupBuyController {
             @Valid @RequestBody CreateGroupBuyRequest request) {
 
         if (userDetails == null) throw new UnauthenticatedAccessException("로그인이 필요합니다.");
-
-        Long userId = userDetails.getUser().getId();
-        String key = "group-buy:creating:" + userId;
-
-        if (!duplicateRequestPreventer.tryAcquireLock(key, 3)) {
-            throw new DuplicateRequestException();
-        }
 
         Long postId = groupBuyFacade.createGroupBuy(userDetails.getUser(), request);
 

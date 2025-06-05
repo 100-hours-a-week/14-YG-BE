@@ -30,7 +30,7 @@ public class JoinChatRoom {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatParticipantRepository chatParticipantRepository;
 
-    public void joinChatRoom(User currentUser,Long postId) {
+    public Long joinChatRoom(User currentUser,Long postId) {
 
         // 해당 공구가 존재하는지 조회 -> 없으면 404
         GroupBuy groupBuy = groupBuyRepository.findById(postId)
@@ -59,7 +59,7 @@ public class JoinChatRoom {
                 });
 
         // 중복된 참여자인지 조회 -> 409
-        boolean isJoined = chatParticipantRepository.existsByChatRoom_IdAndUser_Id(chatRoom.getId(), currentUser.getId());
+        boolean isJoined = chatParticipantRepository.existsByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoom.getId(), currentUser.getId());
 
         if(isJoined) {
             throw new AlreadyJoinedException("이미 참여 중인 참여자 채팅방입니다.");
@@ -70,7 +70,7 @@ public class JoinChatRoom {
                 .builder()
                 .chatRoom(chatRoom)
                 .user(currentUser)
-                .joined_at(LocalDateTime.now())
+                .joinedAt(LocalDateTime.now())
                 .build();
 
         chatParticipantRepository.save(chatParticipant);
@@ -79,5 +79,6 @@ public class JoinChatRoom {
         chatRoom.incrementParticipants();
         chatRoomRepository.save(chatRoom);
 
+        return chatRoom.getId();
     }
 }

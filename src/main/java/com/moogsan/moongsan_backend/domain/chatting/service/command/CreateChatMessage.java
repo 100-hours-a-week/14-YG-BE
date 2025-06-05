@@ -7,7 +7,7 @@ import com.moogsan.moongsan_backend.domain.chatting.entity.ChatRoom;
 import com.moogsan.moongsan_backend.domain.chatting.exception.specific.ChatRoomInvalidStateException;
 import com.moogsan.moongsan_backend.domain.chatting.exception.specific.ChatRoomNotFoundException;
 import com.moogsan.moongsan_backend.domain.chatting.exception.specific.NotParticipantException;
-import com.moogsan.moongsan_backend.domain.chatting.mapper.ChatMessageMapper;
+import com.moogsan.moongsan_backend.domain.chatting.mapper.ChatMessageCommandMapper;
 import com.moogsan.moongsan_backend.domain.chatting.repository.ChatMessageRepository;
 import com.moogsan.moongsan_backend.domain.chatting.repository.ChatParticipantRepository;
 import com.moogsan.moongsan_backend.domain.chatting.repository.ChatRoomRepository;
@@ -27,7 +27,7 @@ public class CreateChatMessage {
     private final ChatParticipantRepository chatParticipantRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final MessageSequenceGenerator messageSequenceGenerator;
-    private final ChatMessageMapper chatMessageMapper;
+    private final ChatMessageCommandMapper chatMessageCommandMapper;
     private final GetLatestMessages getLatestMessages;
 
     public void createChatMessage(User currentUser, CreateChatMessageRequest request, Long chatRoomId) {
@@ -42,14 +42,14 @@ public class CreateChatMessage {
         }
 
         // 참여자인지 조회 -> 아니면 403
-        boolean isParticipant = chatParticipantRepository.existsByChatRoom_IdAndUser_Id(chatRoomId, currentUser.getId());
+        boolean isParticipant = chatParticipantRepository.existsByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoomId, currentUser.getId());
 
         if(!isParticipant) {
             throw new NotParticipantException("참여자만 메세지를 작성할 수 있습니다.");
         }
 
         ChatParticipant participant = chatParticipantRepository
-                .findByChatRoom_IdAndUser_Id(chatRoomId, currentUser.getId())
+                .findByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoomId, currentUser.getId())
                 .orElseThrow(() -> new NotParticipantException("참여자만 메시지를 작성할 수 있습니다."));
 
 
@@ -57,7 +57,7 @@ public class CreateChatMessage {
         Long nextSeq = messageSequenceGenerator.getNextMessageSeq(chatRoomId);
 
         // 메세지 작성
-        ChatMessageDocument document = chatMessageMapper
+        ChatMessageDocument document = chatMessageCommandMapper
                 .toMessageDocument(chatRoom, participant.getId(), request, nextSeq);
 
         getLatestMessages.notifyNewMessage(document, currentUser.getNickname(), currentUser.getImageKey());

@@ -1,5 +1,6 @@
 package com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService;
 
+import com.moogsan.moongsan_backend.domain.chatting.Facade.command.ChattingCommandFacade;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotFoundException;
@@ -24,6 +25,7 @@ public class LeaveGroupBuy {
     private final GroupBuyRepository groupBuyRepository;
     private final OrderRepository orderRepository;
     private final DueSoonPolicy dueSoonPolicy;
+    private final ChattingCommandFacade chattingCommandFacade;
 
     /// 공구 참여 취소
     public void leaveGroupBuy(User currentUser, Long postId) {
@@ -46,6 +48,9 @@ public class LeaveGroupBuy {
         //if (order.getStatus().equals("PAID")) {
         //    // 별도의 환불 로직 처리 필요
         //}
+
+        // 참여자 채팅방 나가기
+        chattingCommandFacade.leaveChatRoom(currentUser, postId);
 
         // 남은 수량, 참여 인원 수 업데이트
         int returnQuantity = order.getQuantity();

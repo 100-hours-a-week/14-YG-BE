@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
+
 @Slf4j
 @Service
 @Transactional(readOnly=true)
@@ -35,9 +37,10 @@ public class GetGroupBuyDetailInfo {
         }
 
         //log.info("Checking participant: userId={}, postId={}", userId, postId);
+        boolean isHost = Objects.equals(userId, groupBuy.getUser().getId());
         boolean isParticipant = orderRepository.existsParticipant(userId, postId, "CANCELED");
         boolean isWish = wishRepository.existsByUserIdAndGroupBuyId(userId, postId);
 
-        return groupBuyQueryMapper.toDetailResponse(groupBuy, isParticipant, isWish);
+        return groupBuyQueryMapper.toDetailResponse(groupBuy, isHost, isParticipant, isWish);
     }
 }
