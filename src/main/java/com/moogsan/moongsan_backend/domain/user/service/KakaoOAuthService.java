@@ -35,8 +35,17 @@ public class KakaoOAuthService {
     @Transactional
     public LoginResponse kakaoLogin(String code, HttpServletResponse response) {
         // 카카오 토큰, 정보 요청
-        KakaoTokenResponse tokenResponse = kakaoOAuthClient.requestAccessToken(code);
-        KakaoUserInfoResponse kakaoUser = kakaoOAuthClient.requestUserInfo(tokenResponse.getAccessToken());
+        KakaoTokenResponse tokenResponse;
+        KakaoUserInfoResponse kakaoUser;
+        try {
+            tokenResponse = kakaoOAuthClient.requestAccessToken(code);
+            kakaoUser = kakaoOAuthClient.requestUserInfo(tokenResponse.getAccessToken());
+        } catch (Exception e) {
+            throw new UserException(
+                UserErrorCode.INTERNAL_SERVER_ERROR,
+                "OAuth 요청 중 오류 발생"
+            );
+        }
 
         String email = kakaoUser.getEmail();
         String kakaoId = String.valueOf(kakaoUser.getId());
