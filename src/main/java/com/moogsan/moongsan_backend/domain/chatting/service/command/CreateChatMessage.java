@@ -15,6 +15,8 @@ import com.moogsan.moongsan_backend.domain.chatting.service.query.GetLatestMessa
 import com.moogsan.moongsan_backend.domain.chatting.util.MessageSequenceGenerator;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,7 +62,8 @@ public class CreateChatMessage {
         ChatMessageDocument document = chatMessageCommandMapper
                 .toMessageDocument(chatRoom, participant.getId(), request, nextSeq);
 
-        getLatestMessages.notifyNewMessage(document, currentUser.getNickname(), currentUser.getImageKey());
+        SecurityContext context = SecurityContextHolder.getContext();
+        getLatestMessages.notifyNewMessage(document, currentUser.getNickname(), currentUser.getImageKey(), context);
 
         chatMessageRepository.save(document);
     }
