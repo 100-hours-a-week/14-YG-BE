@@ -56,8 +56,15 @@ public class SecurityConfig {
                                 "/api/group-buys/*/participants"        // 공구 참여자 조회
                         ).authenticated()
                         .requestMatchers(
-                                "/api/users", "/api/users/token", "/api/users/check-nickname", "/api/users/check-email",
-                                "/uploads/**", "/api/group-buys/generation/description", "/api/users/check/account").permitAll() // 해당 위치 외에는 토큰 적용
+                                "/api/users",
+                                "/api/users/token",
+                                "/api/users/check-nickname",
+                                "/api/users/check-email",
+                                "/uploads/**",
+                                "/api/group-buys/generation/description",
+                                "/api/users/check/account",
+                                "/api/oauth/kakao/callback"
+                        ).permitAll() // 해당 위치 외에는 토큰 적용
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(
