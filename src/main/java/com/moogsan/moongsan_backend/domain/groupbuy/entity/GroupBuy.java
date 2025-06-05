@@ -106,6 +106,7 @@ public class GroupBuy extends BaseEntity {
     @OrderBy("imageSeqNo ASC")
     private List<Image> images = new ArrayList<>();
 
+    @Builder.Default
     @OneToOne(mappedBy = "groupBuy")
     private ChatRoom participantChatRoom;
 
