@@ -36,19 +36,24 @@ public class JoinChatRoom {
         GroupBuy groupBuy = groupBuyRepository.findById(postId)
                 .orElseThrow(GroupBuyNotFoundException::new);
 
-        // 해당 공구가 OPEN인지 조회, dueDate가 현재 이후인지 조회 -> 아니면 409
-        if (!groupBuy.getPostStatus().equals("OPEN")
-                || groupBuy.getDueDate().isBefore(LocalDateTime.now())) {
-            throw new GroupBuyInvalidStateException("채팅방 참여는 공구가 열려있는 상태에서만 가능합니다.");
+        Boolean isHost = groupBuy.getUser().getId().equals(currentUser.getId());
+
+        if (!isHost) {
+            // 해당 공구가 OPEN인지 조회, dueDate가 현재 이후인지 조회 -> 아니면 409
+            if (!groupBuy.getPostStatus().equals("OPEN")
+                    || groupBuy.getDueDate().isBefore(LocalDateTime.now())) {
+                throw new GroupBuyInvalidStateException("채팅방 참여는 공구가 열려있는 상태에서만 가능합니다.");
+            }
+
+            // 해당 공구의 주문 테이블에 해당 유저의 주문이 존재하는지 조회 -> 아니면 404
+            Order order = orderRepository.findByUserIdAndGroupBuyIdAndStatusNot(currentUser.getId(), groupBuy.getId(), "CANCELED")
+                    .orElseThrow(() -> new OrderNotFoundException("공구의 참여자만 참가 가능합니다."));
         }
 
-        // 해당 공구의 주문 테이블에 해당 유저의 주문이 존재하는지 조회 -> 아니면 404
-        Order order = orderRepository.findByUserIdAndGroupBuyIdAndStatusNot(currentUser.getId(), groupBuy.getId(), "CANCELED")
-                .orElseThrow(() -> new OrderNotFoundException("공구의 참여자만 참가 가능합니다."));
 
         // 해당 공구의 참여자 채팅방이 존재하는지 조회
         ChatRoom chatRoom = chatRoomRepository
-                .findByGroupBuy_IdAndType(postId, "PARTICIPANT")
+                .findByGroupBuy_IdAndType(groupBuy.getId(), "PARTICIPANT")
                 .orElseGet(() -> {
                     // 없으면 새로 생성 -> 동시 생성 방지 필요
                     ChatRoom newRoom = ChatRoom.builder()
@@ -58,27 +63,28 @@ public class JoinChatRoom {
                     return chatRoomRepository.save(newRoom);
                 });
 
-        // 중복된 참여자인지 조회 -> 409
-        boolean isJoined = chatParticipantRepository.existsByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoom.getId(), currentUser.getId());
+        // 이미 호스트가 참여중인지 확인 (만약 새로 생성되었으면 당연히 미참여 상태)
+        boolean alreadyJoined = chatParticipantRepository
+                .existsByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoom.getId(), currentUser.getId());
 
-        if(isJoined) {
-            throw new AlreadyJoinedException("이미 참여 중인 참여자 채팅방입니다.");
+        if (alreadyJoined) {
+            throw new AlreadyJoinedException("이미 참여한 채팅방입니다.");
+        } else {
+            // 호스트를 참여자로 등록
+            ChatParticipant participant = ChatParticipant.builder()
+                    .chatRoom(chatRoom)
+                    .user(currentUser)
+                    .joinedAt(LocalDateTime.now())
+                    .build();
+            chatParticipantRepository.save(participant);
+
+            // ChatRoom 참여자 수 업데이트
+            chatRoom.incrementParticipants();
+            chatRoomRepository.save(chatRoom);
+
+            groupBuy.setParticipantChatRoom(chatRoom);
+
+            return chatRoom.getId();
         }
-
-        // 채팅방 참여
-        ChatParticipant chatParticipant = ChatParticipant
-                .builder()
-                .chatRoom(chatRoom)
-                .user(currentUser)
-                .joinedAt(LocalDateTime.now())
-                .build();
-
-        chatParticipantRepository.save(chatParticipant);
-
-        // 채팅방 참여 인원 수 업데이트
-        chatRoom.incrementParticipants();
-        chatRoomRepository.save(chatRoom);
-
-        return chatRoom.getId();
     }
 }

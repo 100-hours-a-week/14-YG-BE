@@ -107,10 +107,13 @@ public class GroupBuy extends BaseEntity {
     private List<Image> images = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "groupBuy",
-        cascade = CascadeType.ALL,
-        orphanRemoval = true)
-    private List<ChatRoom> chatRooms = new ArrayList<>();
+    @OneToOne(mappedBy = "groupBuy")
+    private ChatRoom participantChatRoom;
+
+    public void setParticipantChatRoom(ChatRoom room) {
+        if (room == null) return;
+        this.participantChatRoom = room;
+    }
 
     @Transient
     public double getSoldRatio() {
