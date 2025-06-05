@@ -5,7 +5,7 @@ import com.moogsan.moongsan_backend.domain.chatting.entity.ChatMessageDocument;
 import com.moogsan.moongsan_backend.domain.chatting.entity.ChatRoom;
 import com.moogsan.moongsan_backend.domain.chatting.exception.specific.ChatRoomNotFoundException;
 import com.moogsan.moongsan_backend.domain.chatting.exception.specific.NotParticipantException;
-import com.moogsan.moongsan_backend.domain.chatting.mapper.ChatMessageCommandMapper;
+import org.springframework.security.concurrent.DelegatingSecurityContextRunnable;
 import com.moogsan.moongsan_backend.domain.chatting.mapper.ChatMessageQueryMapper;
 import com.moogsan.moongsan_backend.domain.chatting.repository.ChatMessageRepository;
 import com.moogsan.moongsan_backend.domain.chatting.repository.ChatParticipantRepository;
@@ -13,6 +13,7 @@ import com.moogsan.moongsan_backend.domain.chatting.repository.ChatRoomRepositor
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.async.DeferredResult;
 
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class GetLatestMessages {
-    private static final long TIMEOUT_MILLIS = 30000L;
+    private static final long TIMEOUT_MILLIS = 5000L;
 
     private final ChatMessageRepository chatMessageRepository;
     private final ChatParticipantRepository chatParticipantRepository;
@@ -57,7 +58,8 @@ public class GetLatestMessages {
 
         // 새로운 메세지 없으면 대기
         DeferredResult<List<ChatMessageResponse>> result = new DeferredResult<>(TIMEOUT_MILLIS);
-        listeners.computeIfAbsent(chatRoomId, id -> new ArrayList<>()).add(result);
+        listeners.computeIfAbsent(chatRoomId, id -> Collections.synchronizedList(new ArrayList<>()))
+                .add(result);
 
         result.onTimeout(() -> {
             result.setResult(Collections.emptyList());
@@ -68,7 +70,12 @@ public class GetLatestMessages {
         return result;
     }
 
-    public void notifyNewMessage(ChatMessageDocument newMessage, String nickname, String imageKey) {
+    public void notifyNewMessage(
+            ChatMessageDocument newMessage,
+            String nickname,
+            String imageKey,
+            SecurityContext context
+    ) {
         Long chatRoomId = newMessage.getChatRoomId();
         List<DeferredResult<List<ChatMessageResponse>>> results = listeners.getOrDefault(chatRoomId, new ArrayList<>());
 
@@ -76,7 +83,10 @@ public class GetLatestMessages {
         // log.info("🧍‍♂️ 응답 대기 중인 클라이언트 수: {}", results.size());
         ChatMessageResponse response = chatMessageQueryMapper.toMessageResponse(newMessage, nickname, imageKey);
         for (DeferredResult<List<ChatMessageResponse>> r : results) {
-            r.setResult(List.of(response));
+            // 스레드간 SpringContext 전파
+            Runnable task = () -> r.setResult(List.of(response));
+            Runnable securedTask = new DelegatingSecurityContextRunnable(task, context);
+            securedTask.run();
         }
 
         results.clear();

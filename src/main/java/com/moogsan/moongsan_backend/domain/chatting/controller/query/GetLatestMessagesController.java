@@ -31,9 +31,9 @@ public class GetLatestMessagesController {
     ) {
         // -- (A) wrapperResult 타임아웃: rawResult보다 +1초 여유를 둠
         DeferredResult<WrapperResponse<List<ChatMessageResponse>>> wrapperResult =
-                new DeferredResult<>(31_000L);
+                new DeferredResult<>(6_000L);
 
-        // -- (B) Service로부터 rawResult 획득 (여긴 30초 타임아웃)
+        // -- (B) Service로부터 rawResult 획득 (여긴 5초 타임아웃)
         DeferredResult<List<ChatMessageResponse>> rawResult =
                 chattingQueryFacade.getLatesetMessages(userDetails.getUser(), chatRoomId, lastMessageId);
 
