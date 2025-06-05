@@ -39,8 +39,9 @@ public class GroupBuyQueryMapper {
                 .title(gb.getTitle())
                 .name(gb.getName())
                 .description(gb.getDescription())
-                .url(gb.getUrl())
                 .imageKeys(imageUrls)
+                .hostQuantity(gb.getHostQuantity())
+                .leftAmount(gb.getLeftAmount() + gb.getHostQuantity())
                 .dueDate(gb.getDueDate())
                 .location(gb.getLocation())
                 .pickupDate(gb.getPickupDate())
@@ -102,6 +103,7 @@ public class GroupBuyQueryMapper {
 
         return DetailResponse.builder()
                 .postId(gb.getId())
+                .chatRoomId(gb.getParticipantChatRoom().getId())
                 .title(gb.getTitle())
                 .name(gb.getName())
                 .postStatus(gb.getPostStatus())
