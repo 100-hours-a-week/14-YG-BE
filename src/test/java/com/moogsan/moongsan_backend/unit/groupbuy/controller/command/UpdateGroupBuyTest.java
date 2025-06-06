@@ -49,7 +49,7 @@ public class UpdateGroupBuyTest {
         UpdateGroupBuyRequest request = UpdateGroupBuyRequest.builder()
                 .title("라면 공구")
                 .name("진라면")
-                .url("https://example.com")
+                .hostQuantity(2)
                 .description("라면 맛있어요")
                 .dueDate(LocalDateTime.now().plusDays(3))
                 .pickupDate(LocalDateTime.now().plusDays(10))
