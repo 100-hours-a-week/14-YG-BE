@@ -14,8 +14,10 @@ import com.moogsan.moongsan_backend.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.async.DeferredResult;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,7 +26,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class GetLatestMessages {
+public class GetLatestMessageSse {
     private static final long TIMEOUT_MILLIS = 5000L;
 
     private final ChatMessageRepository chatMessageRepository;
@@ -33,9 +35,10 @@ public class GetLatestMessages {
     private final ChatMessageQueryMapper chatMessageQueryMapper;
 
     // 채팅방별 롱폴링 요청 큐
-    private final Map<Long, List<DeferredResult<List<ChatMessageResponse>>>> listeners = new ConcurrentHashMap<>();
+    // private final Map<Long, List<DeferredResult<List<ChatMessageResponse>>>> listeners = new ConcurrentHashMap<>();
+    private final Map<Long, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
 
-    public DeferredResult<List<ChatMessageResponse>> getLatesetMessages(
+    public SseEmitter getLatesetMessagesSse(
             User currentUser, Long chatRoomId, String lastMessageId
     ) {
         // 채팅방 조회 -> 없으면 404
@@ -49,25 +52,31 @@ public class GetLatestMessages {
             throw new NotParticipantException("참여자만 메세지를 조회할 수 있습니다.");
         }
 
-        // 마지막 메세지 이후 새로운 메세지 존재 여부 확인
-        List<ChatMessageDocument> newMessages = chatMessageRepository.findMessagesAfter(chatRoomId, lastMessageId);
+        // SseEmitter 생성
+        SseEmitter emitter = new SseEmitter(0L);
 
-        if(!newMessages.isEmpty()) {
-            return wrapResult(newMessages);
-        }
+        // emitters 맵에 추가
+        emitters
+                .computeIfAbsent(chatRoomId, id -> Collections.synchronizedList(new ArrayList<>()))
+                .add(emitter);
 
-        // 새로운 메세지 없으면 대기
-        DeferredResult<List<ChatMessageResponse>> result = new DeferredResult<>(TIMEOUT_MILLIS);
-        listeners.computeIfAbsent(chatRoomId, id -> Collections.synchronizedList(new ArrayList<>()))
-                .add(result);
-
-        result.onTimeout(() -> {
-            result.setResult(Collections.emptyList());
-            listeners.get(chatRoomId).remove(result);
+        // 타임아웃(클라이언트 비연결) 혹은 연결 종료 시 emitters에서 제거
+        emitter.onCompletion(() -> {
+            List<SseEmitter> list = emitters.get(chatRoomId);
+            if (list != null) {
+                list.remove(emitter);
+            }
         });
 
-        result.onCompletion(() -> listeners.get(chatRoomId).remove(result));
-        return result;
+        emitter.onTimeout(() -> {
+            emitter.complete();
+            List<SseEmitter> list = emitters.get(chatRoomId);
+            if (list != null) {
+                list.remove(emitter);
+            }
+        });
+
+        return emitter;
     }
 
     public void notifyNewMessage(
@@ -77,22 +86,25 @@ public class GetLatestMessages {
             SecurityContext context
     ) {
         Long chatRoomId = newMessage.getChatRoomId();
-        List<DeferredResult<List<ChatMessageResponse>>> results = listeners.getOrDefault(chatRoomId, new ArrayList<>());
+        List<SseEmitter> list = emitters.getOrDefault(chatRoomId, new ArrayList<>());
 
         // log.info("🔔 notifyNewMessage 호출됨: chatRoomId={}, messageId={}", chatRoomId, newMessage.getId());
         // log.info("🧍‍♂️ 응답 대기 중인 클라이언트 수: {}", results.size());
         ChatMessageResponse response = chatMessageQueryMapper.toMessageResponse(newMessage, nickname, imageKey);
-        for (DeferredResult<List<ChatMessageResponse>> r : results) {
+        for (SseEmitter emitter : list) {
             Runnable task = () -> {
-                r.setResult(List.of(response));
+                try {
+                    emitter.send(SseEmitter.event()
+                            .name("new-message")
+                            .data(response));
+                } catch (Exception e) {
+                    emitter.completeWithError(e);
+                }
             };
 
             Runnable securedTask = new DelegatingSecurityContextRunnable(task, context);
-            // securedTask.run(); // 현재 스레드에서 즉시 실행 (r.setResult(...)가 현재 스레드에서 동기적 실행
             Thread.startVirtualThread(securedTask); // 새로운 Loom 가상 스레드를 띄워서 r.setResult(...)를 비동기적으로 실행
         }
-
-        results.clear();
     }
 
     private DeferredResult<List<ChatMessageResponse>> wrapResult(List<ChatMessageDocument> messages) {
@@ -104,3 +116,4 @@ public class GetLatestMessages {
         return result;
     }
 }
+
