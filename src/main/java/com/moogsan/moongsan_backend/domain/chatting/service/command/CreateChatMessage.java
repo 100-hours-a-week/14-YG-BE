@@ -15,11 +15,13 @@ import com.moogsan.moongsan_backend.domain.chatting.service.query.GetLatestMessa
 import com.moogsan.moongsan_backend.domain.chatting.util.MessageSequenceGenerator;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -61,10 +63,8 @@ public class CreateChatMessage {
         // 메세지 작성
         ChatMessageDocument document = chatMessageCommandMapper
                 .toMessageDocument(chatRoom, participant.getId(), request, nextSeq);
-
         SecurityContext context = SecurityContextHolder.getContext();
-        getLatestMessages.notifyNewMessage(document, currentUser.getNickname(), currentUser.getImageKey(), context);
-
         chatMessageRepository.save(document);
+        getLatestMessages.notifyNewMessage(document, currentUser.getNickname(), currentUser.getImageKey(), context);
     }
 }
