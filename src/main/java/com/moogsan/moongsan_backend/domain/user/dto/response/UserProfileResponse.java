@@ -8,7 +8,7 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class UserProfileResponse {
-    private String imageUrl;    // 프로필 이미지 URL
+    private String profileImageUrl;    // 프로필 이미지 URL
     private String nickname;    // 닉네임
     private String name;        // 실명
     private String email;       // 이메일
