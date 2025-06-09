@@ -1,9 +1,13 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.service.command;
 
+import com.moogsan.moongsan_backend.domain.chatting.Facade.command.ChattingCommandFacade;
+import com.moogsan.moongsan_backend.domain.chatting.service.command.LeaveChatRoom;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotFoundException;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotHostException;
+import com.moogsan.moongsan_backend.domain.groupbuy.facade.command.GroupBuyCommandFacade;
+import com.moogsan.moongsan_backend.domain.groupbuy.facade.command.GroupBuyCommandFacadeImpl;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.DeleteGroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.LeaveGroupBuy;
@@ -13,7 +17,6 @@ import com.moogsan.moongsan_backend.domain.order.exception.specific.OrderNotFoun
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,13 +32,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.when;
 
-@Disabled
 @ExtendWith(MockitoExtension.class)
 public class LeaveGroupBuyTest {
     @Mock
     private GroupBuyRepository groupBuyRepository;
     @Mock
     private OrderRepository orderRepository;
+    @Mock private ChattingCommandFacade chattingCommandFacade;
     @InjectMocks
     private LeaveGroupBuy leaveGroupBuy;
 
