@@ -1,5 +1,6 @@
 package com.moogsan.moongsan_backend.domain.order.service;
 
+import com.moogsan.moongsan_backend.domain.chatting.Facade.command.ChattingCommandFacade;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.policy.DueSoonPolicy;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
@@ -23,6 +24,7 @@ public class OrderCreateService {
     private final GroupBuyRepository groupBuyRepository;
     private final OrderRepository orderRepository;
     private final DueSoonPolicy dueSoonPolicy;
+    private final ChattingCommandFacade chattingCommandFacade;
 
     // 주문 생성 서비스
     @Transactional
@@ -80,6 +82,7 @@ public class OrderCreateService {
 
         groupBuyRepository.save(groupBuy);
         orderRepository.save(order);
+        chattingCommandFacade.joinChatRoom(user, groupBuy.getId());
 
         return OrderCreateResponse.builder()
             .productName(groupBuy.getName())
