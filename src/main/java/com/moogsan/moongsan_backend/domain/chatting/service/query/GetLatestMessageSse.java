@@ -79,6 +79,7 @@ public class GetLatestMessageSse {
             };
 
             Runnable securedTask = new DelegatingSecurityContextRunnable(task, context);
+            // securedTask.run();
             Thread.startVirtualThread(securedTask); // 새로운 Loom 가상 스레드를 띄워서 r.setResult(...)를 비동기적으로 실행
         }
     }

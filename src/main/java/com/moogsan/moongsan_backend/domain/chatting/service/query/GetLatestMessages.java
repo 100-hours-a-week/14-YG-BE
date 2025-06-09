@@ -93,8 +93,8 @@ public class GetLatestMessages {
             };
 
             Runnable securedTask = new DelegatingSecurityContextRunnable(task, context);
-            securedTask.run(); // 현재 스레드에서 즉시 실행 (r.setResult(...)가 현재 스레드에서 동기적 실행
-            // Thread.startVirtualThread(securedTask); // 새로운 Loom 가상 스레드를 띄워서 r.setResult(...)를 비동기적으로 실행
+            // securedTask.run(); // 현재 스레드에서 즉시 실행 (r.setResult(...)가 현재 스레드에서 동기적 실행
+            Thread.startVirtualThread(securedTask); // 새로운 Loom 가상 스레드를 띄워서 r.setResult(...)를 비동기적으로 실행
         }
 
         results.clear();
