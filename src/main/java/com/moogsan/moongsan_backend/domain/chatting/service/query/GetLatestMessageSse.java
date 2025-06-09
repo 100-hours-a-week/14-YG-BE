@@ -38,7 +38,7 @@ public class GetLatestMessageSse {
     private final Map<Long, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
 
     public SseEmitter getLatestMessagesSse(
-            User currentUser, Long chatRoomId, String lastMessageId
+            User currentUser, Long chatRoomId
     ) {
         // 채팅방 조회 -> 없으면 404
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
@@ -102,4 +102,3 @@ public class GetLatestMessageSse {
         }
     }
 }
-
