@@ -23,7 +23,7 @@ public interface ChattingQueryFacade {
             String lastMessageId
     );
 
-    SseEmitter getLatesetMessagesSse(
+    SseEmitter getLatestMessagesSse(
             User currentUser,
             Long chatRoomId,
             String lastMessageId

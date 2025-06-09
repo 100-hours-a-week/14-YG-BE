@@ -11,6 +11,7 @@ import com.moogsan.moongsan_backend.domain.chatting.mapper.ChatMessageCommandMap
 import com.moogsan.moongsan_backend.domain.chatting.repository.ChatMessageRepository;
 import com.moogsan.moongsan_backend.domain.chatting.repository.ChatParticipantRepository;
 import com.moogsan.moongsan_backend.domain.chatting.repository.ChatRoomRepository;
+import com.moogsan.moongsan_backend.domain.chatting.service.query.GetLatestMessageSse;
 import com.moogsan.moongsan_backend.domain.chatting.service.query.GetLatestMessages;
 import com.moogsan.moongsan_backend.domain.chatting.util.MessageSequenceGenerator;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
@@ -33,6 +34,7 @@ public class CreateChatMessage {
     private final MessageSequenceGenerator messageSequenceGenerator;
     private final ChatMessageCommandMapper chatMessageCommandMapper;
     private final GetLatestMessages getLatestMessages;
+    private final GetLatestMessageSse getLatestMessageSse;
 
     public void createChatMessage(User currentUser, CreateChatMessageRequest request, Long chatRoomId) {
 
@@ -65,6 +67,18 @@ public class CreateChatMessage {
                 .toMessageDocument(chatRoom, participant.getId(), request, nextSeq);
         SecurityContext context = SecurityContextHolder.getContext();
         chatMessageRepository.save(document);
+
+        // 롱 폴링
         getLatestMessages.notifyNewMessage(document, currentUser.getNickname(), currentUser.getImageKey(), context);
+
+        // sse
+        /*
+        getLatestMessageSse.notifyNewMessageSse(
+                document,
+                currentUser.getNickname(),
+                currentUser.getImageKey(),
+                context
+        );
+         */
     }
 }
