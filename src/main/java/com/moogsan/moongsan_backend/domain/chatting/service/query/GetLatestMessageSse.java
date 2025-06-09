@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -29,16 +30,14 @@ import java.util.stream.Collectors;
 public class GetLatestMessageSse {
     private static final long TIMEOUT_MILLIS = 5000L;
 
-    private final ChatMessageRepository chatMessageRepository;
     private final ChatParticipantRepository chatParticipantRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageQueryMapper chatMessageQueryMapper;
 
     // 채팅방별 롱폴링 요청 큐
-    // private final Map<Long, List<DeferredResult<List<ChatMessageResponse>>>> listeners = new ConcurrentHashMap<>();
     private final Map<Long, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
 
-    public SseEmitter getLatesetMessagesSse(
+    public SseEmitter getLatestMessagesSse(
             User currentUser, Long chatRoomId, String lastMessageId
     ) {
         // 채팅방 조회 -> 없으면 404
@@ -54,32 +53,12 @@ public class GetLatestMessageSse {
 
         // SseEmitter 생성
         SseEmitter emitter = new SseEmitter(0L);
-
-        // emitters 맵에 추가
-        emitters
-                .computeIfAbsent(chatRoomId, id -> Collections.synchronizedList(new ArrayList<>()))
-                .add(emitter);
-
-        // 타임아웃(클라이언트 비연결) 혹은 연결 종료 시 emitters에서 제거
-        emitter.onCompletion(() -> {
-            List<SseEmitter> list = emitters.get(chatRoomId);
-            if (list != null) {
-                list.remove(emitter);
-            }
-        });
-
-        emitter.onTimeout(() -> {
-            emitter.complete();
-            List<SseEmitter> list = emitters.get(chatRoomId);
-            if (list != null) {
-                list.remove(emitter);
-            }
-        });
+        registerEmitter(chatRoomId, emitter);
 
         return emitter;
     }
 
-    public void notifyNewMessage(
+    public void notifyNewMessageSse(
             ChatMessageDocument newMessage,
             String nickname,
             String imageKey,
@@ -87,9 +66,6 @@ public class GetLatestMessageSse {
     ) {
         Long chatRoomId = newMessage.getChatRoomId();
         List<SseEmitter> list = emitters.getOrDefault(chatRoomId, new ArrayList<>());
-
-        // log.info("🔔 notifyNewMessage 호출됨: chatRoomId={}, messageId={}", chatRoomId, newMessage.getId());
-        // log.info("🧍‍♂️ 응답 대기 중인 클라이언트 수: {}", results.size());
         ChatMessageResponse response = chatMessageQueryMapper.toMessageResponse(newMessage, nickname, imageKey);
         for (SseEmitter emitter : list) {
             Runnable task = () -> {
@@ -107,13 +83,23 @@ public class GetLatestMessageSse {
         }
     }
 
-    private DeferredResult<List<ChatMessageResponse>> wrapResult(List<ChatMessageDocument> messages) {
-        List<ChatMessageResponse> responses = messages.stream()
-                .map(doc -> chatMessageQueryMapper.toMessageResponse(doc, "알수없음", null)) // 빠른 반환이라 간략화
-                .collect(Collectors.toList());
-        DeferredResult<List<ChatMessageResponse>> result = new DeferredResult<>();
-        result.setResult(responses);
-        return result;
+    private void registerEmitter(Long chatRoomId, SseEmitter emitter) {
+        emitters
+                .computeIfAbsent(chatRoomId, id -> Collections.synchronizedList(new ArrayList<>()))
+                .add(emitter);
+
+        emitter.onCompletion(() -> removeEmitter(chatRoomId, emitter));
+        emitter.onTimeout(() -> {
+            emitter.complete();;
+            removeEmitter(chatRoomId, emitter);
+        });
+    }
+
+    private void removeEmitter(Long chatRoomId, SseEmitter emitter) {
+        List<SseEmitter> list = emitters.get(chatRoomId);
+        if (list != null) {
+            list.remove(emitter);
+        }
     }
 }
 
