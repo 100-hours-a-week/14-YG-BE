@@ -101,9 +101,13 @@ public class GroupBuyQueryMapper {
                         .build())
                 .toList();
 
+        Long chatRoomId = gb.getParticipantChatRoom() != null
+                          ? gb.getParticipantChatRoom().getId()
+                          : null;
+
         return DetailResponse.builder()
                 .postId(gb.getId())
-                .chatRoomId(gb.getParticipantChatRoom().getId())
+                .chatRoomId(chatRoomId)
                 .title(gb.getTitle())
                 .name(gb.getName())
                 .postStatus(gb.getPostStatus())

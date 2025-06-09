@@ -22,7 +22,7 @@ public class ChattingQueryFacadeImpl implements ChattingQueryFacade{
 
     private final GetPastMessages getPastMessages;
     private final GetLatestMessages getLatestMessages;
-    private final GetLatestMessageSse getLatesetMessagesSse;
+    private final GetLatestMessageSse getLatestMessagesSse;
     private final GetChatRoomList getChatRoomList;
 
     @Override
@@ -40,10 +40,10 @@ public class ChattingQueryFacadeImpl implements ChattingQueryFacade{
         return getLatestMessages.getLatesetMessages(currentUser, chatRoomId, lastMessageId);
     }
 
-    public SseEmitter getLatesetMessagesSse(
+    public SseEmitter getLatestMessagesSse(
             User currentUser, Long chatRoomId, String lastMessageId
     ) {
-        return getLatesetMessagesSse.getLatesetMessagesSse(currentUser, chatRoomId, lastMessageId);
+        return getLatestMessagesSse.getLatestMessagesSse(currentUser, chatRoomId, lastMessageId);
     }
 
     public List<ChatRoomResponse> getChatRoomList (Long userId, LocalDateTime cursorJoinedAt, Long cursorId, Integer limit) {
