@@ -1,9 +1,13 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.service.command;
 
+import com.moogsan.moongsan_backend.domain.chatting.Facade.command.ChattingCommandFacade;
+import com.moogsan.moongsan_backend.domain.chatting.service.command.LeaveChatRoom;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotFoundException;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotHostException;
+import com.moogsan.moongsan_backend.domain.groupbuy.facade.command.GroupBuyCommandFacade;
+import com.moogsan.moongsan_backend.domain.groupbuy.facade.command.GroupBuyCommandFacadeImpl;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.DeleteGroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.LeaveGroupBuy;
@@ -36,6 +40,7 @@ public class LeaveGroupBuyTest {
     private GroupBuyRepository groupBuyRepository;
     @Mock
     private OrderRepository orderRepository;
+    @Mock private ChattingCommandFacade chattingCommandFacade;
     @InjectMocks
     private LeaveGroupBuy leaveGroupBuy;
 
