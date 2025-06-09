@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.*;
@@ -35,7 +36,7 @@ public class GetLatestMessages {
     // 채팅방별 롱폴링 요청 큐
     private final Map<Long, List<DeferredResult<List<ChatMessageResponse>>>> listeners = new ConcurrentHashMap<>();
 
-    public DeferredResult<List<ChatMessageResponse>> getLatesetMessages(
+    public List<ChatMessageResponse> getLatestMessages(
             User currentUser, Long chatRoomId, String lastMessageId
     ) {
         // 채팅방 조회 -> 없으면 404
@@ -52,23 +53,27 @@ public class GetLatestMessages {
         // 마지막 메세지 이후 새로운 메세지 존재 여부 확인
         List<ChatMessageDocument> newMessages = chatMessageRepository.findMessagesAfter(chatRoomId, lastMessageId);
 
-        if(!newMessages.isEmpty()) {
-            return wrapResult(newMessages);
-        }
-
-        // 새로운 메세지 없으면 대기
-        DeferredResult<List<ChatMessageResponse>> result = new DeferredResult<>(TIMEOUT_MILLIS);
-        listeners.computeIfAbsent(chatRoomId, id -> Collections.synchronizedList(new ArrayList<>()))
-                .add(result);
-
-        result.onTimeout(() -> {
-            result.setResult(Collections.emptyList());
-            listeners.get(chatRoomId).remove(result);
-        });
-
-        result.onCompletion(() -> listeners.get(chatRoomId).remove(result));
-        return result;
+        return newMessages.stream()
+                .map(doc -> chatMessageQueryMapper
+                        .toMessageResponse(doc, currentUser.getNickname(), currentUser.getImageKey()))
+                .collect(Collectors.toList());
     }
+
+    public DeferredResult<List<ChatMessageResponse>> createLongPollingResult(Long chatRoomId) {
+        DeferredResult<List<ChatMessageResponse>> dr = new DeferredResult<>(TIMEOUT_MILLIS);
+
+        listeners.computeIfAbsent(chatRoomId, id -> Collections.synchronizedList(new ArrayList<>()))
+                .add(dr);
+
+        dr.onTimeout(() -> {
+            dr.setResult(Collections.emptyList());
+            listeners.get(chatRoomId).remove(dr);
+        });
+        dr.onCompletion(() -> listeners.get(chatRoomId).remove(dr));
+
+        return dr;
+    }
+
 
     public void notifyNewMessage(
             ChatMessageDocument newMessage,

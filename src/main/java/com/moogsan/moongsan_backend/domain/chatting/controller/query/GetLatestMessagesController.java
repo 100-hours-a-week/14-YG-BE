@@ -35,7 +35,7 @@ public class GetLatestMessagesController {
 
         // -- (B) Service로부터 rawResult 획득 (여긴 5초 타임아웃)
         DeferredResult<List<ChatMessageResponse>> rawResult =
-                chattingQueryFacade.getLatesetMessages(userDetails.getUser(), chatRoomId, lastMessageId);
+                chattingQueryFacade.getLatestMessages(userDetails.getUser(), chatRoomId, lastMessageId);
 
         // ─────────────────────────────────────────────────────────────────────────────
         // (1) rawResult가 정상적으로 메시지를 반환할 때
