@@ -1,5 +1,6 @@
 package com.moogsan.moongsan_backend.unit.order.service;
 
+import com.moogsan.moongsan_backend.domain.chatting.Facade.command.ChattingCommandFacade;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.policy.DueSoonPolicy;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
@@ -31,6 +32,7 @@ class OrderCreateServiceTest {
     @Mock private GroupBuyRepository groupBuyRepository;
     @Mock private OrderRepository orderRepository;
     @Mock private DueSoonPolicy dueSoonPolicy;
+    @Mock private ChattingCommandFacade chattingCommandFacade;
 
     private final Long userId = 1L;
     private final Long postId = 10L;

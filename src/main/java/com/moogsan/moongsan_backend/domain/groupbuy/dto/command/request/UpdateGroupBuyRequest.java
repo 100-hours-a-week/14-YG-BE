@@ -23,12 +23,11 @@ public class UpdateGroupBuyRequest {
     @Size(min = 1, max = 30, message = "상품명은 1자 이상, 30자 이하로 입력해주세요.")
     private String name;
 
-    @Size(min = 1, max = 2000, message = "URL은 1자 이상, 2000자 이하로 입력해주세요.")
-    @URL(message = "URL 형식이 올바르지 않습니다.")
-    private String url;
-
     @Size(min = 2, max = 2000, message = "상품 설명은 2자 이상, 2000자 이하로 입력해주세요.")
     private String description;
+
+    @Min(value = 0, message = "주최자 주문 수량은 0 이상이어야 합니다.")  /// 이후 1로 수정 필요
+    private Integer hostQuantity;
 
     @Future(message = "마감일자는 현재 시간 이후여야 합니다.")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")

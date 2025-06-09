@@ -41,7 +41,6 @@ public class GetGroupBuyEditInfoTest {
                 .title("진라면 공구해요")
                 .name("진라면")
                 .description("얼큰한 진라면 20개 묶음! 편의점보다 저렴해요.")
-                .url("https://example.com/jinramen")
                 .imageKeys(List.of())
                 .dueDate(LocalDateTime.of(2025, 6, 10, 23, 59))
                 .location("서울 성동구 성수이로 113")

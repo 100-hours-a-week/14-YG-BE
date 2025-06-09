@@ -33,6 +33,11 @@ public class GetGroupBuyHostAccountInfo {
         GroupBuy groupBuy = groupBuyRepository.findById(postId)
                 .orElseThrow(GroupBuyNotFoundException::new);
 
+        // 만약 요청한 유저가 해당 공구의 주최자라면 주문 여부 검사 없이 바로 리턴
+        if (groupBuy.getUser().getId().equals(userId)) {
+            return groupBuyQueryMapper.toHostAccount(groupBuy);
+        }
+
         // 해당 공구의 주문 테이블에 해당 유저의 주문이 존재하는지 조회 -> 아니면 404
         Order order = orderRepository.findByUserIdAndGroupBuyIdAndStatusNot(userId, groupBuy.getId(), "CANCELED")
                 .orElseThrow(GroupBuyNotParticipantException::new);

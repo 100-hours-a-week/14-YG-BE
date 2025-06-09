@@ -106,11 +106,13 @@ public class GroupBuy extends BaseEntity {
     @OrderBy("imageSeqNo ASC")
     private List<Image> images = new ArrayList<>();
 
-    @Builder.Default
-    @OneToMany(mappedBy = "groupBuy",
-        cascade = CascadeType.ALL,
-        orphanRemoval = true)
-    private List<ChatRoom> chatRooms = new ArrayList<>();
+    @OneToOne(mappedBy = "groupBuy")
+    private ChatRoom participantChatRoom;
+
+    public void setParticipantChatRoom(ChatRoom room) {
+        if (room == null) return;
+        this.participantChatRoom = room;
+    }
 
     @Transient
     public double getSoldRatio() {
@@ -173,8 +175,16 @@ public class GroupBuy extends BaseEntity {
         if (req.getName() != null) {
             this.name = req.getName();
         }
-        if (req.getUrl() != null) {
-            this.url = req.getUrl();
+        if (req.getHostQuantity() != null) {
+            int originalHostQuantity = this.hostQuantity;
+            int newHostQuantity = req.getHostQuantity();
+
+            if (originalHostQuantity < newHostQuantity) {
+                decreaseLeftAmount(newHostQuantity - originalHostQuantity);
+            } else if (originalHostQuantity > newHostQuantity){
+                increaseLeftAmount(originalHostQuantity - newHostQuantity);
+            }
+            this.hostQuantity = newHostQuantity;
         }
         if (req.getDescription() != null) {
             this.description = req.getDescription();

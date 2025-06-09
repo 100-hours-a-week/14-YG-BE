@@ -13,7 +13,8 @@ import java.util.List;
 public class DetailResponse {
 
     // 식별/메타
-    private Long postId;                  // 공구 게시글 아이디
+    private Long postId;                    // 공구 게시글 아이디
+    private Long chatRoomId;                // 참여자 채팅방 아이디
     private String title;                   // 공구 게시글 제목
     private String name;                    // 공구 상품명
     private String postStatus;              // 공구 진행 상태
@@ -35,6 +36,7 @@ public class DetailResponse {
     // 상태/플래그
     private boolean dueSoon;                // 마감 임박 여부
     private boolean isWish;                 // 관심 여부
+    private boolean isHost;                 // 주최 여부
     private boolean isParticipant;          // 참여 여부
 
     // 날짜
@@ -48,6 +50,11 @@ public class DetailResponse {
     @JsonProperty("isWish")
     public boolean isWish() {
         return isWish;
+    }
+
+    @JsonProperty("isHost")
+    public boolean isHost() {
+        return isHost;
     }
 
     @JsonProperty("isParticipant")

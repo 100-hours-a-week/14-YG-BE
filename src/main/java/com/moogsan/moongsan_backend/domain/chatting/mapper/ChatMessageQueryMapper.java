@@ -7,6 +7,7 @@ import com.moogsan.moongsan_backend.domain.chatting.entity.ChatRoom;
 import com.moogsan.moongsan_backend.domain.chatting.repository.ChatMessageRepository;
 import com.moogsan.moongsan_backend.domain.image.entity.Image;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

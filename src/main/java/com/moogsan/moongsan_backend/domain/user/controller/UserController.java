@@ -5,6 +5,7 @@ import com.moogsan.moongsan_backend.domain.user.dto.request.SignUpRequest;
 import com.moogsan.moongsan_backend.domain.user.dto.response.LoginResponse;
 import com.moogsan.moongsan_backend.domain.user.dto.response.CheckDuplicationResponse;
 import com.moogsan.moongsan_backend.domain.user.dto.response.UserProfileResponse;
+import com.moogsan.moongsan_backend.domain.user.mapper.BankCodeMapper;
 import com.moogsan.moongsan_backend.domain.user.service.CheckDuplicationService;
 import com.moogsan.moongsan_backend.domain.user.service.LoginService;
 import com.moogsan.moongsan_backend.domain.user.service.LogoutService;
@@ -200,7 +201,18 @@ public class UserController {
             @RequestParam String name,
             @RequestParam String accountBank,
             @RequestParam String accountNumber) {
-        checkAccountService.checkBankAccountHolder(accountBank, accountNumber, name); // matched 확인, 예외 발생 시 자동 처리
+
+        String bankCode = BankCodeMapper.getBankCode(accountBank);
+        if (bankCode == null) {
+            return ResponseEntity.badRequest().body(
+                    WrapperResponse.<Void>builder()
+                            .message("지원하지 않는 은행입니다.")
+                            .data(null)
+                            .build()
+            );
+        }
+
+        checkAccountService.checkBankAccountHolder(bankCode, accountNumber, name); // matched 확인, 예외 발생 시 자동 처리
         return ResponseEntity.ok(
                 WrapperResponse.<Void>builder()
                         .message("본인인증이 성공하였습니다.")

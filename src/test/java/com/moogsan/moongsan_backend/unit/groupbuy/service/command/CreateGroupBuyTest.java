@@ -1,5 +1,6 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.service.command;
 
+import com.moogsan.moongsan_backend.domain.chatting.Facade.command.ChattingCommandFacade;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.CreateGroupBuyRequest;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.base.GroupBuyException;
@@ -9,6 +10,7 @@ import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepositor
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.CreateGroupBuy;
 import com.moogsan.moongsan_backend.domain.image.mapper.ImageMapper;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
+import com.moogsan.moongsan_backend.global.lock.DuplicateRequestPreventer;
 import com.moogsan.moongsan_backend.support.fake.InMemoryDuplicateRequestPreventer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,6 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,9 +29,11 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
-@Import(InMemoryDuplicateRequestPreventer.class)
 @ExtendWith(MockitoExtension.class)
 public class CreateGroupBuyTest {
+
+    @Mock
+    private DuplicateRequestPreventer duplicateRequestPreventer;
 
     @Mock
     private GroupBuyRepository groupBuyRepository;
@@ -39,6 +44,9 @@ public class CreateGroupBuyTest {
     @Mock
     private GroupBuyCommandMapper groupBuyCommandMapper;
 
+    @Mock
+    private ChattingCommandFacade chattingCommandFacade;
+
     @InjectMocks
     private CreateGroupBuy createGroupBuy;
 
@@ -47,6 +55,9 @@ public class CreateGroupBuyTest {
 
     @BeforeEach
     void setUp() {
+        when(duplicateRequestPreventer.tryAcquireLock(anyString(), anyLong()))
+                .thenReturn(true);
+
         request = CreateGroupBuyRequest.builder()
                 .title("라면 공구")
                 .name("진라면")
@@ -73,6 +84,7 @@ public class CreateGroupBuyTest {
         when(groupBuyCommandMapper.create(request, user)).thenReturn(mockGb);
         when(groupBuyRepository.save(mockGb)).thenReturn(mockGb);
         doReturn(42L).when(mockGb).getId();
+        when(chattingCommandFacade.joinChatRoom(user, mockGb.getId())).thenReturn(2L);
 
         // when
         Long result = createGroupBuy.createGroupBuy(user, request);

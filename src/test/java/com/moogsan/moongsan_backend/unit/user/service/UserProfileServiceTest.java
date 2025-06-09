@@ -54,7 +54,7 @@ class UserProfileServiceTest {
         // then
         assertThat(response.getEmail()).isEqualTo("test@example.com");
         assertThat(response.getNickname()).isEqualTo("tester");
-        assertThat(response.getImageUrl()).isEqualTo("image.jpg");
+        assertThat(response.getProfileImageUrl()).isEqualTo("image.jpg");
         assertThat(response.getPhoneNumber()).isEqualTo("01012345678");
         assertThat(response.getAccountBank()).isEqualTo("은행");
         assertThat(response.getAccountNumber()).isEqualTo("1234567890");
