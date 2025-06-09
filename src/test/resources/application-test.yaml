@@ -18,6 +18,9 @@ spring:
     mongodb:
       database: test_mongo
       uri: ${MONGO_DB_URI:mongodb://localhost:27017/test_mongo}
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
 
 ai:
   service:
@@ -33,3 +36,8 @@ cloud:
     s3:
       bucket: dummy-bucket
 
+oauth:
+  kakao:
+    client-id: dummy-client-id
+    client-secret: dummy-client-secret
+    redirect-uri: http://localhost:18080/oauth2/callback/kakao
