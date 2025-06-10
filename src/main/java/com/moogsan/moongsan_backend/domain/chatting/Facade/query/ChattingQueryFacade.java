@@ -17,7 +17,7 @@ public interface ChattingQueryFacade {
             String cursorId
     );
 
-    DeferredResult<List<ChatMessageResponse>> getLatesetMessages(
+    DeferredResult<List<ChatMessageResponse>> getLatestMessages(
             User currentUser,
             Long chatRoomId,
             String lastMessageId
@@ -25,8 +25,7 @@ public interface ChattingQueryFacade {
 
     SseEmitter getLatestMessagesSse(
             User currentUser,
-            Long chatRoomId,
-            String lastMessageId
+            Long chatRoomId
     );
 
     List<ChatRoomResponse> getChatRoomList (

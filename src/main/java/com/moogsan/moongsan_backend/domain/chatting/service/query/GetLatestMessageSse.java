@@ -38,7 +38,7 @@ public class GetLatestMessageSse {
     private final Map<Long, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
 
     public SseEmitter getLatestMessagesSse(
-            User currentUser, Long chatRoomId, String lastMessageId
+            User currentUser, Long chatRoomId
     ) {
         // 채팅방 조회 -> 없으면 404
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
@@ -79,6 +79,7 @@ public class GetLatestMessageSse {
             };
 
             Runnable securedTask = new DelegatingSecurityContextRunnable(task, context);
+            // securedTask.run();
             Thread.startVirtualThread(securedTask); // 새로운 Loom 가상 스레드를 띄워서 r.setResult(...)를 비동기적으로 실행
         }
     }
@@ -102,4 +103,3 @@ public class GetLatestMessageSse {
         }
     }
 }
-

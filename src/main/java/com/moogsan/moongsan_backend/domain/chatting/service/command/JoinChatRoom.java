@@ -39,12 +39,6 @@ public class JoinChatRoom {
         Boolean isHost = groupBuy.getUser().getId().equals(currentUser.getId());
 
         if (!isHost) {
-            // 해당 공구가 OPEN인지 조회, dueDate가 현재 이후인지 조회 -> 아니면 409
-            if (!groupBuy.getPostStatus().equals("OPEN")
-                    || groupBuy.getDueDate().isBefore(LocalDateTime.now())) {
-                throw new GroupBuyInvalidStateException("채팅방 참여는 공구가 열려있는 상태에서만 가능합니다.");
-            }
-
             // 해당 공구의 주문 테이블에 해당 유저의 주문이 존재하는지 조회 -> 아니면 404
             Order order = orderRepository.findByUserIdAndGroupBuyIdAndStatusNot(currentUser.getId(), groupBuy.getId(), "CANCELED")
                     .orElseThrow(() -> new OrderNotFoundException("공구의 참여자만 참가 가능합니다."));

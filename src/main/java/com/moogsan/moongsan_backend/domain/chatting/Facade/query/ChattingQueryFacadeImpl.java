@@ -34,16 +34,32 @@ public class ChattingQueryFacadeImpl implements ChattingQueryFacade{
         return getPastMessages.getPastMessages(user, chatRoomId, cursorId);
     }
 
-    public DeferredResult<List<ChatMessageResponse>> getLatesetMessages(
-            User currentUser, Long chatRoomId, String lastMessageId
-    ) {
-        return getLatestMessages.getLatesetMessages(currentUser, chatRoomId, lastMessageId);
+    @Override
+    public DeferredResult<List<ChatMessageResponse>> getLatestMessages(
+            User user, Long chatRoomId, String lastMessageId) {
+
+        // 1) 검증 + 초기 조회 (트랜잭션)
+        List<ChatMessageResponse> initial =
+                getLatestMessages.getLatestMessages(user, chatRoomId, lastMessageId);
+        if (!initial.isEmpty()) {
+            DeferredResult<List<ChatMessageResponse>> dr = new DeferredResult<>();
+            dr.setResult(initial);
+            return dr;
+        }
+
+        // 2) 롱폴링 대기 (노 트랜잭션)
+        return getLatestMessages.createLongPollingResult(chatRoomId);
     }
 
+    @Override
     public SseEmitter getLatestMessagesSse(
-            User currentUser, Long chatRoomId, String lastMessageId
+            User currentUser, Long chatRoomId
     ) {
-        return getLatestMessagesSse.getLatestMessagesSse(currentUser, chatRoomId, lastMessageId);
+        // 1) 검증만 수행 (트랜잭션 경계 안)
+        return getLatestMessagesSse.getLatestMessagesSse(currentUser, chatRoomId);
+
+        // 2) Emitter 생성 및 등록 (트랜잭션 경계 밖)
+        // return getLatestMessagesSse.createEmitter(chatRoomId);
     }
 
     public List<ChatRoomResponse> getChatRoomList (Long userId, LocalDateTime cursorJoinedAt, Long cursorId, Integer limit) {
