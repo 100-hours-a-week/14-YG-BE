@@ -5,13 +5,15 @@ import jakarta.validation.Payload;
 
 import java.lang.annotation.*;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ValidationMessage.BLANK_DATEMODIFICATION_REASON;
+
 /// 커스텀 어노테이션 정의
-@Target({ ElementType.TYPE })
+@Target({ ElementType.TYPE, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = PickupDateReasonValidator.class)
 @Documented
 public @interface RequireReasonIfPickupDateChanged {
-    String message() default "픽업 일자가 변경된 경우 사유를 작성해야 합니다.";
+    String message() default BLANK_DATEMODIFICATION_REASON;
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }
