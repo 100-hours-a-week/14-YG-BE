@@ -107,7 +107,7 @@ public class GetGroupBuyListByCursor {
         }
 
         return PagedResponse.<BasicListResponse>builder()
-                .count(posts.size())
+                .count(result.getTotalElements())
                 .posts(posts)
                 .nextCursor(nextCursorId != null ? nextCursorId.intValue() : null)
                 .nextCursorPrice(nextCursorPrice)
