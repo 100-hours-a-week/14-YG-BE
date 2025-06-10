@@ -20,7 +20,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.BAD_REQUEST;
 import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.CREATE_SUCCESS;
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ValidationMessage.*;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
@@ -104,8 +106,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.title").value("제목은 공백을 제외한 1자 이상, 100자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.title").value(TITLE_SIZE));
     }
 
     @Test
@@ -126,8 +128,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.title").value("제목은 공백을 제외한 1자 이상, 100자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.title").value(TITLE_SIZE));
     }
 
     @Test
@@ -148,8 +150,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.title").value("제목은 공백을 제외한 1자 이상, 100자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.title").value(TITLE_SIZE));
     }
 
     @Test
@@ -172,8 +174,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.title").value("제목은 공백을 제외한 1자 이상, 100자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.title").value(TITLE_SIZE));
     }
 
 
@@ -197,8 +199,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.name").value("상품명은 공백을 제외한 1자 이상, 100자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.name").value(NAME_SIZE));
     }
 
     @Test
@@ -219,8 +221,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.name").value("상품명은 공백을 제외한 1자 이상, 100자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.name").value(NAME_SIZE));
     }
 
     @Test
@@ -241,8 +243,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.name").value("상품명은 공백을 제외한 1자 이상, 100자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.name").value(NAME_SIZE));
     }
 
     @Test
@@ -265,8 +267,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.name").value("상품명은 공백을 제외한 1자 이상, 100자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.name").value(NAME_SIZE));
     }
 
 
@@ -290,8 +292,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.url").value("URL은 1자 이상, 2000자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.url").value(URL_SIZE));
     }
 
     @Test
@@ -333,8 +335,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.url").value("URL은 1자 이상, 2000자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.url").value(URL_SIZE));
     }
 
     @Test
@@ -355,8 +357,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.url").value("URL 형식이 올바르지 않습니다."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.url").value(INVALID_URL));
     }
 
 
@@ -380,8 +382,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.price").value("상품 가격은 필수 입력 항목입니다."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.price").value(BLANK_PRICE));
     }
 
     @Test
@@ -402,8 +404,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.price").value("상품 가격은 1 이상이어야 합니다."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.price").value(PRICE_SIZE));
     }
 
 
@@ -427,8 +429,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.totalAmount").value("상품 전체 수량은 필수 입력 항목입니다."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.totalAmount").value(BLANK_TOTAL_AMOUNT));
     }
 
     @Test
@@ -449,8 +451,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.totalAmount").value("상품 전체 수량은 1 이상이어야 합니다."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.totalAmount").value(TOTAL_AMOUNT_SIZE));
     }
 
 
@@ -474,8 +476,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.unitAmount").value("상품 주문 단위는 필수 입력 항목입니다."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.unitAmount").value(BLANK_UNIT_AMOUNT));
     }
 
     @Test
@@ -496,8 +498,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.unitAmount").value("상품 주문 단위는 1 이상이어야 합니다."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.unitAmount").value(UNIT_AMOUNT_SIZE));
     }
 
 
@@ -521,8 +523,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.hostQuantity").value("주최자 주문 수량은 필수 입력 항목입니다."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.hostQuantity").value(BLANK_HOST_QUANTITY));
     }
 
     /*
@@ -556,7 +558,7 @@ class CreateGroupBuyTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.hostQuantity").value("주최자 주문 수량은 0 이상이어야 합니다."));
+                .andExpect(jsonPath("$.data.hostQuantity").value(HOST_QUANTITY_SIZE));
     }
      */
 
@@ -581,8 +583,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.description").value("상품 설명은 공백을 제외한 2자 이상, 2000자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.description").value(DESCRIPTION_SIZE));
     }
 
     @Test
@@ -603,8 +605,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.description").value("상품 설명은 공백을 제외한 2자 이상, 2000자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.description").value(DESCRIPTION_SIZE));
     }
 
     @Test
@@ -625,8 +627,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.description").value("상품 설명은 공백을 제외한 2자 이상, 2000자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.description").value(DESCRIPTION_SIZE));
     }
 
     @Test
@@ -680,8 +682,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.description").value("상품 설명은 공백을 제외한 2자 이상, 2000자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.description").value(DESCRIPTION_SIZE));
     }
 
 
@@ -705,8 +707,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.dueDate").value("마감 일자는 필수 입력 항목입니다."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.dueDate").value(BLANK_DUEDATE));
     }
 
     @Test
@@ -727,8 +729,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.dueDate").value("마감 일자는 현재 시간 이후여야 합니다."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.dueDate").value(PAST_DUEDATE));
     }
 
     /*
@@ -763,7 +765,7 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
                 .andExpect(jsonPath("$.data.dueDate").value("마감 일자는 yyyy-MM-dd'T'HH:mm 형식으로 입력해주세요."));
     }
 
@@ -790,8 +792,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.location").value("거래 장소는 공백을 제외한 2자 이상, 85자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.location").value(LOCATION_SIZE));
     }
 
     @Test
@@ -812,8 +814,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.location").value("거래 장소는 공백을 제외한 2자 이상, 85자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.location").value(LOCATION_SIZE));
     }
 
     @Test
@@ -834,8 +836,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.location").value("거래 장소는 공백을 제외한 2자 이상, 85자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.location").value(LOCATION_SIZE));
     }
 
     @Test
@@ -858,8 +860,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.location").value("거래 장소는 공백을 제외한 2자 이상, 85자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.location").value(LOCATION_SIZE));
     }
 
 
@@ -883,8 +885,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.pickupDate").value("픽업 일자는 필수 입력 항목입니다."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.pickupDate").value(BLANK_PICKUPDATE));
     }
 
     @Test
@@ -905,8 +907,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.pickupDate").value("픽업 일자는 현재 시간 이후여야 합니다."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.pickupDate").value(PAST_PICKUPDATE));
     }
 
 
@@ -930,7 +932,7 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
                 .andExpect(jsonPath("$.data.imageKeys").value("이미지는 1장 이상, 5장 이하로 등록해주세요."));
     }
 
@@ -952,8 +954,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.imageKeys").value("이미지는 1장 이상, 5장 이하로 등록해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.imageKeys").value(BLANK_IMAGE));
     }
 
     @Test
@@ -977,8 +979,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.imageKeys").value("이미지는 1장 이상, 5장 이하로 등록해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.imageKeys").value(BLANK_IMAGE));
     }
 
     @Test
@@ -999,8 +1001,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.*", hasItem("이미지는 반드시 images/로 시작해야 합니다")));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.*", hasItem(INVALID_IMAGE)));
     }
 
     @Test
@@ -1021,7 +1023,7 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.*", hasItem("이미지는 반드시 images/로 시작해야 합니다")));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.*", hasItem(INVALID_IMAGE)));
     }
 }

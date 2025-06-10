@@ -89,4 +89,7 @@ public final class ResponseMessage {
 
     public static final String NOT_EXIST_CATEGORY =
             "존재하지 않는 카테고리입니다.";
+
+    public static final String BAD_REQUEST =
+            "입력 형식이 올바르지 않습니다.";
 }
