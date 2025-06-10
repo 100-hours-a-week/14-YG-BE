@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.GroupBuyResponseMessage.CREATE_SUCCESS;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
@@ -76,7 +77,7 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.message").value("공구 게시글이 성공적으로 업로드되었습니다."))
+                .andExpect(jsonPath("$.message").value(CREATE_SUCCESS))
                 .andExpect(jsonPath("$.data.postId").value(42L));
     }
 

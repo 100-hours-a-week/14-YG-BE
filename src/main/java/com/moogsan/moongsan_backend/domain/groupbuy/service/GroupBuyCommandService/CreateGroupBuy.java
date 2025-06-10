@@ -21,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.GroupBuyResponseMessage.NOT_DIVISOR;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -45,7 +47,7 @@ public class CreateGroupBuy {
         }
 
         if (unit == 0 || total % unit != 0) {
-            throw new GroupBuyInvalidStateException("상품 주문 단위는 상품 전체 수량의 약수여야 합니다.");
+            throw new GroupBuyInvalidStateException(NOT_DIVISOR);
         }
 
         GroupBuy gb = groupBuyCommandMapper.create(createGroupBuyRequest, currentUser);

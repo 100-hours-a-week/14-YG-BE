@@ -3,9 +3,11 @@ package com.moogsan.moongsan_backend.domain.groupbuy.exception.specific;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.base.GroupBuyException;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.code.GroupBuyErrorCode;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.GroupBuyResponseMessage.NOT_PARTICIPANT;
+
 public class GroupBuyNotParticipantException extends GroupBuyException {
     public GroupBuyNotParticipantException() {
-        super(GroupBuyErrorCode.NOT_PARTICIPANT, "공구의 참여자만 요청 가능합니다.");
+        super(GroupBuyErrorCode.NOT_PARTICIPANT, NOT_PARTICIPANT);
     }
 
     public GroupBuyNotParticipantException(String message) {

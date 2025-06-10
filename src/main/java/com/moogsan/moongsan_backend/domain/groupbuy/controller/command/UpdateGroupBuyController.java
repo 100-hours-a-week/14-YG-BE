@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.GroupBuyResponseMessage.UPDATE_SUCCESS;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/group-buys")
@@ -31,7 +33,7 @@ public class UpdateGroupBuyController {
 
         return ResponseEntity.ok(
                 WrapperResponse.<CommandGroupBuyResponse>builder()
-                        .message("공구 게시글이 성공적으로 수정되었습니다.")
+                        .message(UPDATE_SUCCESS)
                         .data(new CommandGroupBuyResponse(postId))
                         .build());
     }

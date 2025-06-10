@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.GroupBuyResponseMessage.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -75,7 +76,7 @@ public class DeleteGroupBuyTest {
 
         assertThatThrownBy(() -> deleteGroupBuy.deleteGroupBuy(hostUser, 1L))
                 .isInstanceOf(GroupBuyNotFoundException.class)
-                .hasMessageContaining("존재하지 않는 공구입니다");
+                .hasMessageContaining(NOT_EXIST);
     }
 
     @Test
@@ -87,7 +88,7 @@ public class DeleteGroupBuyTest {
 
         assertThatThrownBy(() -> deleteGroupBuy.deleteGroupBuy(hostUser, 1L))
                 .isInstanceOf(GroupBuyInvalidStateException.class)
-                .hasMessageContaining("공구 삭제는 공구가 열려있는 상태에서만 가능합니다.");
+                .hasMessageContaining(NOT_OPEN);
     }
 
     @Test
@@ -101,7 +102,7 @@ public class DeleteGroupBuyTest {
 
         assertThatThrownBy(() -> deleteGroupBuy.deleteGroupBuy(hostUser, 1L))
                 .isInstanceOf(GroupBuyInvalidStateException.class)
-                .hasMessageContaining("공구 삭제는 공구가 열려있는 상태에서만 가능합니다.");
+                .hasMessageContaining(NOT_OPEN);
     }
 
     @Test
@@ -117,7 +118,7 @@ public class DeleteGroupBuyTest {
 
         assertThatThrownBy(() -> deleteGroupBuy.deleteGroupBuy(hostUser, 1L))
                 .isInstanceOf(GroupBuyInvalidStateException.class)
-                .hasMessageContaining("참여자가 1명 이상일 경우 공구를 삭제할 수 없습니다.");
+                .hasMessageContaining(EXIST_PARTICIPANT);
     }
 
     @Test
@@ -135,6 +136,6 @@ public class DeleteGroupBuyTest {
 
         assertThatThrownBy(() -> deleteGroupBuy.deleteGroupBuy(otherUser, 1L))
                 .isInstanceOf(GroupBuyNotHostException.class)
-                .hasMessageContaining("공구 삭제는 공구의 주최자만 요청 가능합니다.");
+                .hasMessageContaining(NOT_HOST);
     }
 }

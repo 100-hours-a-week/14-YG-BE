@@ -20,6 +20,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.GroupBuyResponseMessage.CREATE_SUCCESS;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/group-buys")
@@ -41,7 +43,7 @@ public class CreateGroupBuyController {
 
         return ResponseEntity.created(location)
                 .body(WrapperResponse.<CommandGroupBuyResponse>builder()
-                        .message("공구 게시글이 성공적으로 업로드되었습니다.")
+                        .message(CREATE_SUCCESS)
                         .data(new CommandGroupBuyResponse(postId))
                         .build());
     }

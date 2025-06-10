@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.GroupBuyResponseMessage.END_SUCCESS;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
@@ -51,7 +52,7 @@ public class EndGroupBuyTest {
         mockMvc.perform(patch("/api/group-buys/{postId}/end", 20L)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("공구가 성공적으로 종료되었습니다."));
+                .andExpect(jsonPath("$.message").value(END_SUCCESS));
 
         Mockito.verify(groupBuyCommandFacade)
                 .endGroupBuy(any(), eq(20L));

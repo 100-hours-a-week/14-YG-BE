@@ -25,6 +25,7 @@ import org.springframework.test.context.ContextConfiguration;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.GroupBuyResponseMessage.NOT_DIVISOR;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
@@ -104,7 +105,7 @@ public class CreateGroupBuyTest {
 
         assertThatThrownBy(() -> createGroupBuy.createGroupBuy(user, request))
                 .isInstanceOf(GroupBuyInvalidStateException.class)
-                .hasMessageContaining("상품 주문 단위는 상품 전체 수량의 약수여야 합니다.");
+                .hasMessageContaining(NOT_DIVISOR);
     }
 
     @Test
@@ -114,6 +115,6 @@ public class CreateGroupBuyTest {
 
         assertThatThrownBy(() -> createGroupBuy.createGroupBuy(user, request))
                 .isInstanceOf(GroupBuyInvalidStateException.class)
-                .hasMessageContaining("상품 주문 단위는 상품 전체 수량의 약수여야 합니다.");
+                .hasMessageContaining(NOT_DIVISOR);
     }
 }

@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.GroupBuyResponseMessage.DELETE_SUCCESS;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/group-buys")
@@ -31,7 +33,7 @@ public class DeleteGroupBuyController {
 
         return ResponseEntity.ok(
                 WrapperResponse.<CommandGroupBuyResponse>builder()
-                        .message("공구 게시글이 성공적으로 삭제되었습니다.")
+                        .message(DELETE_SUCCESS)
                         .build());
     }
 }

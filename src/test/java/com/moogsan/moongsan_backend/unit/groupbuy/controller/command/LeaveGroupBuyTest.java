@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.GroupBuyResponseMessage.LEAVE_SUCCESS;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;
@@ -51,7 +52,7 @@ public class LeaveGroupBuyTest {
         mockMvc.perform(delete("/api/group-buys/{postId}/participants", 20L)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("공구 참여가 성공적으로 취소되었습니다."));
+                .andExpect(jsonPath("$.message").value(LEAVE_SUCCESS));
 
         Mockito.verify(groupBuyCommandFacade)
                 .leaveGroupBuy(any(), eq(20L));

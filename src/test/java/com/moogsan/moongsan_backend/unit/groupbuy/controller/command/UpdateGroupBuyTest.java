@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.GroupBuyResponseMessage.UPDATE_SUCCESS;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -64,7 +65,7 @@ public class UpdateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("공구 게시글이 성공적으로 수정되었습니다."));
+                .andExpect(jsonPath("$.message").value(UPDATE_SUCCESS));
     }
 
     @Test
