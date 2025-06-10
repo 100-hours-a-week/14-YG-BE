@@ -39,6 +39,7 @@ public class GroupBuyQueryMapper {
                 .title(gb.getTitle())
                 .name(gb.getName())
                 .description(gb.getDescription())
+                .url(gb.getUrl())
                 .imageKeys(imageUrls)
                 .hostQuantity(gb.getHostQuantity())
                 .leftAmount(gb.getLeftAmount() + gb.getHostQuantity())
