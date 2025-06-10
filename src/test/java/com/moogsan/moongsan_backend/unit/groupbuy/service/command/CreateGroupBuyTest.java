@@ -3,7 +3,6 @@ package com.moogsan.moongsan_backend.unit.groupbuy.service.command;
 import com.moogsan.moongsan_backend.domain.chatting.Facade.command.ChattingCommandFacade;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.CreateGroupBuyRequest;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
-import com.moogsan.moongsan_backend.domain.groupbuy.exception.base.GroupBuyException;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.domain.groupbuy.mapper.GroupBuyCommandMapper;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
@@ -11,7 +10,6 @@ import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandServi
 import com.moogsan.moongsan_backend.domain.image.mapper.ImageMapper;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import com.moogsan.moongsan_backend.global.lock.DuplicateRequestPreventer;
-import com.moogsan.moongsan_backend.support.fake.InMemoryDuplicateRequestPreventer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,13 +17,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ContextConfiguration;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.moogsan.moongsan_backend.domain.groupbuy.message.GroupBuyResponseMessage.NOT_DIVISOR;
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.NOT_DIVISOR;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;

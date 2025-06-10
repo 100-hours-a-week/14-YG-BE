@@ -5,9 +5,7 @@ import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.CreateGr
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.response.CommandGroupBuyResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.facade.command.GroupBuyCommandFacade;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
-import com.moogsan.moongsan_backend.global.exception.specific.DuplicateRequestException;
 import com.moogsan.moongsan_backend.global.exception.specific.UnauthenticatedAccessException;
-import com.moogsan.moongsan_backend.global.lock.DuplicateRequestPreventer;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +18,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 
-import static com.moogsan.moongsan_backend.domain.groupbuy.message.GroupBuyResponseMessage.CREATE_SUCCESS;
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.CREATE_SUCCESS;
 
 @RestController
 @RequiredArgsConstructor

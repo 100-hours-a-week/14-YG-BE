@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.NOT_HOST;
+
 @Slf4j
 @Service
 @Transactional(readOnly=true)
@@ -35,7 +37,7 @@ public class GetGroupBuyParticipantsInfo {
 
         // 해당 공구의 주최자가 해당 유저인지 조회 -> 아니면 403
         if(!groupBuy.getUser().getId().equals(userId)) {
-            throw new GroupBuyNotHostException("공구 참여자 조회는 공구의 주최자만 요청 가능합니다.");
+            throw new GroupBuyNotHostException(NOT_HOST);
         }
 
         List<Order> orders = orderRepository.findByGroupBuyIdAndStatusNot(postId, "canceled");

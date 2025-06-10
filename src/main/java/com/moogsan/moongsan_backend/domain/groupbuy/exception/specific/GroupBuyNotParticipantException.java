@@ -3,7 +3,7 @@ package com.moogsan.moongsan_backend.domain.groupbuy.exception.specific;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.base.GroupBuyException;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.code.GroupBuyErrorCode;
 
-import static com.moogsan.moongsan_backend.domain.groupbuy.message.GroupBuyResponseMessage.NOT_PARTICIPANT;
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.NOT_PARTICIPANT;
 
 public class GroupBuyNotParticipantException extends GroupBuyException {
     public GroupBuyNotParticipantException() {

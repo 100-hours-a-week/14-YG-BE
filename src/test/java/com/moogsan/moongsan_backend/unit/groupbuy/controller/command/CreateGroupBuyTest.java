@@ -5,7 +5,6 @@ import com.moogsan.moongsan_backend.domain.groupbuy.controller.command.CreateGro
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.CreateGroupBuyRequest;
 import com.moogsan.moongsan_backend.domain.groupbuy.facade.command.GroupBuyCommandFacade;
 import com.moogsan.moongsan_backend.global.lock.DuplicateRequestPreventer;
-import com.moogsan.moongsan_backend.support.fake.InMemoryDuplicateRequestPreventer;
 import com.moogsan.moongsan_backend.support.security.WithMockCustomUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -22,7 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.moogsan.moongsan_backend.domain.groupbuy.message.GroupBuyResponseMessage.CREATE_SUCCESS;
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.CREATE_SUCCESS;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;

@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.GET_LIST_SUCCESS;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/group-buys")
@@ -39,7 +41,7 @@ public class GroupBuyListController {
                         cursorId, cursorCreatedAt, cursorPrice, limit, openOnly, keyword);
         return ResponseEntity.ok(
                 WrapperResponse.<PagedResponse<BasicListResponse>>builder()
-                        .message("전체 공구 리스트를 성공적으로 조회했습니다.")
+                        .message(GET_LIST_SUCCESS)
                         .data(pagedResponse)
                         .build()
         );

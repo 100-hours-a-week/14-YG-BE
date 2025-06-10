@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
-import static com.moogsan.moongsan_backend.domain.groupbuy.message.GroupBuyResponseMessage.GENERATE_SUCCESS;
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.GENERATE_SUCCESS;
 import static com.moogsan.moongsan_backend.global.util.CookieUtils.extractCookie;
 
 @RestController

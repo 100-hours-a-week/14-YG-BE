@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.GET_UPDATE_SUCCESS;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/group-buys/{postId}/edit")
@@ -28,7 +30,7 @@ public class GroupBuyEditController {
         GroupBuyForUpdateResponse groupBuyForUpdate = queryFacade.getGroupBuyEditInfo(postId);
         return ResponseEntity.ok(
                 WrapperResponse.<GroupBuyForUpdateResponse>builder()
-                        .message("공구 게시글 수정용 정보를 성공적으로 조회했습니다.")
+                        .message(GET_UPDATE_SUCCESS)
                         .data(groupBuyForUpdate)
                         .build()
         );

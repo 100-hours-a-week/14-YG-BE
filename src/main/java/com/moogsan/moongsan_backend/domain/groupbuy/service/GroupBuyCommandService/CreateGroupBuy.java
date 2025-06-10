@@ -1,14 +1,9 @@
 package com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService;
 
 import com.moogsan.moongsan_backend.domain.chatting.Facade.command.ChattingCommandFacade;
-import com.moogsan.moongsan_backend.domain.chatting.entity.ChatParticipant;
-import com.moogsan.moongsan_backend.domain.chatting.entity.ChatRoom;
-import com.moogsan.moongsan_backend.domain.chatting.repository.ChatParticipantRepository;
-import com.moogsan.moongsan_backend.domain.chatting.repository.ChatRoomRepository;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.CreateGroupBuyRequest;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyInvalidStateException;
-import com.moogsan.moongsan_backend.domain.groupbuy.facade.command.GroupBuyCommandFacade;
 import com.moogsan.moongsan_backend.domain.groupbuy.mapper.GroupBuyCommandMapper;
 import com.moogsan.moongsan_backend.domain.image.mapper.ImageMapper;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
@@ -19,9 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
-import static com.moogsan.moongsan_backend.domain.groupbuy.message.GroupBuyResponseMessage.NOT_DIVISOR;
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.NOT_DIVISOR;
 
 @Service
 @Transactional

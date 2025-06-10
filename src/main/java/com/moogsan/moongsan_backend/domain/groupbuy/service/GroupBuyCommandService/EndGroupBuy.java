@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
-import static com.moogsan.moongsan_backend.domain.groupbuy.message.GroupBuyResponseMessage.*;
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.*;
 
 @Service
 @Transactional

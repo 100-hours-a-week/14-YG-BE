@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.moogsan.moongsan_backend.domain.groupbuy.message.GroupBuyResponseMessage.LEAVE_SUCCESS;
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.LEAVE_SUCCESS;
 
 @RestController
 @RequiredArgsConstructor

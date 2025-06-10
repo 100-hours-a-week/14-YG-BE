@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 import java.util.Collections;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.GET_PARTICIPATED_SUCCESS;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -81,7 +82,7 @@ public class GetGroupBuyParticipatedListTest {
                         .param("limit", "5")
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("참여 공구 리스트를 성공적으로 조회했습니다."));
+                .andExpect(jsonPath("$.message").value(GET_PARTICIPATED_SUCCESS));
         //.andExpect(jsonPath("$.data.content[0].postId").value(100));
 
         Mockito.verify(queryFacade).getGroupBuyParticipatedList(

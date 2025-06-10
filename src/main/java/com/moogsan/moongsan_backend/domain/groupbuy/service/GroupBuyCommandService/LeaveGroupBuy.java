@@ -7,7 +7,6 @@ import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyN
 import com.moogsan.moongsan_backend.domain.groupbuy.policy.DueSoonPolicy;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
-import com.moogsan.moongsan_backend.domain.order.exception.specific.OrderInvalidStateException;
 import com.moogsan.moongsan_backend.domain.order.exception.specific.OrderNotFoundException;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
@@ -17,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
-import static com.moogsan.moongsan_backend.domain.groupbuy.message.GroupBuyResponseMessage.NOT_OPEN;
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.NOT_OPEN;
 
 
 @Service

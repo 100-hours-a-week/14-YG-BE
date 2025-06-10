@@ -1,8 +1,8 @@
 package com.moogsan.moongsan_backend.domain.groupbuy.message;
 
-public final class GroupBuyResponseMessage {
+public final class ResponseMessage {
 
-    private GroupBuyResponseMessage() {}
+    private ResponseMessage() {}
 
     /// SUCCESS
 
@@ -24,6 +24,30 @@ public final class GroupBuyResponseMessage {
     public static final String DELETE_SUCCESS =
             "공구 게시글이 성공적으로 삭제되었습니다.";
 
+    public static final String GET_DETAIL_SUCCESS =
+            "공구 게시글 상세 정보를 성공적으로 조회했습니다.";
+
+    public static final String GET_UPDATE_SUCCESS =
+            "공구 게시글 수정용 정보를 성공적으로 조회했습니다.";
+
+    public static final String GET_ACCOUNT_SUCCESS =
+            "공구 게시글 주최자 계좌 정보를 성공적으로 조회했습니다.";
+
+    public static final String GET_HOSTED_SUCCESS =
+            "주최 공구 리스트를 성공적으로 조회했습니다.";
+
+    public static final String GET_PARTICIPATED_SUCCESS =
+            "참여 공구 리스트를 성공적으로 조회했습니다.";
+
+    public static final String GET_WISH_SUCCESS =
+            "관심 공구 리스트를 성공적으로 조회했습니다.";
+
+    public static final String GET_LIST_SUCCESS =
+            "전체 공구 리스트를 성공적으로 조회했습니다.";
+
+    public static final String GET_PARTICIPANTS_SUCCESS =
+            "공구 참여자 리스트를 성공적으로 조회했습니다.";
+
 
     ///  FAIL
 
@@ -34,7 +58,10 @@ public final class GroupBuyResponseMessage {
             "공구가 열려있는 상태에서만 요청 가능합니다.";
 
     public static final String NOT_EXIST =
-            "존재하지 않는 공구입니다";
+            "존재하지 않는 공구입니다.";
+
+    public static final String AFTER_DELETED =
+            "삭제된 공구입니다.";
 
     public static final String NOT_EXIST_ORDER =
             "존재하지 않는 주문입니다.";

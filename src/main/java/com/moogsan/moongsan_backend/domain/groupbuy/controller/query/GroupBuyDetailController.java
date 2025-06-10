@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.GET_DETAIL_SUCCESS;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/group-buys/{postId}")
@@ -24,7 +26,7 @@ public class GroupBuyDetailController {
         DetailResponse detail = queryFacade.getGroupBuyDetailInfo(userId, postId);
         return ResponseEntity.ok(
                 WrapperResponse.<DetailResponse>builder()
-                        .message("공구 게시글 상세 정보를 성공적으로 조회했습니다.")
+                        .message(GET_DETAIL_SUCCESS)
                         .data(detail)
                         .build()
         );
