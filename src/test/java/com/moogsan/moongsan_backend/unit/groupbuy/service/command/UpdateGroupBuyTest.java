@@ -31,6 +31,7 @@ class UpdateGroupBuyTest {
     @Mock private ImageMapper imageMapper;
     @InjectMocks private UpdateGroupBuy updateGroupBuy;
 
+    @Captor
     private User hostUser;
     private GroupBuy before, after;
     private UpdateGroupBuyRequest updateRequest;

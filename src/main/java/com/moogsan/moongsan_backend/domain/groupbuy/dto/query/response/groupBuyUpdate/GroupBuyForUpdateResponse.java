@@ -19,6 +19,7 @@ public class GroupBuyForUpdateResponse {
 
     // 본문
     private String description;            // 공구 상세 설명
+    private String url;                    // 공구 상품 url
     private List<ImageResponse> imageKeys; // 이미지 URL 리스트
     private LocalDateTime dueDate;         // 마감 일자
     private String location;               // 거래 장소
