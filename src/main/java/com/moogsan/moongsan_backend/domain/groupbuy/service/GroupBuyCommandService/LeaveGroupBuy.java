@@ -7,7 +7,6 @@ import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyN
 import com.moogsan.moongsan_backend.domain.groupbuy.policy.DueSoonPolicy;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
-import com.moogsan.moongsan_backend.domain.order.exception.specific.OrderInvalidStateException;
 import com.moogsan.moongsan_backend.domain.order.exception.specific.OrderNotFoundException;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
@@ -15,7 +14,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
+
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.NOT_OPEN;
+
 
 @Service
 @Transactional
@@ -26,6 +29,7 @@ public class LeaveGroupBuy {
     private final OrderRepository orderRepository;
     private final DueSoonPolicy dueSoonPolicy;
     private final ChattingCommandFacade chattingCommandFacade;
+    private final Clock clock;
 
     /// 공구 참여 취소
     public void leaveGroupBuy(User currentUser, Long postId) {
@@ -37,7 +41,7 @@ public class LeaveGroupBuy {
         // 해당 공구가 OPEN인지 조회, dueDate가 현재 이후인지 조회 -> 아니면 409
         if (!groupBuy.getPostStatus().equals("OPEN")
                 || groupBuy.getDueDate().isBefore(LocalDateTime.now())) {
-            throw new GroupBuyInvalidStateException("공구 참여 취소는 공구가 열려있는 상태에서만 가능합니다.");
+            throw new GroupBuyInvalidStateException(NOT_OPEN);
         }
 
         // 해당 공구의 주문 테이블에 해당 유저의 주문이 존재하는지 조회 -> 아니면 404

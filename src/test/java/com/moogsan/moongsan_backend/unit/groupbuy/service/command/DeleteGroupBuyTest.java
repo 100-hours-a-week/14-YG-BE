@@ -1,13 +1,11 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.service.command;
 
-import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.UpdateGroupBuyRequest;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotFoundException;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotHostException;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.DeleteGroupBuy;
-import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.UpdateGroupBuy;
 import com.moogsan.moongsan_backend.domain.image.mapper.ImageMapper;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
@@ -20,9 +18,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -41,13 +39,12 @@ public class DeleteGroupBuyTest {
     private DeleteGroupBuy deleteGroupBuy;
 
     private User hostUser;
-    private GroupBuy before, after;
+    private GroupBuy before;
 
     @BeforeEach
     void setup() {
         hostUser = User.builder().id(1L).build();
         before = mock(GroupBuy.class);
-        after  = mock(GroupBuy.class);
     }
 
     @Test
@@ -64,7 +61,9 @@ public class DeleteGroupBuyTest {
 
         deleteGroupBuy.deleteGroupBuy(hostUser, 1L);
 
-        verify(groupBuyRepository).save(any(GroupBuy.class));
+        verify(groupBuyRepository, times(1)).findById(1L);
+        verify(orderRepository, times(1)).countByGroupBuyIdAndStatusNot(1L, "CANCELED");
+        verify(groupBuyRepository, times(1)).save(any(GroupBuy.class));
     }
 
     @Test
@@ -75,7 +74,11 @@ public class DeleteGroupBuyTest {
 
         assertThatThrownBy(() -> deleteGroupBuy.deleteGroupBuy(hostUser, 1L))
                 .isInstanceOf(GroupBuyNotFoundException.class)
-                .hasMessageContaining("존재하지 않는 공구입니다");
+                .hasMessageContaining(NOT_EXIST);
+
+        verify(groupBuyRepository, times(1)).findById(1L);
+        verify(orderRepository, never()).countByGroupBuyIdAndStatusNot(1L, "CANCELED");
+        verify(groupBuyRepository, never()).save(any(GroupBuy.class));
     }
 
     @Test
@@ -87,7 +90,11 @@ public class DeleteGroupBuyTest {
 
         assertThatThrownBy(() -> deleteGroupBuy.deleteGroupBuy(hostUser, 1L))
                 .isInstanceOf(GroupBuyInvalidStateException.class)
-                .hasMessageContaining("공구 삭제는 공구가 열려있는 상태에서만 가능합니다.");
+                .hasMessageContaining(NOT_OPEN);
+
+        verify(groupBuyRepository, times(1)).findById(1L);
+        verify(orderRepository, never()).countByGroupBuyIdAndStatusNot(1L, "CANCELED");
+        verify(groupBuyRepository, never()).save(any(GroupBuy.class));
     }
 
     @Test
@@ -101,7 +108,11 @@ public class DeleteGroupBuyTest {
 
         assertThatThrownBy(() -> deleteGroupBuy.deleteGroupBuy(hostUser, 1L))
                 .isInstanceOf(GroupBuyInvalidStateException.class)
-                .hasMessageContaining("공구 삭제는 공구가 열려있는 상태에서만 가능합니다.");
+                .hasMessageContaining(NOT_OPEN);
+
+        verify(groupBuyRepository, times(1)).findById(1L);
+        verify(orderRepository, never()).countByGroupBuyIdAndStatusNot(1L, "CANCELED");
+        verify(groupBuyRepository, never()).save(any(GroupBuy.class));
     }
 
     @Test
@@ -117,11 +128,15 @@ public class DeleteGroupBuyTest {
 
         assertThatThrownBy(() -> deleteGroupBuy.deleteGroupBuy(hostUser, 1L))
                 .isInstanceOf(GroupBuyInvalidStateException.class)
-                .hasMessageContaining("참여자가 1명 이상일 경우 공구를 삭제할 수 없습니다.");
+                .hasMessageContaining(EXIST_PARTICIPANT);
+
+        verify(groupBuyRepository, times(1)).findById(1L);
+        verify(orderRepository, times(1)).countByGroupBuyIdAndStatusNot(1L, "CANCELED");
+        verify(groupBuyRepository, never()).save(any(GroupBuy.class));
     }
 
     @Test
-    @DisplayName("공구글 작성자가 아님 - 403 예외")
+    @DisplayName("공구글 작성자가 아님 - 403 예외") // 이 로직을 두번째 상단으로 리팩토링할 필요 있음
     void deleteGroupBuy_notHost() {
         User otherUser = User.builder().id(2L).build();
         when(groupBuyRepository.findById(1L))
@@ -135,6 +150,10 @@ public class DeleteGroupBuyTest {
 
         assertThatThrownBy(() -> deleteGroupBuy.deleteGroupBuy(otherUser, 1L))
                 .isInstanceOf(GroupBuyNotHostException.class)
-                .hasMessageContaining("공구 삭제는 공구의 주최자만 요청 가능합니다.");
+                .hasMessageContaining(NOT_HOST);
+
+        verify(groupBuyRepository, times(1)).findById(1L);
+        verify(orderRepository, times(1)).countByGroupBuyIdAndStatusNot(1L, "CANCELED");
+        verify(groupBuyRepository, never()).save(any(GroupBuy.class));
     }
 }

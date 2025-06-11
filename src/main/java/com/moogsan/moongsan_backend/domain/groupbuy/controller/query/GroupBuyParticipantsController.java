@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.GET_PARTICIPANTS_SUCCESS;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/group-buys/{postId}/participants")
@@ -30,7 +32,7 @@ public class GroupBuyParticipantsController {
                 userDetails.getUser().getId(), postId);
         return ResponseEntity.ok(
                 WrapperResponse.<ParticipantListResponse>builder()
-                        .message("공구 참여자 리스트를 성공적으로 조회했습니다.")
+                        .message(GET_PARTICIPANTS_SUCCESS)
                         .data(participantList)
                         .build()
         );

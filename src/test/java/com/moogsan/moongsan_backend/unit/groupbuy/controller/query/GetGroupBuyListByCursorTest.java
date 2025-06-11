@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.GET_LIST_SUCCESS;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -89,7 +90,7 @@ public class GetGroupBuyListByCursorTest {
                         .param("openOnly", "false")
                         .param("keyword", "참치"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("전체 공구 리스트를 성공적으로 조회했습니다."));
+                .andExpect(jsonPath("$.message").value(GET_LIST_SUCCESS));
 
         Mockito.verify(queryFacade).getGroupBuyListByCursor(
                 eq(1L),                                         // userId

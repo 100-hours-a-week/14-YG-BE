@@ -1,17 +1,13 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.service.command;
 
 import com.moogsan.moongsan_backend.domain.chatting.Facade.command.ChattingCommandFacade;
-import com.moogsan.moongsan_backend.domain.chatting.service.command.LeaveChatRoom;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotFoundException;
-import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotHostException;
-import com.moogsan.moongsan_backend.domain.groupbuy.facade.command.GroupBuyCommandFacade;
-import com.moogsan.moongsan_backend.domain.groupbuy.facade.command.GroupBuyCommandFacadeImpl;
+import com.moogsan.moongsan_backend.domain.groupbuy.policy.DueSoonPolicy;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
-import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.DeleteGroupBuy;
+import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.CreateGroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.LeaveGroupBuy;
-import com.moogsan.moongsan_backend.domain.image.mapper.ImageMapper;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
 import com.moogsan.moongsan_backend.domain.order.exception.specific.OrderNotFoundException;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
@@ -24,9 +20,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Optional;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -38,19 +38,37 @@ public class LeaveGroupBuyTest {
     private GroupBuyRepository groupBuyRepository;
     @Mock
     private OrderRepository orderRepository;
+    @Mock
+    private DueSoonPolicy dueSoonPolicy;
     @Mock private ChattingCommandFacade chattingCommandFacade;
-    @InjectMocks
-    private LeaveGroupBuy leaveGroupBuy;
 
+    private LeaveGroupBuy leaveGroupBuy;
     private User participant;
     private GroupBuy before;
     private Order order;
+    private Clock fixedClock;
+    private LocalDateTime now;
 
     @BeforeEach
     void setup() {
         participant = User.builder().id(1L).build();
         before = mock(GroupBuy.class);
         order = mock(Order.class);
+
+        fixedClock = Clock.fixed(
+                Instant.parse("2025-06-11T13:00:00Z"),
+                ZoneId.of("Asia/Seoul")
+        );
+
+        now = LocalDateTime.now(fixedClock);
+
+        leaveGroupBuy = new LeaveGroupBuy(
+                groupBuyRepository,
+                orderRepository,
+                dueSoonPolicy,
+                chattingCommandFacade,
+                fixedClock
+        );
     }
 
     @Test
@@ -60,14 +78,17 @@ public class LeaveGroupBuyTest {
                 .thenReturn(Optional.of(before));
         when(before.getPostStatus()).thenReturn("OPEN");
         when(before.getDueDate())
-                .thenReturn(LocalDateTime.now().plusDays(1));
+                .thenReturn(now.plusDays(1));
         when(before.getId()).thenReturn(20L);
         when(orderRepository.findByUserIdAndGroupBuyIdAndStatusNot(1L, 20L, "CANCELED"))
                 .thenReturn(Optional.of(order));
 
         leaveGroupBuy.leaveGroupBuy(participant, 1L);
 
-        verify(orderRepository).save(any(Order.class));
+        verify(groupBuyRepository, times(1)).findById(1L);
+        verify(orderRepository, times(1))
+                .findByUserIdAndGroupBuyIdAndStatusNot(1L, 20L, "CANCELED");
+        verify(orderRepository, times(1)).save(any(Order.class));
     }
 
     @Test
@@ -78,7 +99,12 @@ public class LeaveGroupBuyTest {
 
         assertThatThrownBy(() -> leaveGroupBuy.leaveGroupBuy(participant, 1L))
                 .isInstanceOf(GroupBuyNotFoundException.class)
-                .hasMessageContaining("존재하지 않는 공구입니다");
+                .hasMessageContaining(NOT_EXIST);
+
+        verify(groupBuyRepository, times(1)).findById(1L);
+        verify(orderRepository, never())
+                .findByUserIdAndGroupBuyIdAndStatusNot(1L, 20L, "CANCELED");
+        verify(orderRepository, never()).save(any(Order.class));
     }
 
     @Test
@@ -91,7 +117,12 @@ public class LeaveGroupBuyTest {
 
         assertThatThrownBy(() -> leaveGroupBuy.leaveGroupBuy(participant, 1L))
                 .isInstanceOf(GroupBuyInvalidStateException.class)
-                .hasMessageContaining("공구 참여 취소는 공구가 열려있는 상태에서만 가능합니다.");
+                .hasMessageContaining(NOT_OPEN);
+
+        verify(groupBuyRepository, times(1)).findById(1L);
+        verify(orderRepository, never())
+                .findByUserIdAndGroupBuyIdAndStatusNot(1L, 20L, "CANCELED");
+        verify(orderRepository, never()).save(any(Order.class));
     }
 
     @Test
@@ -101,11 +132,16 @@ public class LeaveGroupBuyTest {
                 .thenReturn(Optional.of(before));
         when(before.getPostStatus()).thenReturn("OPEN");
         when(before.getDueDate())
-                .thenReturn(LocalDateTime.now().minusDays(1));
+                .thenReturn(now.minusDays(1));
 
         assertThatThrownBy(() -> leaveGroupBuy.leaveGroupBuy(participant, 1L))
                 .isInstanceOf(GroupBuyInvalidStateException.class)
-                .hasMessageContaining("공구 참여 취소는 공구가 열려있는 상태에서만 가능합니다.");
+                .hasMessageContaining(NOT_OPEN);
+
+        verify(groupBuyRepository, times(1)).findById(1L);
+        verify(orderRepository, never())
+                .findByUserIdAndGroupBuyIdAndStatusNot(1L, 20L, "CANCELED");
+        verify(orderRepository, never()).save(any(Order.class));
     }
 
     @Test
@@ -122,6 +158,11 @@ public class LeaveGroupBuyTest {
 
         assertThatThrownBy(() -> leaveGroupBuy.leaveGroupBuy(participant, 1L))
                 .isInstanceOf(OrderNotFoundException.class)
-                .hasMessageContaining("존재하지 않는 주문입니다.");
+                .hasMessageContaining(NOT_EXIST_ORDER);
+
+        verify(groupBuyRepository, times(1)).findById(1L);
+        verify(orderRepository, times(1))
+                .findByUserIdAndGroupBuyIdAndStatusNot(1L, 20L, "CANCELED");
+        verify(orderRepository, never()).save(any(Order.class));
     }
 }

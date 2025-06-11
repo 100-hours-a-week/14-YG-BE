@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.GET_DETAIL_SUCCESS;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -76,7 +77,7 @@ public class GetGroupBuyDetailInfoTest {
         // When & Then
         mockMvc.perform(get("/api/group-buys/100"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("공구 게시글 상세 정보를 성공적으로 조회했습니다."));
+                .andExpect(jsonPath("$.message").value(GET_DETAIL_SUCCESS));
 
         Mockito.verify(queryFacade).getGroupBuyDetailInfo(eq(1L), eq(100L));
     }
@@ -120,7 +121,7 @@ public class GetGroupBuyDetailInfoTest {
 
         mockMvc.perform(get("/api/group-buys/100"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("공구 게시글 상세 정보를 성공적으로 조회했습니다."));
+                .andExpect(jsonPath("$.message").value(GET_DETAIL_SUCCESS));
 
         Mockito.verify(queryFacade).getGroupBuyDetailInfo(eq(null), eq(100L));
     }

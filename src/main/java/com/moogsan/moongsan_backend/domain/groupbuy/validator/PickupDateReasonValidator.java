@@ -4,6 +4,8 @@ import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.UpdateGr
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ValidationMessage.BLANK_DATEMODIFICATION_REASON;
+
 ///  validator 구현
 public class PickupDateReasonValidator implements ConstraintValidator<RequireReasonIfPickupDateChanged, UpdateGroupBuyRequest> {
 
@@ -18,7 +20,7 @@ public class PickupDateReasonValidator implements ConstraintValidator<RequireRea
 
         if (request.getDateModificationReason() == null || request.getDateModificationReason().trim().isEmpty()) {
             context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("픽업 일자가 변경된 경우 사유를 작성해야 합니다.")
+            context.buildConstraintViolationWithTemplate(BLANK_DATEMODIFICATION_REASON)
                     .addPropertyNode("dateModificationReason")
                     .addConstraintViolation();
             return false;

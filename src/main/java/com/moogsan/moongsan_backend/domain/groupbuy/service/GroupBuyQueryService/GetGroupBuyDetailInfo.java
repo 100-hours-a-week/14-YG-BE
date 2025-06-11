@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.AFTER_DELETED;
+
 @Slf4j
 @Service
 @Transactional(readOnly=true)
@@ -33,7 +35,7 @@ public class GetGroupBuyDetailInfo {
                 .orElseThrow(GroupBuyNotFoundException::new);
 
         if (groupBuy.getPostStatus().equals("DELETED")) {
-            throw new GroupBuyInvalidStateException("삭제된 공구글은 조회할 수 없습니다.");
+            throw new GroupBuyInvalidStateException(AFTER_DELETED);
         }
 
         //log.info("Checking participant: userId={}, postId={}", userId, postId);

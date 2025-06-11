@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.GET_WISH_SUCCESS;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/group-buys/users/me/wishes")
@@ -37,7 +39,7 @@ public class GroupBuyWishListController {
                 userDetails.getUser().getId(), sort, cursorCreatedAt, cursorId, limit);
         return ResponseEntity.ok(
                 WrapperResponse.<PagedResponse<WishListResponse>>builder()
-                        .message("관심 공구 리스트를 성공적으로 조회했습니다.")
+                        .message(GET_WISH_SUCCESS)
                         .data(pagedResponse)
                         .build()
         );
