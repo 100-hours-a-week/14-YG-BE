@@ -1,0 +1,106 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches: [test/sally]
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: himello/be_moongsan
+  CONTAINER_NAME: be-moongsan
+  DEPLOY_DIR: /home/${{ secrets.DEPLOY_USER }}/backend
+  DOCKER_TAG: dev-${{ github.sha }}
+
+jobs:
+  build:
+    name: CI - Test and Build Docker Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Grant execute permission to Gradle wrapper
+        run: chmod +x ./gradlew
+
+      - name: Run tests
+        run: ./gradlew test
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Docker Image
+        run: |
+          docker build -t $IMAGE_NAME:$DOCKER_TAG .
+
+      - name: Save Docker Image as TAR
+        run: docker save $IMAGE_NAME:$DOCKER_TAG > app.tar
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: backend-image
+          path: app.tar
+
+  deploy:
+    name: CD - Deploy to Remote Server
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: backend-image
+          path: .
+
+      - name: Generate .env file from GitHub Secret
+        run: |
+          mkdir -p .env.local
+          echo '${{ secrets.BE_ENV_FILE }}' > .env.local/.env
+
+      - name: Upload app and env to server
+        uses: appleboy/scp-action@v0.1.5
+        with:
+          host: ${{ secrets.BE_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: |
+            app.tar
+            .env.local
+          target: ${{ env.DEPLOY_DIR }}
+
+      - name: Load Docker image and run container
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.BE_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd $DEPLOY_DIR
+
+            echo "Exporting environment variables"
+            source .env.local/.env
+
+            echo "Ensure docker network"
+            docker network create moongsan-net || true
+
+            echo "Load image"
+            docker load < app.tar
+
+            echo "Restarting container"
+            docker stop $CONTAINER_NAME || true
+            docker rm $CONTAINER_NAME || true
+
+            docker run -d \
+              --name $CONTAINER_NAME \
+              --network moongsan-net \
+              -v /var/moongsan/log:/var/moongsan/log \
+              -p 8080:8080 \
+              $IMAGE_NAME:$DOCKER_TAG
