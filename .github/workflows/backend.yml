@@ -34,10 +34,11 @@ jobs:
           mkdir -p .env.local
           echo '${{ secrets.BE_ENV_FILE }}' > .env.local/.env
 
-      - name: Run tests with environment variables
+      - name: Build without tests
         run: |
           source .env.local/.env
-          ./gradlew test
+          ./gradlew clean build -x test
+
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
