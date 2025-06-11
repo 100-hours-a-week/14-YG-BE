@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 
 import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.*;
@@ -22,6 +23,7 @@ import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessa
 public class UpdateGroupBuy {
     private final GroupBuyRepository groupBuyRepository;
     private final ImageMapper imageMapper;
+    private final Clock clock;
 
     /// 공구 게시글 수정
     // TODO V2
@@ -33,7 +35,7 @@ public class UpdateGroupBuy {
 
         // 해당 공구의 status가 open인지 조회 -> 아니면 409
         if (!groupBuy.getPostStatus().equals("OPEN")
-                || groupBuy.getDueDate().isBefore(LocalDateTime.now())) {
+                || groupBuy.getDueDate().isBefore(LocalDateTime.now(clock))) {
             throw new GroupBuyInvalidStateException(NOT_OPEN);
         }
 

@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
+
 import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.NOT_DIVISOR;
 
 @Service
@@ -25,6 +27,7 @@ public class CreateGroupBuy {
     private final GroupBuyCommandMapper groupBuyCommandMapper;
     private final ChattingCommandFacade chattingCommandFacade;
     private final DuplicateRequestPreventer duplicateRequestPreventer;
+    private final Clock clock;
 
     /// 공구 게시글 작성
     public Long createGroupBuy(User currentUser, CreateGroupBuyRequest createGroupBuyRequest) {
