@@ -29,8 +29,15 @@ jobs:
       - name: Grant execute permission to Gradle wrapper
         run: chmod +x ./gradlew
 
-      - name: Run tests
-        run: ./gradlew test
+      - name: Generate .env file from GitHub Secret
+        run: |
+          mkdir -p .env.local
+          echo '${{ secrets.BE_ENV_FILE }}' > .env.local/.env
+
+      - name: Run tests with environment variables
+        run: |
+          source .env.local/.env
+          ./gradlew test
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -60,12 +67,7 @@ jobs:
           name: backend-image
           path: .
 
-      - name: Generate .env file from GitHub Secret
-        run: |
-          mkdir -p .env.local
-          echo '${{ secrets.BE_ENV_FILE }}' > .env.local/.env
-
-      - name: Upload app and env to server
+      - name: Upload image and .env to server
         uses: appleboy/scp-action@v0.1.5
         with:
           host: ${{ secrets.BE_HOST }}
@@ -91,7 +93,7 @@ jobs:
             echo "Ensure docker network"
             docker network create moongsan-net || true
 
-            echo "Load image"
+            echo "Load Docker image"
             docker load < app.tar
 
             echo "Restarting container"
