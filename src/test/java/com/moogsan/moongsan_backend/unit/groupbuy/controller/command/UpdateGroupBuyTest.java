@@ -357,7 +357,7 @@ public class UpdateGroupBuyTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(BAD_REQUEST))
-                .andExpect(jsonPath("$.data.dueDate").value(PAST_DUEDATE));
+                .andExpect(jsonPath("$.data.dueDate").value(INVALID_DUEDATE));
     }
 
     /*
@@ -415,7 +415,7 @@ public class UpdateGroupBuyTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(BAD_REQUEST))
-                .andExpect(jsonPath("$.data.pickupDate").value(PAST_PICKUPDATE));
+                .andExpect(jsonPath("$.data.pickupDate").value(INVALID_PICKUPDATE));
     }
 
 
@@ -436,7 +436,7 @@ public class UpdateGroupBuyTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(BAD_REQUEST))
-                .andExpect(jsonPath("$.data.imageKeys").value(BLANK_IMAGE));
+                .andExpect(jsonPath("$.data.imageKeys").value(INVALID_IMAGE));
     }
 
     @Test
@@ -457,7 +457,7 @@ public class UpdateGroupBuyTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(BAD_REQUEST))
-                .andExpect(jsonPath("$.data.imageKeys").value(BLANK_IMAGE));
+                .andExpect(jsonPath("$.data.imageKeys").value(INVALID_IMAGE));
     }
 
     @Test
