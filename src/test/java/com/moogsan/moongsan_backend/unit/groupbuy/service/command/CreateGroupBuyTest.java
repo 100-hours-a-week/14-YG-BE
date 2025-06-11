@@ -18,7 +18,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.NOT_DIVISOR;
@@ -44,16 +47,33 @@ public class CreateGroupBuyTest {
     @Mock
     private ChattingCommandFacade chattingCommandFacade;
 
-    @InjectMocks
     private CreateGroupBuy createGroupBuy;
 
     private CreateGroupBuyRequest request;
     private User user;
+    private Clock fixedClock;
+    private LocalDateTime now;
 
     @BeforeEach
     void setUp() {
         when(duplicateRequestPreventer.tryAcquireLock(anyString(), anyLong()))
                 .thenReturn(true);
+
+        fixedClock = Clock.fixed(
+                Instant.parse("2025-06-11T13:00:00Z"),
+                ZoneId.of("Asia/Seoul")
+        );
+
+        now = LocalDateTime.now(fixedClock);
+
+        createGroupBuy = new CreateGroupBuy(
+                groupBuyRepository,
+                imageMapper,
+                groupBuyCommandMapper,
+                chattingCommandFacade,
+                duplicateRequestPreventer,
+                fixedClock
+        );
 
         request = CreateGroupBuyRequest.builder()
                 .title("라면 공구")
@@ -64,9 +84,9 @@ public class CreateGroupBuyTest {
                 .unitAmount(10)
                 .hostQuantity(1)
                 .description("라면 맛있어요")
-                .dueDate(LocalDateTime.now().plusDays(3))
+                .dueDate(now.plusDays(3))
                 .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
+                .pickupDate(now.plusDays(4))
                 .imageKeys(List.of("images/image1.jpg"))
                 .build();
 
@@ -87,30 +107,46 @@ public class CreateGroupBuyTest {
         Long result = createGroupBuy.createGroupBuy(user, request);
 
         // then
-        verify(groupBuyCommandMapper).create(request, user);
-        verify(imageMapper).mapImagesToGroupBuy(request.getImageKeys(), mockGb);
-        verify(mockGb).increaseParticipantCount();
-        verify(groupBuyRepository).save(mockGb);
+        verify(groupBuyCommandMapper, times(1)).create(request, user);
+        verify(imageMapper, times(1)).mapImagesToGroupBuy(request.getImageKeys(), mockGb);
+        verify(mockGb, times(1)).increaseParticipantCount();
+        verify(groupBuyRepository, times(1)).save(mockGb);
+        verify(chattingCommandFacade, times(1)).joinChatRoom(user, mockGb.getId());
         assertThat(result).isEqualTo(42L);
     }
 
     @Test
     @DisplayName("공구 게시글 생성 실패 - 단위 수량은 0이 될 수 없음")
     void createGroupBuy_invalid_unitAmount_zero() {
+        GroupBuy mockGb = mock(GroupBuy.class);
         request.setUnitAmount(0);
 
         assertThatThrownBy(() -> createGroupBuy.createGroupBuy(user, request))
                 .isInstanceOf(GroupBuyInvalidStateException.class)
                 .hasMessageContaining(NOT_DIVISOR);
+
+        verify(groupBuyCommandMapper, never()).create(request, user);
+        verify(imageMapper, never()).mapImagesToGroupBuy(request.getImageKeys(), mockGb);
+        verify(mockGb, never()).increaseParticipantCount();
+        verify(groupBuyRepository, never()).save(mockGb);
+        verify(chattingCommandFacade, never()).joinChatRoom(user, mockGb.getId());
+
     }
 
     @Test
     @DisplayName("공구 게시글 생성 실패 - 단위 수량은 총 상품 수량의 약수만 가능")
     void createGroupBuy_invalid_unitAmount() {
+        GroupBuy mockGb = mock(GroupBuy.class);
         request.setUnitAmount(7);
 
         assertThatThrownBy(() -> createGroupBuy.createGroupBuy(user, request))
                 .isInstanceOf(GroupBuyInvalidStateException.class)
                 .hasMessageContaining(NOT_DIVISOR);
+
+        verify(groupBuyCommandMapper, never()).create(request, user);
+        verify(imageMapper, never()).mapImagesToGroupBuy(request.getImageKeys(), mockGb);
+        verify(mockGb, never()).increaseParticipantCount();
+        verify(groupBuyRepository, never()).save(mockGb);
+        verify(chattingCommandFacade, never()).joinChatRoom(user, mockGb.getId());
     }
 }

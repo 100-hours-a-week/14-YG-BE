@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 
 import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.*;
@@ -20,6 +21,7 @@ import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessa
 public class EndGroupBuy {
 
     private final GroupBuyRepository groupBuyRepository;
+    private final Clock clock;
 
     /// 공구 게시글 공구 종료
     public void endGroupBuy(User currentUser, Long postId) {

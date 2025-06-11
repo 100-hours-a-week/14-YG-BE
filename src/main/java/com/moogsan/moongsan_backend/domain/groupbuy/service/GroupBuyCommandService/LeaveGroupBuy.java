@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 
 import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.NOT_OPEN;
@@ -28,6 +29,7 @@ public class LeaveGroupBuy {
     private final OrderRepository orderRepository;
     private final DueSoonPolicy dueSoonPolicy;
     private final ChattingCommandFacade chattingCommandFacade;
+    private final Clock clock;
 
     /// 공구 참여 취소
     public void leaveGroupBuy(User currentUser, Long postId) {

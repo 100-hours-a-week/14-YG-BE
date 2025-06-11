@@ -7,6 +7,7 @@ import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyI
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotFoundException;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotHostException;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
+import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.CreateGroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.UpdateGroupBuy;
 import com.moogsan.moongsan_backend.domain.image.entity.Image;
 import com.moogsan.moongsan_backend.domain.image.mapper.ImageMapper;
@@ -18,7 +19,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,15 +35,18 @@ class UpdateGroupBuyTest {
 
     @Mock private GroupBuyRepository groupBuyRepository;
     @Mock private ImageMapper imageMapper;
-    @InjectMocks private UpdateGroupBuy updateGroupBuy;
 
+    private UpdateGroupBuy updateGroupBuy;
     private User hostUser;
     private Image image;
     private GroupBuy gb;
+    private Clock fixedClock;
+    private LocalDateTime now;
 
     private UpdateGroupBuyRequest updateRequest;
 
     private GroupBuy.GroupBuyBuilder defaultGroupBuy() {
+
         return GroupBuy.builder()
                 .id(20L)
                 .title("라면 공구")
@@ -51,15 +58,16 @@ class UpdateGroupBuyTest {
                 .unitAmount(10)
                 .hostQuantity(1)
                 .description("라면 맛있어요")
-                .dueDate(LocalDateTime.now().plusDays(3))
+                .dueDate(now.plusDays(5))
                 .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
+                .pickupDate(now.plusDays(7))
                 .images(List.of(image))
                 .user(hostUser);
     }
 
     @BeforeEach
     void setup() {
+
         hostUser = User.builder().id(1L).build();
 
         image = Image.builder()
@@ -68,23 +76,36 @@ class UpdateGroupBuyTest {
                 .imageSeqNo(0)
                 .thumbnail(true)
                 .build();
+
+        fixedClock = Clock.fixed(
+                Instant.parse("2025-06-11T13:00:00Z"),
+                ZoneId.of("Asia/Seoul")
+        );
+
+        now = LocalDateTime.now(fixedClock);
+
+        updateGroupBuy = new UpdateGroupBuy(
+                groupBuyRepository,
+                imageMapper,
+                fixedClock
+        );
+
+        updateRequest = UpdateGroupBuyRequest.builder()
+                .title("라면 공구합니다!!")
+                .name("진라면 30봉")
+                .hostQuantity(2)
+                .description("라면 맛있어요. 같이 사실래요?")
+                .dueDate(now.plusDays(10))
+                .pickupDate(now.plusDays(12))
+                .dateModificationReason("배송이 늦네요...")
+                .imageKeys(List.of("images/image2.jpg"))
+                .build();
     }
 
     @Test
     @DisplayName("공구 전체 수정 성공")
     void updateGroupBuy_success() {
         gb = defaultGroupBuy().build();
-
-        updateRequest = UpdateGroupBuyRequest.builder()
-                .title("라면 공구")
-                .name("진라면")
-                .hostQuantity(2)
-                .description("라면 맛있어요")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .pickupDate(LocalDateTime.now().plusDays(10))
-                .dateModificationReason("배송이 늦네요...")
-                .imageKeys(List.of("images/image1.jpg"))
-                .build();
 
         when(groupBuyRepository.findById(20L))
                 .thenReturn(Optional.of(gb));
@@ -102,8 +123,8 @@ class UpdateGroupBuyTest {
         assertThat(gb.getPickupDate()).isEqualTo(updateRequest.getPickupDate());
         assertThat(gb.getDateModificationReason()).isEqualTo(updateRequest.getDateModificationReason());
         ///  이미지 변경 여부도 확인 필요
-        verify(groupBuyRepository).save(any(GroupBuy.class));
-        verify(imageMapper).mapImagesToGroupBuy(
+        verify(groupBuyRepository, times(1)).save(any(GroupBuy.class));
+        verify(imageMapper, times(1)).mapImagesToGroupBuy(
                 eq(updateRequest.getImageKeys()),
                 any(GroupBuy.class)
         );
@@ -112,12 +133,20 @@ class UpdateGroupBuyTest {
     @Test
     @DisplayName("존재하지 않는 공구글 - 404 ")
     void updateGroupBuy_notFound() {
+        gb = defaultGroupBuy().build();
+
         when(groupBuyRepository.findById(20L))
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> updateGroupBuy.updateGroupBuy(hostUser, updateRequest, 20L))
                 .isInstanceOf(GroupBuyNotFoundException.class)
                 .hasMessageContaining(NOT_EXIST);
+
+        verify(groupBuyRepository, never()).save(any(GroupBuy.class));
+        verify(imageMapper, never()).mapImagesToGroupBuy(
+                eq(updateRequest.getImageKeys()),
+                any(GroupBuy.class)
+        );
     }
 
     @Test
@@ -131,13 +160,19 @@ class UpdateGroupBuyTest {
         assertThatThrownBy(() -> updateGroupBuy.updateGroupBuy(hostUser, updateRequest, 20L))
                 .isInstanceOf(GroupBuyInvalidStateException.class)
                 .hasMessageContaining(NOT_OPEN);
+
+        verify(groupBuyRepository, never()).save(any(GroupBuy.class));
+        verify(imageMapper, never()).mapImagesToGroupBuy(
+                eq(updateRequest.getImageKeys()),
+                any(GroupBuy.class)
+        );
     }
 
     @Test
     @DisplayName("dueDate가 현재보다 과거 - 409")
     void updateGroupBuy_dueDate_past() {
         gb = defaultGroupBuy()
-                .dueDate(LocalDateTime.now().minusDays(1))
+                .dueDate(now.minusDays(10))
                 .build();
         when(groupBuyRepository.findById(20L))
                 .thenReturn(Optional.of(gb));
@@ -145,6 +180,12 @@ class UpdateGroupBuyTest {
         assertThatThrownBy(() -> updateGroupBuy.updateGroupBuy(hostUser, updateRequest, 20L))
                 .isInstanceOf(GroupBuyInvalidStateException.class)
                 .hasMessageContaining(NOT_OPEN);
+
+        verify(groupBuyRepository, never()).save(any(GroupBuy.class));
+        verify(imageMapper, never()).mapImagesToGroupBuy(
+                eq(updateRequest.getImageKeys()),
+                any(GroupBuy.class)
+        );
     }
 
     @Test
@@ -157,5 +198,11 @@ class UpdateGroupBuyTest {
         assertThatThrownBy(() -> updateGroupBuy.updateGroupBuy(otherUser, updateRequest, 20L))
                 .isInstanceOf(GroupBuyNotHostException.class)
                 .hasMessageContaining(NOT_HOST);
+
+        verify(groupBuyRepository, never()).save(any(GroupBuy.class));
+        verify(imageMapper, never()).mapImagesToGroupBuy(
+                eq(updateRequest.getImageKeys()),
+                any(GroupBuy.class)
+        );
     }
 }

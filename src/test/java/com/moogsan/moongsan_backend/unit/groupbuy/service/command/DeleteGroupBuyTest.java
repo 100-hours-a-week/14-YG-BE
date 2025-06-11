@@ -39,13 +39,12 @@ public class DeleteGroupBuyTest {
     private DeleteGroupBuy deleteGroupBuy;
 
     private User hostUser;
-    private GroupBuy before, after;
+    private GroupBuy before;
 
     @BeforeEach
     void setup() {
         hostUser = User.builder().id(1L).build();
         before = mock(GroupBuy.class);
-        after  = mock(GroupBuy.class);
     }
 
     @Test
@@ -62,7 +61,9 @@ public class DeleteGroupBuyTest {
 
         deleteGroupBuy.deleteGroupBuy(hostUser, 1L);
 
-        verify(groupBuyRepository).save(any(GroupBuy.class));
+        verify(groupBuyRepository, times(1)).findById(1L);
+        verify(orderRepository, times(1)).countByGroupBuyIdAndStatusNot(1L, "CANCELED");
+        verify(groupBuyRepository, times(1)).save(any(GroupBuy.class));
     }
 
     @Test
@@ -74,6 +75,10 @@ public class DeleteGroupBuyTest {
         assertThatThrownBy(() -> deleteGroupBuy.deleteGroupBuy(hostUser, 1L))
                 .isInstanceOf(GroupBuyNotFoundException.class)
                 .hasMessageContaining(NOT_EXIST);
+
+        verify(groupBuyRepository, times(1)).findById(1L);
+        verify(orderRepository, never()).countByGroupBuyIdAndStatusNot(1L, "CANCELED");
+        verify(groupBuyRepository, never()).save(any(GroupBuy.class));
     }
 
     @Test
@@ -86,6 +91,10 @@ public class DeleteGroupBuyTest {
         assertThatThrownBy(() -> deleteGroupBuy.deleteGroupBuy(hostUser, 1L))
                 .isInstanceOf(GroupBuyInvalidStateException.class)
                 .hasMessageContaining(NOT_OPEN);
+
+        verify(groupBuyRepository, times(1)).findById(1L);
+        verify(orderRepository, never()).countByGroupBuyIdAndStatusNot(1L, "CANCELED");
+        verify(groupBuyRepository, never()).save(any(GroupBuy.class));
     }
 
     @Test
@@ -100,6 +109,10 @@ public class DeleteGroupBuyTest {
         assertThatThrownBy(() -> deleteGroupBuy.deleteGroupBuy(hostUser, 1L))
                 .isInstanceOf(GroupBuyInvalidStateException.class)
                 .hasMessageContaining(NOT_OPEN);
+
+        verify(groupBuyRepository, times(1)).findById(1L);
+        verify(orderRepository, never()).countByGroupBuyIdAndStatusNot(1L, "CANCELED");
+        verify(groupBuyRepository, never()).save(any(GroupBuy.class));
     }
 
     @Test
@@ -116,10 +129,14 @@ public class DeleteGroupBuyTest {
         assertThatThrownBy(() -> deleteGroupBuy.deleteGroupBuy(hostUser, 1L))
                 .isInstanceOf(GroupBuyInvalidStateException.class)
                 .hasMessageContaining(EXIST_PARTICIPANT);
+
+        verify(groupBuyRepository, times(1)).findById(1L);
+        verify(orderRepository, times(1)).countByGroupBuyIdAndStatusNot(1L, "CANCELED");
+        verify(groupBuyRepository, never()).save(any(GroupBuy.class));
     }
 
     @Test
-    @DisplayName("공구글 작성자가 아님 - 403 예외")
+    @DisplayName("공구글 작성자가 아님 - 403 예외") // 이 로직을 두번째 상단으로 리팩토링할 필요 있음
     void deleteGroupBuy_notHost() {
         User otherUser = User.builder().id(2L).build();
         when(groupBuyRepository.findById(1L))
@@ -134,5 +151,9 @@ public class DeleteGroupBuyTest {
         assertThatThrownBy(() -> deleteGroupBuy.deleteGroupBuy(otherUser, 1L))
                 .isInstanceOf(GroupBuyNotHostException.class)
                 .hasMessageContaining(NOT_HOST);
+
+        verify(groupBuyRepository, times(1)).findById(1L);
+        verify(orderRepository, times(1)).countByGroupBuyIdAndStatusNot(1L, "CANCELED");
+        verify(groupBuyRepository, never()).save(any(GroupBuy.class));
     }
 }
