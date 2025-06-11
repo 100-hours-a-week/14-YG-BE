@@ -1,17 +1,11 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.service.command;
 
 import com.moogsan.moongsan_backend.domain.chatting.Facade.command.ChattingCommandFacade;
-import com.moogsan.moongsan_backend.domain.chatting.service.command.LeaveChatRoom;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotFoundException;
-import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotHostException;
-import com.moogsan.moongsan_backend.domain.groupbuy.facade.command.GroupBuyCommandFacade;
-import com.moogsan.moongsan_backend.domain.groupbuy.facade.command.GroupBuyCommandFacadeImpl;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
-import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.DeleteGroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.LeaveGroupBuy;
-import com.moogsan.moongsan_backend.domain.image.mapper.ImageMapper;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
 import com.moogsan.moongsan_backend.domain.order.exception.specific.OrderNotFoundException;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
@@ -27,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -78,7 +73,7 @@ public class LeaveGroupBuyTest {
 
         assertThatThrownBy(() -> leaveGroupBuy.leaveGroupBuy(participant, 1L))
                 .isInstanceOf(GroupBuyNotFoundException.class)
-                .hasMessageContaining("존재하지 않는 공구입니다");
+                .hasMessageContaining(NOT_EXIST);
     }
 
     @Test
@@ -91,7 +86,7 @@ public class LeaveGroupBuyTest {
 
         assertThatThrownBy(() -> leaveGroupBuy.leaveGroupBuy(participant, 1L))
                 .isInstanceOf(GroupBuyInvalidStateException.class)
-                .hasMessageContaining("공구 참여 취소는 공구가 열려있는 상태에서만 가능합니다.");
+                .hasMessageContaining(NOT_OPEN);
     }
 
     @Test
@@ -105,7 +100,7 @@ public class LeaveGroupBuyTest {
 
         assertThatThrownBy(() -> leaveGroupBuy.leaveGroupBuy(participant, 1L))
                 .isInstanceOf(GroupBuyInvalidStateException.class)
-                .hasMessageContaining("공구 참여 취소는 공구가 열려있는 상태에서만 가능합니다.");
+                .hasMessageContaining(NOT_OPEN);
     }
 
     @Test
@@ -122,6 +117,6 @@ public class LeaveGroupBuyTest {
 
         assertThatThrownBy(() -> leaveGroupBuy.leaveGroupBuy(participant, 1L))
                 .isInstanceOf(OrderNotFoundException.class)
-                .hasMessageContaining("존재하지 않는 주문입니다.");
+                .hasMessageContaining(NOT_EXIST_ORDER);
     }
 }

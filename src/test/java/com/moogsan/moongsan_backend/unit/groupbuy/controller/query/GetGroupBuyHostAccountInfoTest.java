@@ -13,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.GET_ACCOUNT_SUCCESS;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -47,7 +48,7 @@ public class GetGroupBuyHostAccountInfoTest {
         // When & Then
         mockMvc.perform(get("/api/group-buys/{postId}/host/account", 20L))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("공구 게시글 주최자 계좌 정보를 성공적으로 조회했습니다."));
+                .andExpect(jsonPath("$.message").value(GET_ACCOUNT_SUCCESS));
         //.andExpect(jsonPath("$.data.content[0].postId").value(100));
 
         Mockito.verify(queryFacade).getGroupBuyHostAccountInfo(eq(1L), eq(20L));

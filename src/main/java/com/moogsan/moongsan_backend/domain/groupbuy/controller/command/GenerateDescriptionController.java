@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.GENERATE_SUCCESS;
 import static com.moogsan.moongsan_backend.global.util.CookieUtils.extractCookie;
 
 @RestController
@@ -39,7 +40,7 @@ public class GenerateDescriptionController {
 
         return groupBuyFacade.generateDescription(req.getUrl(), sessionId)
                 .map(data -> ResponseEntity.ok(
-                        new WrapperResponse<>("상품 상세 설명이 성공적으로 생성되었습니다.", data)))
+                        new WrapperResponse<>(GENERATE_SUCCESS, data)))
                 .onErrorResume(IllegalArgumentException.class, e ->
                         Mono.just(ResponseEntity.badRequest()
                                 .body(new WrapperResponse<>(e.getMessage(), null))))

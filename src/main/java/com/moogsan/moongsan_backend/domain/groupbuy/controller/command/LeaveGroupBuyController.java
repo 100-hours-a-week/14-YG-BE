@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.LEAVE_SUCCESS;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/group-buys")
@@ -31,7 +33,7 @@ public class LeaveGroupBuyController {
 
         return ResponseEntity.ok(
                 WrapperResponse.<EmptyResponse>builder()
-                        .message("공구 참여가 성공적으로 취소되었습니다.")
+                        .message(LEAVE_SUCCESS)
                         .build());
     }
 }

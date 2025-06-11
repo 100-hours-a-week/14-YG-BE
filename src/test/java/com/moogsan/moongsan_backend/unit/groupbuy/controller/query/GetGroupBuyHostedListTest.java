@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 import java.util.Collections;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.GET_HOSTED_SUCCESS;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -79,7 +80,7 @@ class GetGroupBuyHostedListTest {
                         .param("limit", "5")
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("주최 공구 리스트를 성공적으로 조회했습니다."));
+                .andExpect(jsonPath("$.message").value(GET_HOSTED_SUCCESS));
                 //.andExpect(jsonPath("$.data.content[0].postId").value(100));
 
         Mockito.verify(queryFacade).getGroupBuyHostedList(

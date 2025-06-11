@@ -6,11 +6,6 @@ import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyN
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotHostException;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.EndGroupBuy;
-import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.LeaveGroupBuy;
-import com.moogsan.moongsan_backend.domain.image.mapper.ImageMapper;
-import com.moogsan.moongsan_backend.domain.order.entity.Order;
-import com.moogsan.moongsan_backend.domain.order.exception.specific.OrderNotFoundException;
-import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -74,7 +70,7 @@ public class EndGroupBuyTest {
 
         assertThatThrownBy(() -> endGroupBuy.endGroupBuy(participant, 1L))
                 .isInstanceOf(GroupBuyNotFoundException.class)
-                .hasMessageContaining("존재하지 않는 공구입니다");
+                .hasMessageContaining(NOT_EXIST);
     }
 
     @Test
@@ -87,7 +83,7 @@ public class EndGroupBuyTest {
 
         assertThatThrownBy(() -> endGroupBuy.endGroupBuy(participant, 1L))
                 .isInstanceOf(GroupBuyInvalidStateException.class)
-                .hasMessageContaining("공구 종료는 모집 마감 이후에만 가능합니다.");
+                .hasMessageContaining(BEFORE_CLOSED);
     }
 
     @Test
@@ -100,7 +96,7 @@ public class EndGroupBuyTest {
 
         assertThatThrownBy(() -> endGroupBuy.endGroupBuy(participant, 1L))
                 .isInstanceOf(GroupBuyInvalidStateException.class)
-                .hasMessageContaining("이미 종료된 공구입니다.");
+                .hasMessageContaining(AFTER_ENDED);
     }
 
     @Test
@@ -115,7 +111,7 @@ public class EndGroupBuyTest {
 
         assertThatThrownBy(() -> endGroupBuy.endGroupBuy(participant, 1L))
                 .isInstanceOf(GroupBuyInvalidStateException.class)
-                .hasMessageContaining("공구 종료는 공구 마감 일자 이후에만 가능합니다.");
+                .hasMessageContaining(BEFORE_CLOSED);
     }
 
     @Test
@@ -132,7 +128,7 @@ public class EndGroupBuyTest {
 
         assertThatThrownBy(() -> endGroupBuy.endGroupBuy(participant, 1L))
                 .isInstanceOf(GroupBuyInvalidStateException.class)
-                .hasMessageContaining("공구 종료는 공구 픽업 일자 이후에만 가능합니다.");
+                .hasMessageContaining(BEFORE_PICKUP_DATE);
     }
 
     @Test
@@ -151,7 +147,7 @@ public class EndGroupBuyTest {
 
         assertThatThrownBy(() -> endGroupBuy.endGroupBuy(participant, 1L))
                 .isInstanceOf(GroupBuyInvalidStateException.class)
-                .hasMessageContaining("공구 종료는 공구 체결 이후에만 가능합니다.");
+                .hasMessageContaining(BEFORE_FIXED);
     }
 
     @Test
@@ -171,6 +167,6 @@ public class EndGroupBuyTest {
 
         assertThatThrownBy(() -> endGroupBuy.endGroupBuy(participant, 1L))
                 .isInstanceOf(GroupBuyNotHostException.class)
-                .hasMessageContaining("공구 종료는 공구의 주최자만 요청 가능합니다.");
+                .hasMessageContaining(NOT_HOST);
     }
 }

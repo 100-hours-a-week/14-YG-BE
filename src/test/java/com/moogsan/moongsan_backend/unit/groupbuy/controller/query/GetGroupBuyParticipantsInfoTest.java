@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.GET_PARTICIPANTS_SUCCESS;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -59,7 +60,7 @@ public class GetGroupBuyParticipantsInfoTest {
         // When & Then
         mockMvc.perform(get("/api/group-buys/{postId}/participants", 20L))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("공구 참여자 리스트를 성공적으로 조회했습니다."));
+                .andExpect(jsonPath("$.message").value(GET_PARTICIPANTS_SUCCESS));
 
         Mockito.verify(queryFacade).getGroupBuyParticipantsInfo(
                 eq(1L), eq(20L)

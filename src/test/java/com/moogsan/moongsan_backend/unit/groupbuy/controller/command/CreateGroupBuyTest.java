@@ -5,7 +5,6 @@ import com.moogsan.moongsan_backend.domain.groupbuy.controller.command.CreateGro
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.CreateGroupBuyRequest;
 import com.moogsan.moongsan_backend.domain.groupbuy.facade.command.GroupBuyCommandFacade;
 import com.moogsan.moongsan_backend.global.lock.DuplicateRequestPreventer;
-import com.moogsan.moongsan_backend.support.fake.InMemoryDuplicateRequestPreventer;
 import com.moogsan.moongsan_backend.support.security.WithMockCustomUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -22,6 +20,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.BAD_REQUEST;
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.CREATE_SUCCESS;
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ValidationMessage.*;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
@@ -47,13 +48,9 @@ class CreateGroupBuyTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Test
-    @DisplayName("공구 게시글 생성 성공 시 201 반환")
-    @WithMockCustomUser(id = 1L, username = "tester@example.com")
-    void createGroupBuySuccess() throws Exception {
-        // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("라면 공구")
+    private static CreateGroupBuyRequest.CreateGroupBuyRequestBuilder defaultValidRequest() {
+        return CreateGroupBuyRequest.builder()
+                .title("진라면 싸게 데려가세요!")
                 .name("진라면")
                 .url("https://example.com")
                 .price(10000)
@@ -64,7 +61,15 @@ class CreateGroupBuyTest {
                 .dueDate(LocalDateTime.now().plusDays(3))
                 .location("카카오테크 교육장")
                 .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
+                .imageKeys(List.of("images/image1.jpg"));
+    }
+
+    @Test
+    @DisplayName("공구 게시글 생성 성공 시 201 반환")
+    @WithMockCustomUser(id = 1L, username = "tester@example.com")
+    void createGroupBuySuccess() throws Exception {
+        // ====== 요청 바디 준비 ======
+        CreateGroupBuyRequest request = defaultValidRequest()
                 .build();
 
         // ====== Facade 스텁 ======
@@ -76,7 +81,7 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.message").value("공구 게시글이 성공적으로 업로드되었습니다."))
+                .andExpect(jsonPath("$.message").value(CREATE_SUCCESS))
                 .andExpect(jsonPath("$.data.postId").value(42L));
     }
 
@@ -88,18 +93,8 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_without_title() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .name("진라면")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .description("라면 맛있어요")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
+        CreateGroupBuyRequest request = defaultValidRequest()
+                .title(null)
                 .build();
 
         // ====== Facade 스텁 ======
@@ -111,8 +106,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.title").value("제목은 공백을 제외한 1자 이상, 100자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.title").value(TITLE_SIZE));
     }
 
     @Test
@@ -120,19 +115,8 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_blank_title() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
+        CreateGroupBuyRequest request = defaultValidRequest()
                 .title("   ")
-                .name("진라면")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .description("라면 맛있어요")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
                 .build();
 
         // ====== Facade 스텁 ======
@@ -144,8 +128,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.title").value("제목은 공백을 제외한 1자 이상, 100자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.title").value(TITLE_SIZE));
     }
 
     @Test
@@ -153,19 +137,8 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_title_too_short() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
+        CreateGroupBuyRequest request = defaultValidRequest()
                 .title("")
-                .name("진라면")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .description("라면 맛있어요")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
                 .build();
 
         // ====== Facade 스텁 ======
@@ -177,8 +150,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.title").value("제목은 공백을 제외한 1자 이상, 100자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.title").value(TITLE_SIZE));
     }
 
     @Test
@@ -186,21 +159,10 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_title_too_long() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
+        CreateGroupBuyRequest request = defaultValidRequest()
                 .title("초특가 한정 수량 프리미엄 친환경 무농약 유기농 수제 천연 발효 장아찌 세트 " +
                         "지금 주문하면 무료 배송과 함께 사은품까지 증정되는 놀라운 기회를 놓치지 마세요 " +
                         "지금 바로 참여하여 건강한 한 끼의 행복을 경험하세요!")
-                .name("진라면")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .description("라면 맛있어요")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
                 .build();
 
         // ====== Facade 스텁 ======
@@ -212,8 +174,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.title").value("제목은 공백을 제외한 1자 이상, 100자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.title").value(TITLE_SIZE));
     }
 
 
@@ -224,18 +186,8 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_without_name() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .description("라면 맛있어요")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
+        CreateGroupBuyRequest request = defaultValidRequest()
+                .name(null)
                 .build();
 
         // ====== Facade 스텁 ======
@@ -247,8 +199,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.name").value("상품명은 공백을 제외한 1자 이상, 100자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.name").value(NAME_SIZE));
     }
 
     @Test
@@ -256,19 +208,8 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_blank_name() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
+        CreateGroupBuyRequest request = defaultValidRequest()
                 .name("   ")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .description("라면 맛있어요")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
                 .build();
 
         // ====== Facade 스텁 ======
@@ -280,8 +221,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.name").value("상품명은 공백을 제외한 1자 이상, 100자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.name").value(NAME_SIZE));
     }
 
     @Test
@@ -289,19 +230,8 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_name_too_short() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
+        CreateGroupBuyRequest request = defaultValidRequest()
                 .name("")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .description("라면 맛있어요")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
                 .build();
 
         // ====== Facade 스텁 ======
@@ -313,8 +243,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.name").value("상품명은 공백을 제외한 1자 이상, 100자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.name").value(NAME_SIZE));
     }
 
     @Test
@@ -322,21 +252,10 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_name_too_long() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
+        CreateGroupBuyRequest request = defaultValidRequest()
                 .name("진라면 얼큰하고 깊은 맛에 해물과 한우 사골을 더해 더욱 진하고 풍부해진 국물, " +
                         "정통 수타식 면발로 즐기는 프리미엄 대용량 가정용 패밀리팩 5+1 이벤트 한정판, " +
                         "캠핑·홈파티 필수 아이템")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .description("라면 맛있어요")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
                 .build();
 
         // ====== Facade 스텁 ======
@@ -348,8 +267,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.name").value("상품명은 공백을 제외한 1자 이상, 100자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.name").value(NAME_SIZE));
     }
 
 
@@ -360,19 +279,8 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_url_too_short() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .name("진라면")
+        CreateGroupBuyRequest request = defaultValidRequest()
                 .url("")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .description("라면 맛있어요")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
                 .build();
 
         // ====== Facade 스텁 ======
@@ -384,8 +292,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.url").value("URL은 1자 이상, 2000자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.url").value(URL_SIZE));
     }
 
     @Test
@@ -393,9 +301,7 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_url_too_long() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .name("진라면")
+        CreateGroupBuyRequest request = defaultValidRequest()
                 .url("https://www.example.com/product/jinramen?q=" +
                         "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
                         "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
@@ -418,15 +324,6 @@ class CreateGroupBuyTest {
                         "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
                         "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
                         "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .description("라면 맛있어요")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
                 .build();
 
         // ====== Facade 스텁 ======
@@ -438,8 +335,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.url").value("URL은 1자 이상, 2000자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.url").value(URL_SIZE));
     }
 
     @Test
@@ -447,19 +344,8 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_invalid_url() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .name("진라면")
+        CreateGroupBuyRequest request = defaultValidRequest()
                 .url("hi")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .description("라면 맛있어요")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
                 .build();
 
         // ====== Facade 스텁 ======
@@ -471,8 +357,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.url").value("URL 형식이 올바르지 않습니다."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.url").value(INVALID_URL));
     }
 
 
@@ -483,18 +369,8 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_without_price() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .name("진라면")
-                .url("https://example.com")
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .description("라면 맛있어요")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
+        CreateGroupBuyRequest request = defaultValidRequest()
+                .price(null)
                 .build();
 
         // ====== Facade 스텁 ======
@@ -506,8 +382,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.price").value("상품 가격은 필수 입력 항목입니다."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.price").value(BLANK_PRICE));
     }
 
     @Test
@@ -515,19 +391,8 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_price_too_small() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .name("진라면")
-                .url("https://example.com")
+        CreateGroupBuyRequest request = defaultValidRequest()
                 .price(0)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .description("라면 맛있어요")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
                 .build();
 
         // ====== Facade 스텁 ======
@@ -539,8 +404,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.price").value("상품 가격은 1 이상이어야 합니다."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.price").value(PRICE_SIZE));
     }
 
 
@@ -551,18 +416,8 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_without_totalAmount() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .name("진라면")
-                .url("https://example.com")
-                .price(10000)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .description("라면 맛있어요")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
+        CreateGroupBuyRequest request = defaultValidRequest()
+                .totalAmount(null)
                 .build();
 
         // ====== Facade 스텁 ======
@@ -574,8 +429,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.totalAmount").value("상품 전체 수량은 필수 입력 항목입니다."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.totalAmount").value(BLANK_TOTAL_AMOUNT));
     }
 
     @Test
@@ -583,19 +438,8 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_totalAmount_too_small() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .name("진라면")
-                .url("https://example.com")
-                .price(10000)
+        CreateGroupBuyRequest request = defaultValidRequest()
                 .totalAmount(0)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .description("라면 맛있어요")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
                 .build();
 
         // ====== Facade 스텁 ======
@@ -607,8 +451,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.totalAmount").value("상품 전체 수량은 1 이상이어야 합니다."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.totalAmount").value(TOTAL_AMOUNT_SIZE));
     }
 
 
@@ -619,18 +463,8 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_without_unitAmount() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .name("진라면")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(10)
-                .hostQuantity(1)
-                .description("라면 맛있어요")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
+        CreateGroupBuyRequest request = defaultValidRequest()
+                .unitAmount(null)
                 .build();
 
         // ====== Facade 스텁 ======
@@ -642,8 +476,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.unitAmount").value("상품 주문 단위는 필수 입력 항목입니다."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.unitAmount").value(BLANK_UNIT_AMOUNT));
     }
 
     @Test
@@ -651,19 +485,8 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_unitAmount_too_small() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .name("진라면")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(10000)
+        CreateGroupBuyRequest request = defaultValidRequest()
                 .unitAmount(0)
-                .hostQuantity(1)
-                .description("라면 맛있어요")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
                 .build();
 
         // ====== Facade 스텁 ======
@@ -675,8 +498,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.unitAmount").value("상품 주문 단위는 1 이상이어야 합니다."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.unitAmount").value(UNIT_AMOUNT_SIZE));
     }
 
 
@@ -687,18 +510,8 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_without_hostQuantity() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .name("진라면")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(10)
-                .unitAmount(1)
-                .description("라면 맛있어요")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
+        CreateGroupBuyRequest request = defaultValidRequest()
+                .hostQuantity(null)
                 .build();
 
         // ====== Facade 스텁 ======
@@ -710,8 +523,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.hostQuantity").value("주최자 주문 수량은 필수 입력 항목입니다."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.hostQuantity").value(BLANK_HOST_QUANTITY));
     }
 
     /*
@@ -745,7 +558,7 @@ class CreateGroupBuyTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.hostQuantity").value("주최자 주문 수량은 0 이상이어야 합니다."));
+                .andExpect(jsonPath("$.data.hostQuantity").value(HOST_QUANTITY_SIZE));
     }
      */
 
@@ -757,18 +570,8 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_without_description() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .name("진라면")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
+        CreateGroupBuyRequest request = defaultValidRequest()
+                .description(null)
                 .build();
 
         // ====== Facade 스텁 ======
@@ -780,8 +583,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.description").value("상품 설명은 공백을 제외한 2자 이상, 2000자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.description").value(DESCRIPTION_SIZE));
     }
 
     @Test
@@ -789,19 +592,8 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_blank_description() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .name("진라면")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
+        CreateGroupBuyRequest request = defaultValidRequest()
                 .description("   ")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
                 .build();
 
         // ====== Facade 스텁 ======
@@ -813,8 +605,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.description").value("상품 설명은 공백을 제외한 2자 이상, 2000자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.description").value(DESCRIPTION_SIZE));
     }
 
     @Test
@@ -822,19 +614,8 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_description_too_short() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .name("진라면")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
+        CreateGroupBuyRequest request = defaultValidRequest()
                 .description("진")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
                 .build();
 
         // ====== Facade 스텁 ======
@@ -846,8 +627,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.description").value("상품 설명은 공백을 제외한 2자 이상, 2000자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.description").value(DESCRIPTION_SIZE));
     }
 
     @Test
@@ -855,14 +636,7 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_description_too_long() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .name("진라면")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
+        CreateGroupBuyRequest request = defaultValidRequest()
                 .description("진라면 맛있어요라는 단순한 문장 속에는 깊고 진한 국물 맛과 탱글탱글한 면발의 조화, " +
                         "그리고 누구나 부담 없이 즐길 수 있는 매력적인 얼큰함이 모두 담겨 있습니다. " +
                         "봉지를 뜯는 순간 퍼지는 고추와 마늘, 파향을 머금은 스프의 향긋한 아로마는 바쁜 일상 속에서 잠시나마 따뜻한 위안을 전해 주고, " +
@@ -897,10 +671,6 @@ class CreateGroupBuyTest {
                         "진라면은 한 치의 고민 없이 꺼내어 “진라면 맛있어요”라고 외치게 만드는 마법 같은 경험을 선사합니다. " +
                         "끝없이 쏟아지는 수많은 라면 신제품 속에서도 꾸준히 사랑받아 온 이유는 명확합니다. 한결같은 맛과 품질, " +
                         "그리고 언제나 든든한 한 그릇으로 우리 곁을 지켜 온 신뢰가 있기 때문입니다. 진라면 맛있어요—이 한마디면 충분합니다.")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
                 .build();
 
         // ====== Facade 스텁 ======
@@ -912,8 +682,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.description").value("상품 설명은 공백을 제외한 2자 이상, 2000자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.description").value(DESCRIPTION_SIZE));
     }
 
 
@@ -924,18 +694,8 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_without_dueDate() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .name("진라면")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .description("진라면 사실 분")
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
+        CreateGroupBuyRequest request = defaultValidRequest()
+                .dueDate(null)
                 .build();
 
         // ====== Facade 스텁 ======
@@ -947,8 +707,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.dueDate").value("마감 일자는 필수 입력 항목입니다."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.dueDate").value(INVALID_DUEDATE));
     }
 
     @Test
@@ -956,19 +716,8 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_dueDate_too_early() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .name("진라면")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .description("진라면 사실 분")
+        CreateGroupBuyRequest request = defaultValidRequest()
                 .dueDate(LocalDateTime.now().minusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
                 .build();
 
         // ====== Facade 스텁 ======
@@ -980,8 +729,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.dueDate").value("마감 일자는 현재 시간 이후여야 합니다."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.dueDate").value(INVALID_DUEDATE));
     }
 
     /*
@@ -1016,7 +765,7 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
                 .andExpect(jsonPath("$.data.dueDate").value("마감 일자는 yyyy-MM-dd'T'HH:mm 형식으로 입력해주세요."));
     }
 
@@ -1030,18 +779,8 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_without_location() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .name("진라면")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .description("진라면 사실 분")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
+        CreateGroupBuyRequest request = defaultValidRequest()
+                .location(null)
                 .build();
 
         // ====== Facade 스텁 ======
@@ -1053,8 +792,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.location").value("거래 장소는 공백을 제외한 2자 이상, 85자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.location").value(LOCATION_SIZE));
     }
 
     @Test
@@ -1062,19 +801,8 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_blank_location() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .name("진라면")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .description("진라면 사실 분")
-                .dueDate(LocalDateTime.now().plusDays(3))
+        CreateGroupBuyRequest request = defaultValidRequest()
                 .location("   ")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
                 .build();
 
         // ====== Facade 스텁 ======
@@ -1086,8 +814,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.location").value("거래 장소는 공백을 제외한 2자 이상, 85자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.location").value(LOCATION_SIZE));
     }
 
     @Test
@@ -1095,19 +823,8 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_location_too_short() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .name("진라면")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .description("진라면 사실 분")
-                .dueDate(LocalDateTime.now().plusDays(3))
+        CreateGroupBuyRequest request = defaultValidRequest()
                 .location("카")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
                 .build();
 
         // ====== Facade 스텁 ======
@@ -1119,8 +836,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.location").value("거래 장소는 공백을 제외한 2자 이상, 85자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.location").value(LOCATION_SIZE));
     }
 
     @Test
@@ -1128,21 +845,10 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_location_too_long() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .name("진라면")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .description("진라면 사실 분")
-                .dueDate(LocalDateTime.now().plusDays(3))
+        CreateGroupBuyRequest request = defaultValidRequest()
                 .location("어디서 뵐까요? 카카오테크 교육장은 판교 테크노밸리 인근에 위치해 있어 접근성이 뛰어납니다. " +
                         "넓고 쾌적한 강의실은 최신형 컴퓨터와 대형 스크린을 갖추고 있으며, 자유로운 토론을 위한 휴게 라운지와 그룹 프로젝트룸이 마련되어 있습니다. " +
                         "현업 전문가가 실습 중심으로 진행하는 커리큘럼과 소규모 멘토링 세션을 통해 개발 역량을 더욱 높일 수 있는 최적의 학습 공간입니다.")
-                .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
                 .build();
 
         // ====== Facade 스텁 ======
@@ -1154,8 +860,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.location").value("거래 장소는 공백을 제외한 2자 이상, 85자 이하로 입력해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.location").value(LOCATION_SIZE));
     }
 
 
@@ -1166,18 +872,8 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_without_pickupDate() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .name("진라면")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .description("진라면 사실 분")
-                .dueDate(LocalDateTime.now().plusDays(4))
-                .location("카카오테크 교육장")
-                .imageKeys(List.of("images/image1.jpg"))
+        CreateGroupBuyRequest request = defaultValidRequest()
+                .pickupDate(null)
                 .build();
 
         // ====== Facade 스텁 ======
@@ -1189,8 +885,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.pickupDate").value("픽업 일자는 필수 입력 항목입니다."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.pickupDate").value(INVALID_PICKUPDATE));
     }
 
     @Test
@@ -1198,19 +894,8 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_pickupDate_too_early() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .name("진라면")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .description("진라면 사실 분")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
+        CreateGroupBuyRequest request = defaultValidRequest()
                 .pickupDate(LocalDateTime.now().minusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
                 .build();
 
         // ====== Facade 스텁 ======
@@ -1222,8 +907,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.pickupDate").value("픽업 일자는 현재 시간 이후여야 합니다."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.pickupDate").value(INVALID_PICKUPDATE));
     }
 
 
@@ -1234,18 +919,8 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_without_imageKeys() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .name("진라면")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .description("진라면 사실 분")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
+        CreateGroupBuyRequest request = defaultValidRequest()
+                .imageKeys(null)
                 .build();
 
         // ====== Facade 스텁 ======
@@ -1257,8 +932,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.imageKeys").value("이미지는 1장 이상, 5장 이하로 등록해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.imageKeys").value(INVALID_IMAGE));
     }
 
     @Test
@@ -1266,18 +941,7 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_imageKeys_too_small() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .name("진라면")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .description("진라면 사실 분")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
+        CreateGroupBuyRequest request = defaultValidRequest()
                 .imageKeys(List.of())
                 .build();
 
@@ -1290,8 +954,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.imageKeys").value("이미지는 1장 이상, 5장 이하로 등록해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.imageKeys").value(INVALID_IMAGE));
     }
 
     @Test
@@ -1299,18 +963,7 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_imageKeys_too_large() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .name("진라면")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .description("진라면 사실 분")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
+        CreateGroupBuyRequest request = defaultValidRequest()
                 .imageKeys(List.of(
                         "images/image1.jpg", "images/image2.jpg",
                         "images/image3.jpg", "images/image4.jpg",
@@ -1326,8 +979,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.imageKeys").value("이미지는 1장 이상, 5장 이하로 등록해주세요."));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.imageKeys").value(INVALID_IMAGE));
     }
 
     @Test
@@ -1335,18 +988,7 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_blank_imageKeys() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .name("진라면")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .description("진라면 사실 분")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
+        CreateGroupBuyRequest request = defaultValidRequest()
                 .imageKeys(List.of("   ", "images/image2.jpg"))
                 .build();
 
@@ -1359,8 +1001,8 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.*", hasItem("이미지는 반드시 images/로 시작해야 합니다")));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.*", hasItem(INVALID_IMAGE)));
     }
 
     @Test
@@ -1368,18 +1010,7 @@ class CreateGroupBuyTest {
     @WithMockCustomUser(id = 1L, username = "tester@example.com")
     void createGroupBuyFail_invalid_imageKeys() throws Exception {
         // ====== 요청 바디 준비 ======
-        CreateGroupBuyRequest request = CreateGroupBuyRequest.builder()
-                .title("진라면 싸게 데려가세요!")
-                .name("진라면")
-                .url("https://example.com")
-                .price(10000)
-                .totalAmount(100)
-                .unitAmount(10)
-                .hostQuantity(1)
-                .description("진라면 사실 분")
-                .dueDate(LocalDateTime.now().plusDays(3))
-                .location("카카오테크 교육장")
-                .pickupDate(LocalDateTime.now().plusDays(4))
+        CreateGroupBuyRequest request = defaultValidRequest()
                 .imageKeys(List.of("image1.jpg"))
                 .build();
 
@@ -1392,7 +1023,7 @@ class CreateGroupBuyTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("입력 형식이 올바르지 않습니다."))
-                .andExpect(jsonPath("$.data.*", hasItem("이미지는 반드시 images/로 시작해야 합니다")));
+                .andExpect(jsonPath("$.message").value(BAD_REQUEST))
+                .andExpect(jsonPath("$.data.*", hasItem(INVALID_IMAGE)));
     }
 }
