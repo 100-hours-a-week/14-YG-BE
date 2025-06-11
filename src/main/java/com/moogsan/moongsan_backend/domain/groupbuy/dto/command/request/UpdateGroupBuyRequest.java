@@ -35,11 +35,11 @@ public class UpdateGroupBuyRequest {
     @Min(value = 0, message = BLANK_HOST_QUANTITY)  /// 이후 1로 수정 필요
     private Integer hostQuantity;
 
-    @Future(message = PAST_DUEDATE)
+    @Future(message = INVALID_DUEDATE)
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime dueDate;
 
-    @Future(message = PAST_PICKUPDATE)
+    @Future(message = INVALID_PICKUPDATE)
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime pickupDate;
 
@@ -47,7 +47,7 @@ public class UpdateGroupBuyRequest {
     @Size(min = 2, max = 85, message = BLANK_DATEMODIFICATION_REASON)
     private String dateModificationReason;
 
-    @Size(min=1, max = 5, message = BLANK_IMAGE)
+    @Size(min=1, max = 5, message = INVALID_IMAGE)
     private List<
             @NotBlankIfPresent(message = INVALID_IMAGE)
             @Pattern(

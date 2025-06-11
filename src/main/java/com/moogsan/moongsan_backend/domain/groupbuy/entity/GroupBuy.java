@@ -86,7 +86,7 @@ public class GroupBuy extends BaseEntity {
     @Column(nullable = false, length = 10)
     private String postStatus = "OPEN";
 
-    private String pickupChangeReason;
+    private String dateModificationReason;
 
     @Builder.Default
     private boolean isFinalized = false;
@@ -194,7 +194,7 @@ public class GroupBuy extends BaseEntity {
         }
         if (req.getPickupDate() != null) {
             this.pickupDate = req.getPickupDate();
-            this.pickupChangeReason = req.getDateModificationReason();
+            this.dateModificationReason = req.getDateModificationReason();
         }
 
         return this;

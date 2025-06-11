@@ -52,8 +52,8 @@ public class CreateGroupBuyRequest {
     @Size(min = 2, max = 2000, message = DESCRIPTION_SIZE)
     private String description;
 
-    @NotNull(message = BLANK_DUEDATE)
-    @Future(message = PAST_DUEDATE)
+    @NotNull(message = INVALID_DUEDATE)
+    @Future(message = INVALID_DUEDATE)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime dueDate;
 
@@ -62,13 +62,13 @@ public class CreateGroupBuyRequest {
     @Size(min = 2, max = 85, message = LOCATION_SIZE)
     private String location;
 
-    @NotNull(message = PAST_PICKUPDATE)
-    @Future(message = PAST_PICKUPDATE)
+    @NotNull(message = INVALID_PICKUPDATE)
+    @Future(message = INVALID_PICKUPDATE)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime pickupDate;
 
-    @NotNull(message = BLANK_IMAGE)
-    @Size(min=1, max = 5, message = BLANK_IMAGE)
+    @NotNull(message = INVALID_IMAGE)
+    @Size(min=1, max = 5, message = INVALID_IMAGE)
     private List<
             @NotBlank(message = INVALID_IMAGE)
             @Pattern(
