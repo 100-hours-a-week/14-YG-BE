@@ -1,6 +1,7 @@
 package com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.moogsan.moongsan_backend.global.xss.XssSafe;
 import jakarta.persistence.Lob;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -17,16 +18,19 @@ import static com.moogsan.moongsan_backend.domain.groupbuy.message.ValidationMes
 @Builder
 public class CreateGroupBuyRequest {
 
+    @XssSafe
     @NotNull(message = TITLE_SIZE)
     @NotBlank(message = TITLE_SIZE)
     @Size(min = 1, max = 100, message = TITLE_SIZE)
     private String title;
 
+    @XssSafe
     @NotNull(message = NAME_SIZE)
     @NotBlank(message = NAME_SIZE)
     @Size(min = 1, max = 100, message = NAME_SIZE)
     private String name;
 
+    @XssSafe
     @Size(min = 1, max = 2000, message = URL_SIZE)
     @URL(message = INVALID_URL)
     private String url;
@@ -47,6 +51,7 @@ public class CreateGroupBuyRequest {
     @Min(value = 0, message = HOST_QUANTITY_SIZE)  /// 이후 1로 수정 필요
     private Integer hostQuantity;
 
+    @XssSafe
     @NotNull(message = DESCRIPTION_SIZE)
     @NotBlank(message = DESCRIPTION_SIZE)
     @Size(min = 2, max = 2000, message = DESCRIPTION_SIZE)
