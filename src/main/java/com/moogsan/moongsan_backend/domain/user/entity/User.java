@@ -104,8 +104,8 @@ public class User implements UserDetails {
         this.logoutAt = java.time.LocalDateTime.now();
     }
 
-    public void updateImage(@NotBlank String imageUrl) {
-        this.imageKey = imageUrl;
+    public void updateImage(String imageKey) {
+        this.imageKey = imageKey;
         this.modifiedAt = LocalDateTime.now();
     }
 

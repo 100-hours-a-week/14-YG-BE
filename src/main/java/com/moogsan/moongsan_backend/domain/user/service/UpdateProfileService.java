@@ -25,7 +25,10 @@ public class UpdateProfileService {
     public void updateProfileImage(Long userId, UpdateProfileImageRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorCode.NOT_FOUND));
-        user.updateImage(request.getImageUrl());
+        if (request.getImageKey() == null && !request.toString().contains("imageKey")) {
+            throw new UserException(UserErrorCode.INVALID_INPUT, "잘못된 요청입니다. 'imageKey' 필드가 필요합니다.");
+        }
+        user.updateImage(request.getImageKey());
     }
 
     // 비밀번호 수정

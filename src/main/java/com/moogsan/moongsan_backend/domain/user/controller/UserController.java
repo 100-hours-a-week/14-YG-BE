@@ -5,6 +5,8 @@ import com.moogsan.moongsan_backend.domain.user.dto.request.SignUpRequest;
 import com.moogsan.moongsan_backend.domain.user.dto.response.LoginResponse;
 import com.moogsan.moongsan_backend.domain.user.dto.response.CheckDuplicationResponse;
 import com.moogsan.moongsan_backend.domain.user.dto.response.UserProfileResponse;
+import com.moogsan.moongsan_backend.domain.user.exception.base.UserException;
+import com.moogsan.moongsan_backend.domain.user.exception.code.UserErrorCode;
 import com.moogsan.moongsan_backend.domain.user.mapper.BankCodeMapper;
 import com.moogsan.moongsan_backend.domain.user.service.CheckDuplicationService;
 import com.moogsan.moongsan_backend.domain.user.service.LoginService;
@@ -118,6 +120,10 @@ public class UserController {
         @AuthenticationPrincipal CustomUserDetails userDetails,
         HttpServletResponse response) {
 
+        if (userDetails == null) {
+            throw new UserException(UserErrorCode.UNAUTHORIZED);
+        }
+
         response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
         response.setHeader("Pragma", "no-cache");
 
@@ -133,6 +139,11 @@ public class UserController {
     @DeleteMapping("/users/token")
     public ResponseEntity<WrapperResponse<Void>> logout(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                         HttpServletResponse response) {
+
+        if (userDetails == null) {
+            throw new UserException(UserErrorCode.UNAUTHORIZED);
+        }
+
         logoutService.logout(userDetails.getUser().getId(), response);
         return ResponseEntity.ok(
             WrapperResponse.<Void>builder()
@@ -146,6 +157,11 @@ public class UserController {
     @DeleteMapping("/users")
     public ResponseEntity<WrapperResponse<Void>> withdraw(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                           HttpServletResponse response) {
+
+        if (userDetails == null) {
+            throw new UserException(UserErrorCode.UNAUTHORIZED);
+        }
+
         withdrawService.withdraw(userDetails.getUser().getId(), response);
         return ResponseEntity.ok(
                 WrapperResponse.<Void>builder()
@@ -171,6 +187,11 @@ public class UserController {
     @PostMapping("/users/wish/{postId}")
     public ResponseEntity<WrapperResponse<Void>> addWish(@PathVariable Long postId,
                                                          @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        if (userDetails == null) {
+            throw new UserException(UserErrorCode.UNAUTHORIZED);
+        }
+
         wishService.addWish(userDetails.getUser().getId(), postId);
 
         return ResponseEntity.ok(
@@ -185,6 +206,11 @@ public class UserController {
     @DeleteMapping("/users/wish/{postId}")
     public ResponseEntity<WrapperResponse<Void>> removeWish(@PathVariable Long postId,
                                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        if (userDetails == null) {
+            throw new UserException(UserErrorCode.UNAUTHORIZED);
+        }
+
         wishService.removeWish(userDetails.getUser().getId(), postId);
 
         return ResponseEntity.ok(
