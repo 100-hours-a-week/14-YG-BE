@@ -41,11 +41,9 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-        
-        
+
       - name: "Debug: Check image name"
-        run: |  
-            echo "Image tag: $IMAGE_NAME:$DOCKER_TAG"
+        run: "echo \"Image tag: $IMAGE_NAME:$DOCKER_TAG\""
 
       - name: Build Docker Image
         run: docker build -t $IMAGE_NAME:$DOCKER_TAG .
