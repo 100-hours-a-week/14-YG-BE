@@ -40,7 +40,7 @@ public class GetGroupBuyParticipantsInfo {
             throw new GroupBuyNotHostException(NOT_HOST);
         }
 
-        List<Order> orders = orderRepository.findByGroupBuyIdAndStatusNot(postId, "canceled");
+        List<Order> orders = orderRepository.findByGroupBuyIdAndStatusNot(postId, "CANCELED");
 
         List<ParticipantResponse> participantList = orders.stream()
                 .map(groupBuyQueryMapper::toParticipantResponse)
