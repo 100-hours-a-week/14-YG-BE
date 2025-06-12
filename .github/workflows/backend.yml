@@ -6,14 +6,14 @@ on:
   workflow_dispatch:
 
 env:
-  IMAGE_NAME: himello/be_moongsan
+  IMAGE_NAME: sally2020s/be_moongsan
   CONTAINER_NAME: be-moongsan
   DEPLOY_DIR: /home/${{ secrets.SSH_USER }}/backend
   DOCKER_TAG: dev-${{ github.sha }}
 
 jobs:
-  ci:
-    name: CI - Test and Build Docker Image
+  build:
+    name: CI - Build and Save Docker Image
     runs-on: ubuntu-latest
 
     steps:
@@ -29,41 +29,6 @@ jobs:
       - name: Grant execute permission to Gradle wrapper
         run: chmod +x ./gradlew
 
-      - name: Generate env.prod file from GitHub Secrets
-        run: |
-          mkdir -p envs
-          cat > envs/env.prod <<EOF
-          DB_URL=${{ secrets.DB_URL }}
-          DB_USERNAME=${{ secrets.DB_USERNAME }}
-          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-          DB_DRIVER=${{ secrets.DB_DRIVER }}
-
-          REDIS_HOST=${{ secrets.REDIS_HOST }}
-          REDIS_PORT=${{ secrets.REDIS_PORT }}
-          SPRING_REDIS_HOST=${{ secrets.REDIS_HOST }}
-          SPRING_REDIS_PORT=${{ secrets.REDIS_PORT }}
-
-          CLOUD_AWS_CREDENTIALS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}
-          CLOUD_AWS_CREDENTIALS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}
-          CLOUD_AWS_REGION_STATIC=${{ secrets.AWS_REGION }}
-          CLOUD_AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}
-
-          AI_SERVICE_BASE_URL=${{ secrets.AI_SERVICE_BASE_URL }}
-
-          MONGO_DB=${{ secrets.MONGO_DB }}
-          MONGO_DB_URI=${{ secrets.MONGO_DB_URI }}
-
-          FLYWAY_URL=${{ secrets.DB_URL }}
-          FLYWAY_USER=${{ secrets.DB_ROOT_USER }}
-          FLYWAY_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }}
-          FLYWAY_SCHEMAS=${{ secrets.DB_NAME }}
-
-          OAUTH_KAKAO_CLIENT_ID=${{ secrets.OAUTH_KAKAO_CLIENT_ID }}
-          OAUTH_KAKAO_REDIRECT_URI=${{ secrets.OAUTH_KAKAO_REDIRECT_URI }}
-
-          logging.level.org.springframework.data.redis=DEBUG
-          EOF
-
       - name: Build without tests
         run: ./gradlew clean build -x test
 
@@ -73,48 +38,34 @@ jobs:
       - name: Save Docker image as tar
         run: docker save -o app.tar $IMAGE_NAME:$DOCKER_TAG
 
-      - name: Upload image artifact
+      - name: Upload Docker image artifact
         uses: actions/upload-artifact@v4
         with:
           name: backend-image
           path: app.tar
 
-      - name: Upload env file artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: env-prod
-          path: envs/env.prod
-
-  cd:
+  deploy:
     name: CD - Deploy to Remote Server
     runs-on: ubuntu-latest
-    needs: ci
+    needs: build
 
     steps:
-      - name: Download image artifact
+      - name: Download Docker image artifact
         uses: actions/download-artifact@v4
         with:
           name: backend-image
           path: .
 
-      - name: Download env file artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: env-prod
-          path: .
-
-      - name: Copy artifacts to remote server
+      - name: Copy Docker image to remote server
         uses: appleboy/scp-action@v0.1.5
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: |
-            app.tar
-            env.prod
+          source: app.tar
           target: ${{ env.DEPLOY_DIR }}
 
-      - name: Deploy on remote server via SSH
+      - name: SSH into server and deploy
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -123,11 +74,47 @@ jobs:
           script: |
             cd $DEPLOY_DIR
 
+            # Docker 이미지 로드
             docker load -i app.tar
 
+            # env.prod 생성
+            cat > env.prod <<EOF
+            DB_URL=${{ secrets.DB_URL }}
+            DB_USERNAME=${{ secrets.DB_USERNAME }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            DB_DRIVER=${{ secrets.DB_DRIVER }}
+
+            REDIS_HOST=${{ secrets.REDIS_HOST }}
+            REDIS_PORT=${{ secrets.REDIS_PORT }}
+            SPRING_REDIS_HOST=${{ secrets.REDIS_HOST }}
+            SPRING_REDIS_PORT=${{ secrets.REDIS_PORT }}
+
+            CLOUD_AWS_CREDENTIALS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}
+            CLOUD_AWS_CREDENTIALS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}
+            CLOUD_AWS_REGION_STATIC=${{ secrets.AWS_REGION }}
+            CLOUD_AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}
+
+            AI_SERVICE_BASE_URL=${{ secrets.AI_SERVICE_BASE_URL }}
+
+            MONGO_DB=${{ secrets.MONGO_DB }}
+            MONGO_DB_URI=${{ secrets.MONGO_DB_URI }}
+
+            FLYWAY_URL=${{ secrets.DB_URL }}
+            FLYWAY_USER=${{ secrets.DB_ROOT_USER }}
+            FLYWAY_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }}
+            FLYWAY_SCHEMAS=${{ secrets.DB_NAME }}
+
+            OAUTH_KAKAO_CLIENT_ID=${{ secrets.OAUTH_KAKAO_CLIENT_ID }}
+            OAUTH_KAKAO_REDIRECT_URI=${{ secrets.OAUTH_KAKAO_REDIRECT_URI }}
+
+            logging.level.org.springframework.data.redis=DEBUG
+            EOF
+
+            # 기존 컨테이너 중지 및 제거
             docker stop $CONTAINER_NAME || true
             docker rm $CONTAINER_NAME || true
 
+            # 새 컨테이너 실행
             docker run -d -p 8080:8080 --name $CONTAINER_NAME \
               --env-file env.prod \
               $IMAGE_NAME:$DOCKER_TAG
