@@ -32,7 +32,7 @@ jobs:
       - name: Generate .env file from GitHub Secret
         run: |
           mkdir -p .env.local
-          echo ${{ secrets.BE_ENV_FILE }}' > .env.local/.env
+          echo '${{ secrets.BE_ENV_FILE }}' > .env.local/.env
 
       - name: Build without tests
         run: |
