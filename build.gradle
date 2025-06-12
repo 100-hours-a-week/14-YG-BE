@@ -76,6 +76,7 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-autoconfigure")
 	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
 	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'javax.servlet:javax.servlet-api:4.0.1'
 	testFixturesImplementation 'org.springframework:spring-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
