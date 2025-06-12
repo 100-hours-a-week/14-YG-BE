@@ -8,11 +8,11 @@ on:
 env:
   IMAGE_NAME: himello/be_moongsan
   CONTAINER_NAME: be-moongsan
-  DEPLOY_DIR: /home/${{ secrets.DEPLOY_USER }}/backend
+  DEPLOY_DIR: /home/${{ secrets.SSH_USER }}/backend
   DOCKER_TAG: dev-${{ github.sha }}
 
 jobs:
-  build:
+  ci:
     name: CI - Test and Build Docker Image
     runs-on: ubuntu-latest
 
@@ -29,106 +29,105 @@ jobs:
       - name: Grant execute permission to Gradle wrapper
         run: chmod +x ./gradlew
 
-      - name: Generate .env file from GitHub Secret
+      - name: Generate env.prod file from GitHub Secrets
         run: |
-          mkdir -p .env.local
-          echo "${{ secrets.BE_ENV_FILE }}" > .env.local/.env
+          mkdir -p envs
+          cat > envs/env.prod <<EOF
+          DB_URL=${{ secrets.DB_URL }}
+          DB_USERNAME=${{ secrets.DB_USERNAME }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          DB_DRIVER=${{ secrets.DB_DRIVER }}
+
+          REDIS_HOST=${{ secrets.REDIS_HOST }}
+          REDIS_PORT=${{ secrets.REDIS_PORT }}
+          SPRING_REDIS_HOST=${{ secrets.REDIS_HOST }}
+          SPRING_REDIS_PORT=${{ secrets.REDIS_PORT }}
+
+          CLOUD_AWS_CREDENTIALS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}
+          CLOUD_AWS_CREDENTIALS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}
+          CLOUD_AWS_REGION_STATIC=${{ secrets.AWS_REGION }}
+          CLOUD_AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}
+
+          AI_SERVICE_BASE_URL=${{ secrets.AI_SERVICE_BASE_URL }}
+
+          MONGO_DB=${{ secrets.MONGO_DB }}
+          MONGO_DB_URI=${{ secrets.MONGO_DB_URI }}
+
+          FLYWAY_URL=${{ secrets.DB_URL }}
+          FLYWAY_USER=${{ secrets.DB_ROOT_USER }}
+          FLYWAY_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }}
+          FLYWAY_SCHEMAS=${{ secrets.DB_NAME }}
+
+          OAUTH_KAKAO_CLIENT_ID=${{ secrets.OAUTH_KAKAO_CLIENT_ID }}
+          OAUTH_KAKAO_REDIRECT_URI=${{ secrets.OAUTH_KAKAO_REDIRECT_URI }}
+
+          logging.level.org.springframework.data.redis=DEBUG
+          EOF
 
       - name: Build without tests
-        run: |
-          source .env.local/.env
-          ./gradlew clean build -x test
+        run: ./gradlew clean build -x test
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Build Docker Image
+      - name: Build Docker image
         run: docker build -t $IMAGE_NAME:$DOCKER_TAG .
 
-      - name: Check Docker images
-        run: docker images
+      - name: Save Docker image as tar
+        run: docker save -o app.tar $IMAGE_NAME:$DOCKER_TAG
 
-      - name: Save Docker Image as TAR
-        run: docker save $IMAGE_NAME:$DOCKER_TAG > app.tar
-
-      - name: Check if TAR file is created
-        run: ls -lh app.tar
-
-      - name: Check .env.local contents
-        run: ls -al .env.local
-
-      - name: Upload artifact
+      - name: Upload image artifact
         uses: actions/upload-artifact@v4
         with:
           name: backend-image
-          path: |
-            app.tar
-            .env.local/.env
+          path: app.tar
 
-  deploy:
+      - name: Upload env file artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: env-prod
+          path: envs/env.prod
+
+  cd:
     name: CD - Deploy to Remote Server
     runs-on: ubuntu-latest
-    needs: build
+    needs: ci
 
     steps:
-      - name: Download artifact
+      - name: Download image artifact
         uses: actions/download-artifact@v4
         with:
           name: backend-image
           path: .
 
-      - name: "Debug: check downloaded files"
-        run: |
-          echo "== Current Directory =="
-          pwd
-          echo "== ls -al =="
-          ls -al
-          echo "== Check .env.local directory =="
-          ls -al .env.local || echo "no .env.local found"
-          echo "== Check .env file =="
-          cat .env || echo ".env not found"
+      - name: Download env file artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: env-prod
+          path: .
 
-      - name: Recreate .env.local directory and move .env
-        run: |
-          mkdir -p .env.local
-          mv .env .env.local/.env
-
-      - name: Upload image and env to server
+      - name: Copy artifacts to remote server
         uses: appleboy/scp-action@v0.1.5
         with:
-          host: ${{ secrets.BE_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: |
             app.tar
-            .env.local/.env
+            env.prod
           target: ${{ env.DEPLOY_DIR }}
 
-      - name: Load Docker image and run container
+      - name: Deploy on remote server via SSH
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: ${{ secrets.BE_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd $DEPLOY_DIR
 
-            echo "Exporting environment variables"
-            source .env.local/.env
+            docker load -i app.tar
 
-            echo "Ensure docker network"
-            docker network create moongsan-net || true
-
-            echo "Load Docker image"
-            docker load < app.tar
-
-            echo "Restarting container"
             docker stop $CONTAINER_NAME || true
             docker rm $CONTAINER_NAME || true
 
-            docker run -d \
-              --name $CONTAINER_NAME \
-              --network moongsan-net \
-              -v /var/moongsan/log:/var/moongsan/log \
-              -p 8080:8080 \
+            docker run -d -p 8080:8080 --name $CONTAINER_NAME \
+              --env-file env.prod \
               $IMAGE_NAME:$DOCKER_TAG
