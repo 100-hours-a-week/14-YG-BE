@@ -17,7 +17,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Optional;
 
 import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.*;
@@ -30,21 +33,36 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class DeleteGroupBuyTest {
+
     @Mock
     private GroupBuyRepository groupBuyRepository;
+
     @Mock
     private OrderRepository orderRepository;
-    @Mock private ImageMapper imageMapper;
-    @InjectMocks
-    private DeleteGroupBuy deleteGroupBuy;
 
+    private DeleteGroupBuy deleteGroupBuy;
     private User hostUser;
     private GroupBuy before;
+    private Clock fixedClock;
+    private LocalDateTime now;
 
     @BeforeEach
     void setup() {
         hostUser = User.builder().id(1L).build();
         before = mock(GroupBuy.class);
+
+        fixedClock = Clock.fixed(
+                Instant.parse("2025-06-11T13:00:00Z"),
+                ZoneId.of("Asia/Seoul")
+        );
+
+        now = LocalDateTime.now(fixedClock);
+
+        deleteGroupBuy = new DeleteGroupBuy(
+                groupBuyRepository,
+                orderRepository,
+                fixedClock
+        );
     }
 
     @Test
@@ -104,7 +122,7 @@ public class DeleteGroupBuyTest {
                 .thenReturn(Optional.of(before));
         when(before.getPostStatus()).thenReturn("OPEN");
         when(before.getDueDate())
-                .thenReturn(LocalDateTime.now().minusDays(1));
+                .thenReturn(now.minusDays(1));
 
         assertThatThrownBy(() -> deleteGroupBuy.deleteGroupBuy(hostUser, 1L))
                 .isInstanceOf(GroupBuyInvalidStateException.class)
@@ -122,7 +140,7 @@ public class DeleteGroupBuyTest {
                 .thenReturn(Optional.of(before));
         when(before.getPostStatus()).thenReturn("OPEN");
         when(before.getDueDate())
-                .thenReturn(LocalDateTime.now().plusDays(1));
+                .thenReturn(now.plusDays(1));
         when(orderRepository.countByGroupBuyIdAndStatusNot(1L, "CANCELED"))
                 .thenReturn(1);
 
@@ -143,7 +161,7 @@ public class DeleteGroupBuyTest {
                 .thenReturn(Optional.of(before));
         when(before.getPostStatus()).thenReturn("OPEN");
         when(before.getDueDate())
-                .thenReturn(LocalDateTime.now().plusDays(1));
+                .thenReturn(now.plusDays(1));
         when(orderRepository.countByGroupBuyIdAndStatusNot(1L, "CANCELED"))
                 .thenReturn(0);
         when(before.getUser()).thenReturn(hostUser);

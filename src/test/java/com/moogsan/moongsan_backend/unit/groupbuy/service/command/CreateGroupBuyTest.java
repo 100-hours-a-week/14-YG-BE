@@ -48,7 +48,6 @@ public class CreateGroupBuyTest {
     private ChattingCommandFacade chattingCommandFacade;
 
     private CreateGroupBuy createGroupBuy;
-
     private CreateGroupBuyRequest request;
     private User user;
     private Clock fixedClock;

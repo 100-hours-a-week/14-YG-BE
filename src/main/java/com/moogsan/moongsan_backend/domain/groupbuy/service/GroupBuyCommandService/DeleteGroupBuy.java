@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 
 import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.*;
@@ -22,6 +23,7 @@ public class DeleteGroupBuy {
 
     private final GroupBuyRepository groupBuyRepository;
     private final OrderRepository orderRepository;
+    private final Clock clock;
 
     /// 공구 게시글 삭제: 참여자가 아무도 없는, 주문 레코드가 없는 경우이므로 하드 삭제
     // TODO V2
@@ -33,7 +35,7 @@ public class DeleteGroupBuy {
 
         // 해당 공구의 status가 open인지 조회 -> 아니면 409
         if (!groupBuy.getPostStatus().equals("OPEN")
-                || groupBuy.getDueDate().isBefore(LocalDateTime.now())) {
+                || groupBuy.getDueDate().isBefore(LocalDateTime.now(clock))) {
             throw new GroupBuyInvalidStateException(NOT_OPEN);
         }
 
