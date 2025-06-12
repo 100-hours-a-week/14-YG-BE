@@ -27,7 +27,7 @@ public class GroupBuyEditController {
         if (userDetails == null) {
             throw new UnauthenticatedAccessException("로그인이 필요합니다.");
         }
-        GroupBuyForUpdateResponse groupBuyForUpdate = queryFacade.getGroupBuyEditInfo(postId);
+        GroupBuyForUpdateResponse groupBuyForUpdate = queryFacade.getGroupBuyEditInfo(userDetails.getUser().getId(), postId);
         return ResponseEntity.ok(
                 WrapperResponse.<GroupBuyForUpdateResponse>builder()
                         .message(GET_UPDATE_SUCCESS)

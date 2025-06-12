@@ -30,8 +30,8 @@ public class GroupBuyQueryFacadeImpl implements GroupBuyQueryFacade {
     private final GetGroupBuyParticipantsInfo    participantsInfoSvc;
 
     @Override
-    public GroupBuyForUpdateResponse getGroupBuyEditInfo(Long postId) {
-        return editInfoSvc.getGroupBuyEditInfo(postId);
+    public GroupBuyForUpdateResponse getGroupBuyEditInfo(Long userId, Long postId) {
+        return editInfoSvc.getGroupBuyEditInfo(userId, postId);
     }
 
     @Override

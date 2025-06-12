@@ -52,6 +52,7 @@ public class GetGroupBuyEditInfoTest {
                 .build();
 
         Mockito.when(queryFacade.getGroupBuyEditInfo(
+                eq(1L),
                 eq(20L)
         )).thenReturn(item);
 
@@ -60,7 +61,7 @@ public class GetGroupBuyEditInfoTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value(GET_UPDATE_SUCCESS));
 
-        Mockito.verify(queryFacade).getGroupBuyEditInfo(eq(20L));
+        Mockito.verify(queryFacade).getGroupBuyEditInfo(eq(1L), eq(20L));
     }
 
     @Test

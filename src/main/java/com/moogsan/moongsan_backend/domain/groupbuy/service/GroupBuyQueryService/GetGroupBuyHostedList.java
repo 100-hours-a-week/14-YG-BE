@@ -40,7 +40,7 @@ public class GetGroupBuyHostedList {
 
         String status = postStatus.toUpperCase();
 
-        Pageable page = PageRequest.of(0, limit, Sort.by("id").descending());
+        Pageable page = PageRequest.of(0, limit + 1, Sort.by("id").descending());
 
         // cursorId가 없으면 cursor 조건 제외
         List<GroupBuy> groupBuys;
@@ -74,15 +74,19 @@ public class GetGroupBuyHostedList {
         List<HostedListResponse> posts = groupBuyQueryMapper
                 .toHostedListWishResponses(groupBuys, wishMap, chatRooms);
 
+        List<HostedListResponse> hostedGroupBuys = posts.size() > limit
+                ? posts.subList(0, limit)
+                : posts;
+
         // 다음 커서 및 더보기 여부
-        Long nextCursor = posts.isEmpty()
+        Long nextCursor = hostedGroupBuys.isEmpty()
                 ? null
-                : posts.getLast().getPostId();
-        boolean hasMore = posts.size() == limit;
+                : hostedGroupBuys.getLast().getPostId();
+        boolean hasMore = posts.size() > limit;
 
         return PagedResponse.<HostedListResponse>builder()
-                .count(posts.size())
-                .posts(posts)
+                .count(hostedGroupBuys.size())
+                .posts(hostedGroupBuys)
                 .nextCursor(nextCursor != null ? nextCursor.intValue() : null)
                 .hasMore(hasMore)
                 .build();

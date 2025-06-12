@@ -40,7 +40,7 @@ public class LeaveGroupBuy {
 
         // 해당 공구가 OPEN인지 조회, dueDate가 현재 이후인지 조회 -> 아니면 409
         if (!groupBuy.getPostStatus().equals("OPEN")
-                || groupBuy.getDueDate().isBefore(LocalDateTime.now())) {
+                || groupBuy.getDueDate().isBefore(LocalDateTime.now(clock))) {
             throw new GroupBuyInvalidStateException(NOT_OPEN);
         }
 

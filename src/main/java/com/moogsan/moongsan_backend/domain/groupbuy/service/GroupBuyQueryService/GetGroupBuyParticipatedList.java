@@ -2,6 +2,7 @@ package com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyQueryServic
 
 import com.moogsan.moongsan_backend.domain.chatting.entity.ChatRoom;
 import com.moogsan.moongsan_backend.domain.chatting.repository.ChatRoomRepository;
+import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.HostedList.HostedListResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.PagedResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.ParticipatedList.ParticipatedListResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
@@ -45,7 +46,7 @@ public class GetGroupBuyParticipatedList {
 
         Pageable page = PageRequest.of(
                 0,
-                limit,
+                limit + 1,
                 Sort.by("createdAt").descending()
                         .and(Sort.by("id").descending())
         );
@@ -88,15 +89,19 @@ public class GetGroupBuyParticipatedList {
         List<ParticipatedListResponse> posts = groupBuyQueryMapper
                 .toParticipatedListWishResponse(orders, wishMap, chatRooms);
 
+        List<ParticipatedListResponse> participatedGroupBuys = posts.size() > limit
+                ? posts.subList(0, limit)
+                : posts;
+
         // 다음 커서 및 더보기 여부
-        Long nextCursor = posts.isEmpty()
+        Long nextCursor = participatedGroupBuys.isEmpty()
                 ? null
-                : posts.getLast().getPostId();
-        boolean hasMore = posts.size() == limit;
+                : participatedGroupBuys.getLast().getPostId();
+        boolean hasMore = posts.size() > limit;
 
         return PagedResponse.<ParticipatedListResponse>builder()
-                .count(posts.size())
-                .posts(posts)
+                .count(participatedGroupBuys.size())
+                .posts(participatedGroupBuys)
                 .nextCursor(nextCursor != null ? nextCursor.intValue() : null)
                 .hasMore(hasMore)
                 .build();

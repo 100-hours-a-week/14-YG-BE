@@ -41,12 +41,12 @@ public class EndGroupBuy {
         }
 
         // dueDate 이후인지 조회 -> 아니면 409
-        if (groupBuy.getDueDate().isAfter(LocalDateTime.now())) {
+        if (groupBuy.getDueDate().isAfter(LocalDateTime.now(clock))) {
             throw new GroupBuyInvalidStateException(BEFORE_CLOSED);
         }
 
         // pickupDate 이후인지 조회 -> 아니면 409
-        if (groupBuy.getPickupDate().isAfter(LocalDateTime.now())) {
+        if (groupBuy.getPickupDate().isAfter(LocalDateTime.now(clock))) {
             throw new GroupBuyInvalidStateException(BEFORE_PICKUP_DATE);
         }
 

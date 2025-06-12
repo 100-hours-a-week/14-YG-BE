@@ -1,6 +1,8 @@
 package com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyQueryService;
 
+import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.HostedList.HostedListResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.PagedResponse;
+import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.WishList.WishListResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.mapper.GroupBuyQueryMapper;
 import com.moogsan.moongsan_backend.domain.user.repository.WishRepository;
@@ -25,7 +27,7 @@ public class GetGroupBuyWishList {
     private final WishRepository wishRepository;
 
     /// 관심 공구 리스트 조회: 관심 등록 순으로 커서 적용 필요
-    public PagedResponse<com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.WishList.WishListResponse> getGroupBuyWishList(
+    public PagedResponse<WishListResponse> getGroupBuyWishList(
             Long userId,
             String postStatus,
             LocalDateTime cursorCreatedAt,
@@ -35,7 +37,7 @@ public class GetGroupBuyWishList {
 
         Pageable page = PageRequest.of(
                 0,
-                limit,
+                limit + 1,
                 Sort.by("createdAt").descending()
                         .and(Sort.by("id").descending())
         );
@@ -61,19 +63,23 @@ public class GetGroupBuyWishList {
         }
 
         // 매핑
-        List<com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.WishList.WishListResponse> posts = groupBuys.stream()
+        List<WishListResponse> posts = groupBuys.stream()
                 .map(groupBuyQueryMapper::toWishListResponse)
                 .toList();
 
-        // 다음 커서 및 더보기 여부
-        Long nextCursor = posts.isEmpty()
-                ? null
-                : posts.getLast().getPostId();
-        boolean hasMore = posts.size() == limit;
+        List<WishListResponse> wishedGroupBuys = posts.size() > limit
+                ? posts.subList(0, limit)
+                : posts;
 
-        return PagedResponse.<com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.WishList.WishListResponse>builder()
-                .count(posts.size())
-                .posts(posts)
+        // 다음 커서 및 더보기 여부
+        Long nextCursor = wishedGroupBuys.isEmpty()
+                ? null
+                : wishedGroupBuys.getLast().getPostId();
+        boolean hasMore = posts.size() > limit;
+
+        return PagedResponse.<WishListResponse>builder()
+                .count(wishedGroupBuys.size())
+                .posts(wishedGroupBuys)
                 .nextCursor(nextCursor != null ? nextCursor.intValue() : null)
                 .hasMore(hasMore)
                 .build();

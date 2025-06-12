@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public interface GroupBuyQueryFacade {
 
     // 공구 수정 화면용 단건 조회
-    GroupBuyForUpdateResponse getGroupBuyEditInfo(Long postId);
+    GroupBuyForUpdateResponse getGroupBuyEditInfo(Long userId, Long postId);
 
     // 상세·계좌
     DetailResponse        getGroupBuyDetailInfo(Long userId, Long postId);
