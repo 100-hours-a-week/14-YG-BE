@@ -13,7 +13,7 @@ env:
 
 jobs:
   build:
-    name: CI - Build and Save Docker Image
+    name: CI - Build Docker Image
     runs-on: ubuntu-latest
 
     steps:
@@ -35,7 +35,7 @@ jobs:
       - name: Build Docker image
         run: docker build -t $IMAGE_NAME:$DOCKER_TAG .
 
-      - name: Save Docker image as tar
+      - name: Save Docker image as tar file
         run: docker save -o app.tar $IMAGE_NAME:$DOCKER_TAG
 
       - name: Upload Docker image artifact
@@ -56,7 +56,7 @@ jobs:
           name: backend-image
           path: .
 
-      - name: Copy Docker image to remote server
+      - name: Copy app.tar to server
         uses: appleboy/scp-action@v0.1.5
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -67,6 +67,11 @@ jobs:
 
       - name: SSH into server and deploy
         uses: appleboy/ssh-action@v1.0.0
+        env:
+          IMAGE_NAME: sally2020s/be_moongsan
+          CONTAINER_NAME: be-moongsan
+          DEPLOY_DIR: /home/${{ secrets.SSH_USER }}/backend
+          DOCKER_TAG: dev-${{ github.sha }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
@@ -110,7 +115,7 @@ jobs:
             logging.level.org.springframework.data.redis=DEBUG
             EOF
 
-            # 기존 컨테이너 중지 및 제거
+            # 기존 컨테이너 종료 및 삭제
             docker stop $CONTAINER_NAME || true
             docker rm $CONTAINER_NAME || true
 
