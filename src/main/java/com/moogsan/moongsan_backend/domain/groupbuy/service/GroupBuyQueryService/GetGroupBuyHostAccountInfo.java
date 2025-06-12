@@ -25,7 +25,6 @@ public class GetGroupBuyHostAccountInfo {
     private final GroupBuyRepository groupBuyRepository;
     private final OrderRepository orderRepository;
     private final GroupBuyQueryMapper groupBuyQueryMapper;
-    private final WishRepository wishRepository;
 
     /// 주최자 계좌 정보 조회
     public UserAccountResponse getGroupBuyHostAccountInfo(Long userId, Long postId) {

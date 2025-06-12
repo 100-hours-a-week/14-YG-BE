@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.AFTER_DELETED;
@@ -27,6 +29,7 @@ public class GetGroupBuyDetailInfo {
     private final OrderRepository orderRepository;
     private final GroupBuyQueryMapper groupBuyQueryMapper;
     private final WishRepository wishRepository;
+    private final Clock now;
 
     /// 공구 게시글 상세 조회
     public DetailResponse getGroupBuyDetailInfo(Long userId, Long postId) {
