@@ -32,7 +32,7 @@ jobs:
       - name: Generate .env file from GitHub Secret
         run: |
           mkdir -p .env.local
-          echo '${{ secrets.BE_ENV_FILE }}' > .env.local/.env
+          echo "${{ secrets.BE_ENV_FILE }}" > .env.local/.env
 
       - name: Build without tests
         run: |
@@ -41,14 +41,14 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-
+        
+        
       - name: "Debug: Check image name"
-        run: |
-          echo "Image tag: $IMAGE_NAME:$DOCKER_TAG"
+        run: |  
+            echo "Image tag: $IMAGE_NAME:$DOCKER_TAG"
 
       - name: Build Docker Image
-        run: |
-          docker build -t $IMAGE_NAME:$DOCKER_TAG .
+        run: docker build -t $IMAGE_NAME:$DOCKER_TAG .
 
       - name: Check Docker images
         run: docker images
@@ -68,7 +68,7 @@ jobs:
           name: backend-image
           path: |
             app.tar
-            .env.local
+            .env.local/.env
 
   deploy:
     name: CD - Deploy to Remote Server
@@ -83,7 +83,9 @@ jobs:
           path: .
 
       - name: "Debug: check downloaded files"
-        run: ls -al
+        run: |
+          ls -al
+          ls -al .env.local || echo "no .env.local found"
 
       - name: Upload image and .env to server
         uses: appleboy/scp-action@v0.1.5
@@ -93,7 +95,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: |
             app.tar
-            .env.local
+            .env.local/.env
           target: ${{ env.DEPLOY_DIR }}
 
       - name: Load Docker image and run container
