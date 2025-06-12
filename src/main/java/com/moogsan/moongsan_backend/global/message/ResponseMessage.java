@@ -1,0 +1,6 @@
+package com.moogsan.moongsan_backend.global.message;
+
+public class ResponseMessage {
+    public static final String LOAD_FILE_FAIL =
+            "비속어 파일을 불러오는 중 오류가 발생했습니다.";
+}

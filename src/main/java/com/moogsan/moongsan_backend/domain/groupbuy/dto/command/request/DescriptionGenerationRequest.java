@@ -1,5 +1,7 @@
 package com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request;
 
+import com.moogsan.moongsan_backend.global.profanity.ProfanitySafe;
+import com.moogsan.moongsan_backend.global.xss.XssSafe;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -12,6 +14,8 @@ import org.hibernate.validator.constraints.URL;
 @Builder
 public class DescriptionGenerationRequest {
 
+    @ProfanitySafe
+    @XssSafe
     @NotNull(message = "URL은 1자 이상, 2000자 이하로 입력해주세요.")
     @NotBlank(message = "URL은 1자 이상, 2000자 이하로 입력해주세요.")
     @Size(min = 1, max = 2000, message = "URL은 1자 이상, 2000자 이하로 입력해주세요.")
