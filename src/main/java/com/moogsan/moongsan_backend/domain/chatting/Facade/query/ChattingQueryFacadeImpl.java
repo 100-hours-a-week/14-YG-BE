@@ -2,6 +2,7 @@ package com.moogsan.moongsan_backend.domain.chatting.Facade.query;
 
 import com.moogsan.moongsan_backend.domain.chatting.dto.query.ChatMessagePageResponse;
 import com.moogsan.moongsan_backend.domain.chatting.dto.query.ChatMessageResponse;
+import com.moogsan.moongsan_backend.domain.chatting.dto.query.ChatRoomPagedResponse;
 import com.moogsan.moongsan_backend.domain.chatting.dto.query.ChatRoomResponse;
 import com.moogsan.moongsan_backend.domain.chatting.service.query.GetChatRoomList;
 import com.moogsan.moongsan_backend.domain.chatting.service.query.GetLatestMessageSse;
@@ -62,7 +63,7 @@ public class ChattingQueryFacadeImpl implements ChattingQueryFacade{
         // return getLatestMessagesSse.createEmitter(chatRoomId);
     }
 
-    public List<ChatRoomResponse> getChatRoomList (Long userId, LocalDateTime cursorJoinedAt, Long cursorId, Integer limit) {
-        return getChatRoomList.getChatRoomList(userId, cursorJoinedAt, cursorId, limit);
+    public ChatRoomPagedResponse getChatRoomList (Long userId, LocalDateTime cursorJoinedAt, Integer limit) {
+        return getChatRoomList.getChatRoomList(userId, cursorJoinedAt, limit);
     };
 }
