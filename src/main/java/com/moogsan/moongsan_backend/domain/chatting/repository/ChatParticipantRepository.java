@@ -18,31 +18,33 @@ public interface ChatParticipantRepository extends JpaRepository<ChatParticipant
 
     Optional<ChatParticipant> findByChatRoom_IdAndUser_IdAndLeftAtIsNull(Long chatRoomId, Long userId);
 
+    // 초기 페이지(커서 없을 때)
     @Query("""
-    SELECT cp.chatRoom FROM ChatParticipant cp
-    WHERE cp.user.id = :userId
-      AND cp.chatRoom.type = 'PARTICIPANT'
-      AND cp.leftAt IS NULL
-    ORDER BY cp.joinedAt DESC, cp.id DESC
-""")
-    List<ChatRoom> findInitialChatRooms(@Param("userId") Long userId, Pageable pageable);
-
-
-    @Query("""
-            SELECT cp.chatRoom FROM ChatParticipant cp
-            WHERE cp.user.id = :userId
-              AND cp.chatRoom.type = 'PARTICIPANT'
-              AND cp.leftAt is NULL
-              AND (
-                    cp.joinedAt < :cursorJoinedAt OR
-                    (cp.joinedAt = :cursorJoinedAt AND cp.id < :cursorId)
-                    )
-            ORDER BY cp.joinedAt DESC, cp.id DESC
+      SELECT p
+        FROM ChatParticipant p
+        JOIN FETCH p.chatRoom r
+       WHERE p.user.id = :userId
+         AND p.leftAt IS NULL
+       ORDER BY p.joinedAt DESC, p.id DESC
     """)
-    List<ChatRoom> findActiveParticipantChatRoomsByUserIdWithCursor(
+    List<ChatParticipant> findInitialParticipants(
+            @Param("userId") Long userId,
+            Pageable pageable
+    );
+
+    // 커서(joinedAt) 기반 다음 페이지
+    @Query("""
+      SELECT p
+        FROM ChatParticipant p
+        JOIN FETCH p.chatRoom r
+       WHERE p.user.id = :userId
+         AND p.leftAt IS NULL
+         AND p.joinedAt < :cursorJoinedAt
+       ORDER BY p.joinedAt DESC, p.id DESC
+    """)
+    List<ChatParticipant> findParticipantsAfter(
             @Param("userId") Long userId,
             @Param("cursorJoinedAt") LocalDateTime cursorJoinedAt,
-            @Param("cursorId") Long cursorId,
             Pageable pageable
-            );
+    );
 }

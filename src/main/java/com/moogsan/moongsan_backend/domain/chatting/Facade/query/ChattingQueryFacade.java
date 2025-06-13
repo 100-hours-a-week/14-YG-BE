@@ -2,6 +2,7 @@ package com.moogsan.moongsan_backend.domain.chatting.Facade.query;
 
 import com.moogsan.moongsan_backend.domain.chatting.dto.query.ChatMessagePageResponse;
 import com.moogsan.moongsan_backend.domain.chatting.dto.query.ChatMessageResponse;
+import com.moogsan.moongsan_backend.domain.chatting.dto.query.ChatRoomPagedResponse;
 import com.moogsan.moongsan_backend.domain.chatting.dto.query.ChatRoomResponse;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import org.springframework.web.context.request.async.DeferredResult;
@@ -28,9 +29,9 @@ public interface ChattingQueryFacade {
             Long chatRoomId
     );
 
-    List<ChatRoomResponse> getChatRoomList (
+    ChatRoomPagedResponse getChatRoomList (
             Long userId,
             LocalDateTime cursorJoinedAt,
-            Long cursorId,
-            Integer limit);
+            Integer limit)
+    ;
 }
