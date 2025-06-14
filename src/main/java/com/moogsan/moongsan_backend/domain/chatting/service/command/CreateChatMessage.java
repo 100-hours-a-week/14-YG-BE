@@ -1,5 +1,7 @@
 package com.moogsan.moongsan_backend.domain.chatting.service.command;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.domain.chatting.dto.command.request.CreateChatMessageRequest;
 import com.moogsan.moongsan_backend.domain.chatting.entity.ChatMessageDocument;
 import com.moogsan.moongsan_backend.domain.chatting.entity.ChatParticipant;
@@ -17,10 +19,15 @@ import com.moogsan.moongsan_backend.domain.chatting.util.MessageSequenceGenerato
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Duration;
+
+import static com.moogsan.moongsan_backend.global.util.ObjectIdScoreUtil.toScore;
 
 @Slf4j
 @Service
@@ -35,6 +42,8 @@ public class CreateChatMessage {
     private final ChatMessageCommandMapper chatMessageCommandMapper;
     private final GetLatestMessages getLatestMessages;
     private final GetLatestMessageSse getLatestMessageSse;
+    private final RedisTemplate<String, String> redisTemplate;
+    private final ObjectMapper objectMapper;
 
     public void createChatMessage(User currentUser, CreateChatMessageRequest request, Long chatRoomId) {
 
@@ -48,12 +57,6 @@ public class CreateChatMessage {
         }
 
         // 참여자인지 조회 -> 아니면 403
-        boolean isParticipant = chatParticipantRepository.existsByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoomId, currentUser.getId());
-
-        if(!isParticipant) {
-            throw new NotParticipantException("참여자만 메세지를 작성할 수 있습니다.");
-        }
-
         ChatParticipant participant = chatParticipantRepository
                 .findByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoomId, currentUser.getId())
                 .orElseThrow(() -> new NotParticipantException("참여자만 메시지를 작성할 수 있습니다."));
@@ -67,6 +70,19 @@ public class CreateChatMessage {
                 .toMessageDocument(chatRoom, participant.getId(), request, nextSeq);
         SecurityContext context = SecurityContextHolder.getContext();
         chatMessageRepository.save(document);
+
+        String redisKey = "chatting:messages:" + chatRoomId;
+
+        try {
+            String json = objectMapper.writeValueAsString(document);
+            double score = toScore(document.getId()); // tie-breaker 점수
+            Boolean added = redisTemplate.opsForZSet().add(redisKey, json, score);
+            if (Boolean.TRUE.equals(added)) {
+                redisTemplate.expire(redisKey, Duration.ofHours(24)); // 키가 새로 생성됐을 때만 TTL 부여
+            }
+        } catch (JsonProcessingException e) {
+            log.warn("❌ Redis 캐싱 실패 [chatRoomId={}]: {}", chatRoomId, e.getMessage());
+        }
 
         // 롱 폴링
         getLatestMessages.notifyNewMessage(document, currentUser.getNickname(), currentUser.getImageKey(), context);

@@ -27,11 +27,11 @@ public class GetPastMessagesController {
     private final ChattingQueryFacade chattingQueryFacade;
     private final ExecutorService executor = Executors.newCachedThreadPool();
 
-    @GetMapping("/{chatRoomId}/polling/past")
+    @GetMapping("/{chatRoomId}/message/past")
     public ResponseEntity<WrapperResponse<ChatMessagePageResponse>> getPastMessages(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable("chatRoomId") Long chatRoomId,
-            @RequestParam(required = false, defaultValue = "0") String cursorId
+            @RequestParam(required = false) String cursorId
     ) {
 
         ChatMessagePageResponse response = chattingQueryFacade.getPastMessages(userDetails.getUser(), chatRoomId, cursorId);
