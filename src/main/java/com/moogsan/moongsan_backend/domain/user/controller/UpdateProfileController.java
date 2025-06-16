@@ -66,7 +66,7 @@ public class UpdateProfileController {
     @PatchMapping
     public ResponseEntity<WrapperResponse<Void>> updateBasicInfo(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody UpdateProfileRequest request) {
+            @Valid @RequestBody UpdateProfileRequest request) {
         updateProfileService.updateBasicInfo(userDetails.getUser().getId(), request);
         return ResponseEntity.ok(
                 WrapperResponse.<Void>builder()
