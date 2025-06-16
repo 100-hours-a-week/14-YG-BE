@@ -13,7 +13,7 @@ RUN ./gradlew clean bootJar -x test
 FROM eclipse-temurin:21-jdk
 WORKDIR /app
 # secrets 파일 복사 (없으면 빈 파일이라도 만들어 주세요)
-# COPY config/application.yml ./config/application-secrets.yml
+COPY config/application.yml ./config/application-secrets.yml
 # 로그 디렉터리 생성 및 권한 부여
 RUN mkdir -p /var/moongsan/log && chown -R 1000:1000 /var/moongsan/log
 # Builder에서 생성된 JAR 복사
