@@ -48,7 +48,7 @@ public class UpdateProfileService {
         user.updateAccount(request.getAccountBank(), request.getAccountNumber(), request.getName());
     }
 
-    // 기본 정보 수정 (이름, 닉네임, 전화번호)
+    // 기본 정보 수정 (닉네임, 전화번호)
     public void updateBasicInfo(Long userId, UpdateProfileRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorCode.NOT_FOUND));

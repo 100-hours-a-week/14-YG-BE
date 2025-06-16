@@ -77,10 +77,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<Object> handleAllExceptions(Exception ex) {
         log.error("Unhandled exception caught:", ex);
+
+        String message = ex.getMessage();
+        if (message == null || message.isBlank()) {
+            message = "내부 서버 오류 발생";
+        }
+
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(WrapperResponse.<Object>builder()
-                        .message("내부 서버 오류 발생")
+                        .message(message)
                         .data(null)
                         .build());
     }
