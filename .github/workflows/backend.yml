@@ -68,21 +68,20 @@ jobs:
       - name: SSH into server and deploy
         uses: appleboy/ssh-action@v1.0.0
         env:
-          IMAGE_NAME: sally2020s/be_moongsan
-          CONTAINER_NAME: be-moongsan
-          DEPLOY_DIR: /home/${{ secrets.SSH_USER }}/backend
-          DOCKER_TAG: dev-${{ github.sha }}
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+          CONTAINER_NAME: ${{ env.CONTAINER_NAME }}
+          DEPLOY_DIR: ${{ env.DEPLOY_DIR }}
+          DOCKER_TAG: ${{ env.DOCKER_TAG }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: IMAGE_NAME,CONTAINER_NAME,DEPLOY_DIR,DOCKER_TAG
           script: |
             cd $DEPLOY_DIR
 
-            # Docker 이미지 로드
             docker load -i app.tar
 
-            # env.prod 생성
             cat > env.prod <<EOF
             DB_URL=${{ secrets.DB_URL }}
             DB_USERNAME=${{ secrets.DB_USERNAME }}
@@ -115,11 +114,9 @@ jobs:
             logging.level.org.springframework.data.redis=DEBUG
             EOF
 
-            # 기존 컨테이너 종료 및 삭제
             docker stop $CONTAINER_NAME || true
             docker rm $CONTAINER_NAME || true
 
-            # 새 컨테이너 실행
             docker run -d -p 8080:8080 --name $CONTAINER_NAME \
               --env-file env.prod \
               $IMAGE_NAME:$DOCKER_TAG
