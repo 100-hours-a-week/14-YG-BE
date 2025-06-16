@@ -103,10 +103,10 @@ jobs:
             MONGO_DB=${{ secrets.MONGO_DB }}
             MONGO_DB_URI=${{ secrets.MONGO_DB_URI }}
 
-            FLYWAY_URL=${{ secrets.DB_URL }}
-            FLYWAY_USER=${{ secrets.DB_ROOT_USER }}
-            FLYWAY_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }}
-            FLYWAY_SCHEMAS=${{ secrets.DB_NAME }}
+            FLYWAY_URL=${{ secrets.FLYWAY_URL }}
+            FLYWAY_USER=${{ secrets.FLYWAY_USER }}
+            FLYWAY_PASSWORD=${{ secrets.FLYWAY_PASSWORD }}
+            FLYWAY_SCHEMAS=${{ secrets.FLYWAY_SCHEMAS }}
 
             OAUTH_KAKAO_CLIENT_ID=${{ secrets.OAUTH_KAKAO_CLIENT_ID }}
             OAUTH_KAKAO_REDIRECT_URI=${{ secrets.OAUTH_KAKAO_REDIRECT_URI }}
