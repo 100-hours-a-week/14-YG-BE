@@ -33,7 +33,7 @@ services:
       - ./config:/config
     environment:
       SPRING_CONFIG_ADDITIONAL_LOCATION: file:/config/
-
+      SPRING_PROFILES_ACTIVE: docker
 
 volumes:
   redis-data:

@@ -129,8 +129,6 @@ public class GetPastMessages {
                     log.warn("❌ Redis 캐싱 실패: {}", e.getMessage());
                 }
             });
-
-            redisTemplate.expire(redisKey, Duration.ofHours(1));
         } else {                        // ★ 캐시에서 이미 10개 꽉 찬 경우
             // 마지막 메시지 ID 기준으로 DB에 추가 1건만 확인
             String lastId = page.get(PAGE_SIZE - 1).getId();
