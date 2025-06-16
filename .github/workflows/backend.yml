@@ -119,4 +119,5 @@ jobs:
 
             docker run -d -p 8080:8080 --name $CONTAINER_NAME \
               --env-file env.prod \
+              --network moongsan-net \
               $IMAGE_NAME:$DOCKER_TAG
