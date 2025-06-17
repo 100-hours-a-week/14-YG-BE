@@ -123,6 +123,12 @@ jobs:
 
             # 새 컨테이너 시작 (Flyway repair 및 baseline 설정)
             echo "Starting new container with Flyway repair and baseline..."
+            echo "Environment variables for debugging:"
+            echo "SPRING_FLYWAY_REPAIR=true"
+            echo "SPRING_FLYWAY_BASELINE_ON_MIGRATE=true"
+            echo "SPRING_FLYWAY_BASELINE_VERSION=10"
+            echo "SPRING_FLYWAY_VALIDATE_ON_MIGRATE=false"
+
             docker run -d \
               -p 8080:8080 \
               --name $CONTAINER_NAME \
