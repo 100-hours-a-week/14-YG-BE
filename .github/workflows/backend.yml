@@ -112,7 +112,9 @@ jobs:
             OAUTH_KAKAO_REDIRECT_URI=${{ secrets.OAUTH_KAKAO_REDIRECT_URI }}
 
             logging.level.org.springframework.data.redis=DEBUG
-            EOF            # 기존 컨테이너 정리
+            EOF
+
+            # 기존 컨테이너 정리
             echo "Cleaning up existing containers..."
             docker stop $CONTAINER_NAME || true
             docker rm $CONTAINER_NAME || true
