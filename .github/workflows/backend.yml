@@ -113,9 +113,12 @@ jobs:
 
             logging.level.org.springframework.data.redis=DEBUG
             EOF
-
-            # 윈도우 개행 문자(CRLF) 제거
-            sed -i 's/\r$//' env.prod
+            
+            docker run --rm \
+              --env-file env.prod \
+              --network moongsan-net \
+              $IMAGE_NAME:$DOCKER_TAG \
+              java -Dspring.flyway.repair=true -jar app.jar
 
             docker stop $CONTAINER_NAME || true
             docker rm $CONTAINER_NAME || true
