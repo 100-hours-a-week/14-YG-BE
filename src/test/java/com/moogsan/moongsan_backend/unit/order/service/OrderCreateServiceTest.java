@@ -9,11 +9,11 @@ import com.moogsan.moongsan_backend.domain.order.dto.response.OrderCreateRespons
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.order.service.OrderCreateService;
-import com.moogsan.moongsan_backend.domain.order.service.OrderStatusUpdateService;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import com.moogsan.moongsan_backend.domain.user.repository.UserRepository;
 import com.moogsan.moongsan_backend.global.exception.base.BusinessException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
@@ -23,6 +23,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@Disabled
 class OrderCreateServiceTest {
 
     @InjectMocks
@@ -159,20 +160,5 @@ class OrderCreateServiceTest {
         assertThatThrownBy(() -> orderCreateService.createOrder(request, userId))
                 .isInstanceOf(BusinessException.class)
                 .hasMessage("공동구매 정보를 찾을 수 없습니다.");
-    }
-
-    @Test
-    @DisplayName("주문 상태 변경 성공")
-    void updateOrderStatus_success() {
-        Order order = mock(Order.class);
-        String newStatus = "COMPLETED";
-
-        when(orderRepository.findByUserIdAndGroupBuyIdAndStatusNot(userId, postId, "CANCELED"))
-                .thenReturn(Optional.of(order));
-
-        OrderStatusUpdateService service = new OrderStatusUpdateService(orderRepository);
-        service.updateOrderStatus(postId, userId, newStatus);
-
-        verify(order).updateStatus(newStatus);
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.moogsan.moongsan_backend.global.exception.base.BusinessException;
 import com.moogsan.moongsan_backend.global.exception.code.ErrorCode;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -40,17 +41,20 @@ public class OrderCreateService {
             throw new BusinessException(ErrorCode.BAD_REQUEST, "현재 주문이 불가능한 상태입니다.");
         }
 
-        // 동일 postId, userId로 CANCELED 주문이 3건 이상이면 차단
-        long canceledCount = orderRepository.countByUserIdAndGroupBuyIdAndStatus(user.getId(), groupBuy.getId(), "CANCELED");
+        // 동일 postId, userId로 CANCELED, REFUNDED 주문이 3건 이상이면 차단
+        int canceledCount = orderRepository.countByUserIdAndGroupBuyIdAndStatusIn(user.getId(), groupBuy.getId(),
+                List.of("CANCELED", "REFUNDED"));
         if (canceledCount > 3) {
             throw new BusinessException(ErrorCode.BAD_REQUEST, "주문을 3회 이상 취소하였습니다.");
         }
 
-        // 해당 공구 내 CANCELED 상태가 아닌 주문 존재
-        orderRepository.findByUserIdAndGroupBuyIdAndStatusNot(user.getId(), groupBuy.getId(), "CANCELED")
-            .ifPresent(o -> {
-                throw new BusinessException(ErrorCode.DUPLICATE_REQUEST, "이미 공동구매에 참여하였습니다.");
-            });
+        // 해당 공구 내 CANCELED, REFUNDED 상태가 아닌 주문 존재
+        boolean exists = orderRepository.existsByUserIdAndGroupBuyIdAndStatusNotIn(
+                user.getId(), groupBuy.getId(), List.of("CANCELED", "REFUNDED"));
+
+        if (exists) {
+            throw new BusinessException(ErrorCode.DUPLICATE_REQUEST, "이미 공동구매에 참여하였습니다.");
+        }
 
         // 입력 수량이 해당 공구의 주문 단위의 배수가 아님
         if (request.getQuantity() % groupBuy.getUnitAmount() != 0) {
@@ -85,26 +89,7 @@ public class OrderCreateService {
         chattingCommandFacade.joinChatRoom(user, groupBuy.getId());
 
         return OrderCreateResponse.builder()
-            .productName(groupBuy.getName())
-            .quantity(order.getQuantity())
-            .price(order.getPrice())
-            .hostName(groupBuy.getUser().getName())
-            .hostAccountBank(groupBuy.getUser().getAccountBank())
-            .hostAccountNumber(groupBuy.getUser().getAccountNumber())
-            .build();
-    }
-
-    // 주문 조회 서비스
-    public OrderCreateResponse getOrderIfNotCanceled(Long postId, Long userId) {
-        GroupBuy groupBuy = groupBuyRepository.findById(postId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "공동구매 정보를 찾을 수 없습니다."));
-
-        Order order = orderRepository.findByUserIdAndGroupBuyIdAndStatusNot(userId, postId, "CANCELED")
-                .orElse(null);
-
-        if (order == null) return null;
-
-        return OrderCreateResponse.builder()
+                .orderId(order.getId())
                 .productName(groupBuy.getName())
                 .quantity(order.getQuantity())
                 .price(order.getPrice())
