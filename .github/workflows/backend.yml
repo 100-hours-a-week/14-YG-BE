@@ -20,18 +20,20 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v3
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v3
-        with:
-          distribution: "temurin"
-          java-version: "21"
+      # 시간 절약을 위해 JDK 설정과 Gradle 빌드 임시 주석처리
+      # - name: Set up JDK 21
+      #   uses: actions/setup-java@v3
+      #   with:
+      #     distribution: "temurin"
+      #     java-version: "21"
 
-      - name: Grant execute permission to Gradle wrapper
-        run: chmod +x ./gradlew
+      # - name: Grant execute permission to Gradle wrapper
+      #   run: chmod +x ./gradlew
 
-      - name: Build without tests
-        run: ./gradlew clean build -x test
+      # - name: Build without tests
+      #   run: ./gradlew clean build -x test
 
+      # 기존에 빌드된 JAR 파일이 있다고 가정하고 Docker 이미지만 빌드
       - name: Build Docker image
         run: docker build -t $IMAGE_NAME:$DOCKER_TAG .
 
@@ -119,13 +121,14 @@ jobs:
             docker stop $CONTAINER_NAME || true
             docker rm $CONTAINER_NAME || true
 
-            # 새 컨테이너 시작 (Flyway baseline 설정)
-            echo "Starting new container with Flyway baseline..."
+            # 새 컨테이너 시작 (Flyway repair 및 baseline 설정)
+            echo "Starting new container with Flyway repair and baseline..."
             docker run -d \
               -p 8080:8080 \
               --name $CONTAINER_NAME \
               --env-file env.prod \
               --network moongsan-net \
+              -e SPRING_FLYWAY_REPAIR=true \
               -e SPRING_FLYWAY_BASELINE_ON_MIGRATE=true \
               -e SPRING_FLYWAY_BASELINE_VERSION=10 \
               -e SPRING_FLYWAY_VALIDATE_ON_MIGRATE=false \
