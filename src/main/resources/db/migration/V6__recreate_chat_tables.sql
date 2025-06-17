@@ -9,7 +9,7 @@ DROP TABLE IF EXISTS chat_room CASCADE;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- 2) chat_room 테이블 생성
-CREATE TABLE chat_room (
+CREATE TABLE IF NOT EXISTS chat_room (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     type VARCHAR(255),
     participants_count INT NOT NULL DEFAULT 0,
@@ -23,7 +23,7 @@ CREATE TABLE chat_room (
 );
 
 -- 3) chat_participant 테이블 생성
-CREATE TABLE chat_participant (
+CREATE TABLE IF NOT EXISTS chat_participant (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     join_seq_no INT NOT NULL DEFAULT 0,
     joined_at DATETIME NOT NULL,

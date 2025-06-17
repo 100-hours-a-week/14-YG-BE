@@ -4,7 +4,7 @@
 -- Encoding: UTF-8 (이모지, 한글 포함 대응)
 -- ============================================
 
-CREATE TABLE oauth (
+CREATE TABLE IF NOT EXISTS oauth (
   id                        BIGINT              NOT NULL AUTO_INCREMENT,
   user_id                   BIGINT              NOT NULL COMMENT '참조: users.id',
   provider                  VARCHAR(20)         NOT NULL COMMENT 'google, kakao, naver 등',
