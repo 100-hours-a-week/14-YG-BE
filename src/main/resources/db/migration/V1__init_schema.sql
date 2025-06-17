@@ -10,7 +10,7 @@
 -- SET FOREIGN_KEY_CHECKS = 0;
 
 -- 1. 유저 테이블
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE users (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     email VARCHAR(255) NOT NULL,
     nickname VARCHAR(60),
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 -- 2. 토큰 테이블
-CREATE TABLE IF NOT EXISTS refresh_token (
+CREATE TABLE refresh_token (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id BIGINT NOT NULL,
     token VARCHAR(512) NOT NULL,
@@ -43,13 +43,13 @@ CREATE TABLE IF NOT EXISTS refresh_token (
 );
 
 -- 3. 카테고리 테이블
-CREATE TABLE IF NOT EXISTS category (
+CREATE TABLE category (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(60) NOT NULL
 );
 
 -- 4. 공동구매 게시글 테이블
-CREATE TABLE IF NOT EXISTS group_buy (
+CREATE TABLE group_buy (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(400) NOT NULL,
     name VARCHAR(400) NOT NULL,
@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS group_buy (
 );
 
 -- 5. 공구글-카테고리 매핑 테이블
-CREATE TABLE IF NOT EXISTS group_buy_category (
+CREATE TABLE group_buy_category (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     category_id BIGINT NOT NULL,
     group_buy_id BIGINT NOT NULL,
@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS group_buy_category (
 );
 
 -- 6. 이미지 테이블
-CREATE TABLE IF NOT EXISTS image (
+CREATE TABLE image (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     image_key VARCHAR(765) NOT NULL,
     image_resized_key VARCHAR(765),
@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS image (
 );
 
 -- 7. 주문 테이블
-CREATE TABLE IF NOT EXISTS orders (
+CREATE TABLE orders (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id BIGINT NOT NULL,
     post_id BIGINT NOT NULL,
@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS orders (
 );
 
 -- 8. 위시(관심) 테이블
-CREATE TABLE IF NOT EXISTS wish (
+CREATE TABLE wish (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id BIGINT NOT NULL,
     post_id BIGINT NOT NULL,
