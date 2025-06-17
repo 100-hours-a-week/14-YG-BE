@@ -21,6 +21,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static com.moogsan.moongsan_backend.domain.chatting.message.ResponseMessage.ALREADEY_JOINED;
+import static com.moogsan.moongsan_backend.domain.chatting.message.ResponseMessage.ORDER_NOT_FOUND;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -46,7 +49,6 @@ public class JoinChatRoom {
                     .orElseThrow(() -> new OrderNotFoundException("공구의 참여자만 참가 가능합니다."));
         }
 
-
         // 해당 공구의 참여자 채팅방이 존재하는지 조회
         ChatRoom chatRoom = chatRoomRepository
                 .findByGroupBuy_IdAndType(groupBuy.getId(), "PARTICIPANT")
@@ -64,7 +66,7 @@ public class JoinChatRoom {
                 .existsByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoom.getId(), currentUser.getId());
 
         if (alreadyJoined) {
-            throw new AlreadyJoinedException("이미 참여한 채팅방입니다.");
+            throw new AlreadyJoinedException(ALREADEY_JOINED);
         } else {
             // 호스트를 참여자로 등록
             ChatParticipant participant = ChatParticipant.builder()

@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -50,7 +51,7 @@ public class GetChatRoomList {
 
         boolean hasMore = participants.size() > limit;
 
-        List<ChatRoom> rooms = pageOf.stream()
+         List<ChatRoom> rooms = pageOf.stream()
                 .map(ChatParticipant::getChatRoom)
                 .toList();
 
