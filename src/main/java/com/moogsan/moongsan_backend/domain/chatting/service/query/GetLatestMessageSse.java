@@ -24,11 +24,12 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import static com.moogsan.moongsan_backend.domain.chatting.message.ResponseMessage.NOT_PARTICIPANT;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class GetLatestMessageSse {
-    private static final long TIMEOUT_MILLIS = 5000L;
 
     private final ChatParticipantRepository chatParticipantRepository;
     private final ChatRoomRepository chatRoomRepository;
@@ -48,7 +49,7 @@ public class GetLatestMessageSse {
         boolean isParticipant = chatParticipantRepository.existsByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoomId, currentUser.getId());
 
         if(!isParticipant) {
-            throw new NotParticipantException("참여자만 메세지를 조회할 수 있습니다.");
+            throw new NotParticipantException(NOT_PARTICIPANT);
         }
 
         // SseEmitter 생성

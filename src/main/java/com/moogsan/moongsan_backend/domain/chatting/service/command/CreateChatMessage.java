@@ -25,8 +25,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.Duration;
 
+import static com.moogsan.moongsan_backend.domain.chatting.message.ResponseMessage.DELETED_CHAT_ROOM;
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.NOT_PARTICIPANT;
 import static com.moogsan.moongsan_backend.global.util.ObjectIdScoreUtil.toScore;
 
 @Slf4j
@@ -44,6 +47,7 @@ public class CreateChatMessage {
     private final GetLatestMessageSse getLatestMessageSse;
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
+    private final Clock clock;
 
     public void createChatMessage(User currentUser, CreateChatMessageRequest request, Long chatRoomId) {
 
@@ -53,13 +57,13 @@ public class CreateChatMessage {
 
         // 채팅방이 삭제되지 않았는지 조회
         if(chatRoom.getDeletedAt() != null) {
-            throw new ChatRoomInvalidStateException("삭제된 채팅방에는 메세지를 보낼 수 없습니다.");
+            throw new ChatRoomInvalidStateException(DELETED_CHAT_ROOM);
         }
 
         // 참여자인지 조회 -> 아니면 403
         ChatParticipant participant = chatParticipantRepository
                 .findByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoomId, currentUser.getId())
-                .orElseThrow(() -> new NotParticipantException("참여자만 메시지를 작성할 수 있습니다."));
+                .orElseThrow(() -> new NotParticipantException(NOT_PARTICIPANT));
 
 
         // 메세지 순번 생성 (커서 기반 페이징용)

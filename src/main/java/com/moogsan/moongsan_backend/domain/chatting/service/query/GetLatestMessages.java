@@ -22,6 +22,8 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import static com.moogsan.moongsan_backend.domain.chatting.message.ResponseMessage.NOT_PARTICIPANT;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -47,7 +49,7 @@ public class GetLatestMessages {
         boolean isParticipant = chatParticipantRepository.existsByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoomId, currentUser.getId());
 
         if(!isParticipant) {
-            throw new NotParticipantException("참여자만 메세지를 조회할 수 있습니다.");
+            throw new NotParticipantException(NOT_PARTICIPANT);
         }
 
         // 마지막 메세지 이후 새로운 메세지 존재 여부 확인
@@ -84,8 +86,6 @@ public class GetLatestMessages {
         Long chatRoomId = newMessage.getChatRoomId();
         List<DeferredResult<List<ChatMessageResponse>>> results = listeners.getOrDefault(chatRoomId, new ArrayList<>());
 
-        // log.info("🔔 notifyNewMessage 호출됨: chatRoomId={}, messageId={}", chatRoomId, newMessage.getId());
-        // log.info("🧍‍♂️ 응답 대기 중인 클라이언트 수: {}", results.size());
         ChatMessageResponse response = chatMessageQueryMapper.toMessageResponse(newMessage, nickname, imageKey);
         for (DeferredResult<List<ChatMessageResponse>> r : results) {
             Runnable task = () -> {
@@ -98,14 +98,5 @@ public class GetLatestMessages {
         }
 
         results.clear();
-    }
-
-    private DeferredResult<List<ChatMessageResponse>> wrapResult(List<ChatMessageDocument> messages) {
-        List<ChatMessageResponse> responses = messages.stream()
-                .map(doc -> chatMessageQueryMapper.toMessageResponse(doc, "알수없음", null)) // 빠른 반환이라 간략화
-                .collect(Collectors.toList());
-        DeferredResult<List<ChatMessageResponse>> result = new DeferredResult<>();
-        result.setResult(responses);
-        return result;
     }
 }

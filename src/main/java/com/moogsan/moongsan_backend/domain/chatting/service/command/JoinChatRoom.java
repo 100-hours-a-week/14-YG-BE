@@ -20,6 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import static com.moogsan.moongsan_backend.domain.chatting.message.ResponseMessage.ALREADEY_JOINED;
+import static com.moogsan.moongsan_backend.domain.chatting.message.ResponseMessage.ORDER_NOT_FOUND;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -41,9 +44,8 @@ public class JoinChatRoom {
         if (!isHost) {
             // 해당 공구의 주문 테이블에 해당 유저의 주문이 존재하는지 조회 -> 아니면 404
             Order order = orderRepository.findByUserIdAndGroupBuyIdAndStatusNot(currentUser.getId(), groupBuy.getId(), "CANCELED")
-                    .orElseThrow(() -> new OrderNotFoundException("공구의 참여자만 참가 가능합니다."));
+                    .orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND));
         }
-
 
         // 해당 공구의 참여자 채팅방이 존재하는지 조회
         ChatRoom chatRoom = chatRoomRepository
@@ -62,7 +64,7 @@ public class JoinChatRoom {
                 .existsByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoom.getId(), currentUser.getId());
 
         if (alreadyJoined) {
-            throw new AlreadyJoinedException("이미 참여한 채팅방입니다.");
+            throw new AlreadyJoinedException(ALREADEY_JOINED);
         } else {
             // 호스트를 참여자로 등록
             ChatParticipant participant = ChatParticipant.builder()

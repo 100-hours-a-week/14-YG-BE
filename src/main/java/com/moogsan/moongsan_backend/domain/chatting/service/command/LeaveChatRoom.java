@@ -23,6 +23,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import static com.moogsan.moongsan_backend.domain.chatting.message.ResponseMessage.CHAT_ROOM_NOT_FOUND;
+import static com.moogsan.moongsan_backend.domain.chatting.message.ResponseMessage.ORDER_NOT_FOUND;
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.NOT_PARTICIPANT;
+
 @Slf4j
 @Service
 @Transactional
@@ -38,17 +42,17 @@ public class LeaveChatRoom {
 
         // 해당 공구의 주문 테이블에 해당 유저의 주문이 존재하는지 조회 -> 아니면 404
         Order order = orderRepository.findByUserIdAndGroupBuyIdAndStatusNot(currentUser.getId(), groupBuyId, "CANCELED")
-                .orElseThrow(() -> new OrderNotFoundException("공구의 참여자만 나갈 수 있습니다: ORDER."));
+                .orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND));
 
         // 해당 공구의 참여자 채팅방이 존재하는지 조회
         ChatRoom chatRoom = chatRoomRepository
                 .findByGroupBuy_IdAndType(groupBuyId, "PARTICIPANT")
-                .orElseThrow(() -> new ChatRoomNotFoundException("존재하는 채팅방만 나갈 수 있습니다."));
+                .orElseThrow(() -> new ChatRoomNotFoundException(CHAT_ROOM_NOT_FOUND));
 
         // 참여자인지 조회 -> 아니면 403
         ChatParticipant chatParticipant = chatParticipantRepository
                 .findByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoom.getId(), currentUser.getId())
-                .orElseThrow(() -> new NotParticipantException("공구의 참여자만 나갈 수 있습니다: CHATPARTICIPANT"));
+                .orElseThrow(() -> new NotParticipantException(NOT_PARTICIPANT));
 
         chatRoom.decrementParticipants();
         chatRoomRepository.save(chatRoom);
