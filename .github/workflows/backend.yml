@@ -117,19 +117,19 @@ jobs:
             docker stop $CONTAINER_NAME || true
             docker rm $CONTAINER_NAME || true
 
-            # 새 컨테이너 시작 (Flyway repair 옵션 포함)
-            echo "Starting new container with Flyway repair..."
+            # 새 컨테이너 시작 (Flyway baseline 설정)
+            echo "Starting new container with Flyway baseline..."
             docker run -d \
               -p 8080:8080 \
               --name $CONTAINER_NAME \
               --env-file env.prod \
               --network moongsan-net \
-              -e SPRING_FLYWAY_REPAIR=true \
-              -e SPRING_FLYWAY_VALIDATE_ON_MIGRATE=false \
               -e SPRING_FLYWAY_BASELINE_ON_MIGRATE=true \
+              -e SPRING_FLYWAY_BASELINE_VERSION=10 \
+              -e SPRING_FLYWAY_VALIDATE_ON_MIGRATE=false \
               $IMAGE_NAME:$DOCKER_TAG
 
             # 컨테이너 시작 확인
             echo "Waiting for container to start..."
-            sleep 10
-            docker logs $CONTAINER_NAME --tail 20
+            sleep 15
+            docker logs $CONTAINER_NAME --tail 30
