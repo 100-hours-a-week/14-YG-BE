@@ -1,5 +1,4 @@
--- ============================================
--- Filename: V5__add_joined_left_at_to_chat_participant.sql
+-- ==========================================DEALLOCATE PREPARE stmt;__add_joined_left_at_to_chat_participant.sql
 -- Purpose : chat_participant 테이블에 참가·퇴장 시각 컬럼 추가 (MySQL & H2 호환)
 -- Encoding: UTF-8 (이모지, 한글 포함 대응)
 -- ============================================
@@ -43,7 +42,7 @@ SET @has_index = (
 SET @sql = IF(@has_index = 0, 'CREATE INDEX idx_chat_participant_left_at ON chat_participant(left_at)', 'SELECT 1');
 PREPARE stmt FROM @sql;
 EXECUTE stmt;
-DEALLOCATE PREPARE stmt;=============================
+DEALLOCATE PREPARE stmt;
 -- Filename: V5__add_joined_left_at_to_chat_participant.sql
 -- Purpose : chat_participant 테이블에 참가·퇴장 시각 컬럼 추가 (MySQL & H2 호환)
 -- Encoding: UTF-8 (이모지, 한글 포함 대응)
