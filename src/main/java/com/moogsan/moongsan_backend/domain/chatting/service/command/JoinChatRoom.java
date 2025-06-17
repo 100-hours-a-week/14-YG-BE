@@ -46,7 +46,7 @@ public class JoinChatRoom {
             // 해당 공구의 주문 테이블에 해당 유저의 주문이 존재하는지 조회 -> 아니면 404
             Order order = orderRepository.findByUserIdAndGroupBuyIdAndStatusNotIn(currentUser.getId(), groupBuy.getId(),
                             List.of("CANCELED", "REFUNDED"))
-                    .orElseThrow(() -> new OrderNotFoundException("공구의 참여자만 참가 가능합니다."));
+                    .orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND));
         }
 
         // 해당 공구의 참여자 채팅방이 존재하는지 조회

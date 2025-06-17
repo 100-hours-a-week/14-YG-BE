@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.List;
 
 import static com.moogsan.moongsan_backend.domain.chatting.message.ResponseMessage.CHAT_ROOM_NOT_FOUND;
 import static com.moogsan.moongsan_backend.domain.chatting.message.ResponseMessage.ORDER_NOT_FOUND;
@@ -73,7 +74,7 @@ public class LeaveChatRoomTest {
     @Test
     @DisplayName("참여자 채팅방 나가기 성공 - 참여자")
     void leaveChatRoom_success_host() {
-        when(orderRepository.findByUserIdAndGroupBuyIdAndStatusNot(participantUser.getId(), groupBuy.getId(), "CANCELED"))
+        when(orderRepository.findByUserIdAndGroupBuyIdAndStatusNotIn(participantUser.getId(), groupBuy.getId(), List.of("CANCELED", "REFUNDED")))
                 .thenReturn(Optional.of(order));
         when(chatRoomRepository.findByGroupBuy_IdAndType(groupBuy.getId(), "PARTICIPANT"))
                 .thenReturn(Optional.of(chatRoom));
@@ -82,7 +83,7 @@ public class LeaveChatRoomTest {
 
         leaveChatRoom.leaveChatRoom(participantUser, 3L);
 
-        verify(orderRepository, times(1)).findByUserIdAndGroupBuyIdAndStatusNot(participantUser.getId(), groupBuy.getId(), "CANCELED");
+        verify(orderRepository, times(1)).findByUserIdAndGroupBuyIdAndStatusNotIn(participantUser.getId(), groupBuy.getId(), List.of("CANCELED", "REFUNDED"));
         verify(chatRoomRepository, times(1)).findByGroupBuy_IdAndType(groupBuy.getId(), "PARTICIPANT");
         verify(chatParticipantRepository, times(1)).findByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoom.getId(), participantUser.getId());
 
@@ -91,14 +92,14 @@ public class LeaveChatRoomTest {
     @Test
     @DisplayName("참여자 채팅방 나가기 실패 - 공구 참여자가 아님")
     void leaveChatRoom_success_not_group_buy_participant() {
-        when(orderRepository.findByUserIdAndGroupBuyIdAndStatusNot(normalUser.getId(), groupBuy.getId(), "CANCELED"))
+        when(orderRepository.findByUserIdAndGroupBuyIdAndStatusNotIn(normalUser.getId(), groupBuy.getId(), List.of("CANCELED", "REFUNDED")))
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> leaveChatRoom.leaveChatRoom(normalUser, 3L))
                 .isInstanceOf(OrderNotFoundException.class)
                 .hasMessageContaining(ORDER_NOT_FOUND);
 
-        verify(orderRepository, times(1)).findByUserIdAndGroupBuyIdAndStatusNot(normalUser.getId(), groupBuy.getId(), "CANCELED");
+        verify(orderRepository, times(1)).findByUserIdAndGroupBuyIdAndStatusNotIn(normalUser.getId(), groupBuy.getId(), List.of("CANCELED", "REFUNDED"));
         verify(chatRoomRepository, never()).findByGroupBuy_IdAndType(groupBuy.getId(), "PARTICIPANT");
         verify(chatParticipantRepository, never()).findByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoom.getId(), normalUser.getId());
 
@@ -107,7 +108,7 @@ public class LeaveChatRoomTest {
     @Test
     @DisplayName("참여자 채팅방 나가기 실패 - 존재하지 않는 참여자 채팅방")
     void leaveChatRoom_success_not_exist_chat_room() {
-        when(orderRepository.findByUserIdAndGroupBuyIdAndStatusNot(participantUser.getId(), groupBuy.getId(), "CANCELED"))
+        when(orderRepository.findByUserIdAndGroupBuyIdAndStatusNotIn(participantUser.getId(), groupBuy.getId(), List.of("CANCELED", "REFUNDED")))
                 .thenReturn(Optional.of(order));
         when(chatRoomRepository.findByGroupBuy_IdAndType(groupBuy.getId(), "PARTICIPANT"))
                 .thenReturn(Optional.empty());
@@ -116,7 +117,7 @@ public class LeaveChatRoomTest {
                 .isInstanceOf(ChatRoomNotFoundException.class)
                 .hasMessageContaining(CHAT_ROOM_NOT_FOUND);
 
-        verify(orderRepository, times(1)).findByUserIdAndGroupBuyIdAndStatusNot(participantUser.getId(), groupBuy.getId(), "CANCELED");
+        verify(orderRepository, times(1)).findByUserIdAndGroupBuyIdAndStatusNotIn(participantUser.getId(), groupBuy.getId(), List.of("CANCELED", "REFUNDED"));
         verify(chatRoomRepository, times(1)).findByGroupBuy_IdAndType(groupBuy.getId(), "PARTICIPANT");
         verify(chatParticipantRepository, never()).findByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoom.getId(), participantUser.getId());
 
@@ -125,7 +126,7 @@ public class LeaveChatRoomTest {
     @Test
     @DisplayName("참여자 채팅방 나가기 실패 - 채팅 참여자가 아님")
     void leaveChatRoom_success_not_chat_room_participant() {
-        when(orderRepository.findByUserIdAndGroupBuyIdAndStatusNot(normalUser.getId(), groupBuy.getId(), "CANCELED"))
+        when(orderRepository.findByUserIdAndGroupBuyIdAndStatusNotIn(normalUser.getId(), groupBuy.getId(), List.of("CANCELED", "REFUNDED")))
                 .thenReturn(Optional.of(order));
         when(chatRoomRepository.findByGroupBuy_IdAndType(groupBuy.getId(), "PARTICIPANT"))
                 .thenReturn(Optional.of(chatRoom));
@@ -136,7 +137,7 @@ public class LeaveChatRoomTest {
                 .isInstanceOf(NotParticipantException.class)
                 .hasMessageContaining(NOT_PARTICIPANT);
 
-        verify(orderRepository, times(1)).findByUserIdAndGroupBuyIdAndStatusNot(normalUser.getId(), groupBuy.getId(), "CANCELED");
+        verify(orderRepository, times(1)).findByUserIdAndGroupBuyIdAndStatusNotIn(normalUser.getId(), groupBuy.getId(), List.of("CANCELED", "REFUNDED"));
         verify(chatRoomRepository, times(1)).findByGroupBuy_IdAndType(groupBuy.getId(), "PARTICIPANT");
         verify(chatParticipantRepository, times(1)).findByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoom.getId(), normalUser.getId());
 
