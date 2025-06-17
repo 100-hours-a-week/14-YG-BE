@@ -4,16 +4,5 @@
 -- Encoding: UTF-8 (이모지, 한글 포함 대응)
 -- ============================================
 
--- 컬럼이 존재하지 않을 때만 추가
-SET @has_is_finalized = (
-    SELECT COUNT(*)
-    FROM INFORMATION_SCHEMA.COLUMNS
-    WHERE TABLE_SCHEMA = DATABASE()
-      AND TABLE_NAME = 'group_buy'
-      AND COLUMN_NAME = 'is_finalized'
-);
-
-SET @sql = IF(@has_is_finalized = 0, 'ALTER TABLE group_buy ADD COLUMN is_finalized BOOLEAN DEFAULT FALSE', 'SELECT 1');
-PREPARE stmt FROM @sql;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
+ALTER TABLE group_buy
+ADD COLUMN is_finalized BOOLEAN DEFAULT FALSE;

@@ -5,7 +5,7 @@
 -- ============================================
 
 -- 1. 채팅방 테이블
-CREATE TABLE IF NOT EXISTS chat_room (
+CREATE TABLE chat_room (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     post_id BIGINT NOT NULL COMMENT '참조: group_buy.id',
     type VARCHAR(20) NOT NULL COMMENT '채팅방 유형 (anonymous, participant, dm)',
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS chat_room (
 );
 
 -- 2. 채팅방 참가자 테이블
-CREATE TABLE IF NOT EXISTS chat_participant (
+CREATE TABLE chat_participant (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     chat_room_id BIGINT NOT NULL COMMENT '참조: chat_room.id',
     user_id BIGINT NOT NULL COMMENT '참조: users.id',
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS chat_participant (
 );
 
 -- 3. 채팅 메시지 테이블 (MySQL에서 테스트용으로 운영 예정)
-CREATE TABLE IF NOT EXISTS chat_message (
+CREATE TABLE chat_message (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     participant_id BIGINT NOT NULL COMMENT '참조: chat_participant.id',
     chat_room_id BIGINT NOT NULL COMMENT '참조: chat_room.id',
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS chat_message (
 );
 
 -- 4. 메시지 읽음 테이블 (MySQL에서 테스트 후 MongoDB로 이전 예정)
-CREATE TABLE IF NOT EXISTS message_read (
+CREATE TABLE message_read (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     participant_id BIGINT NOT NULL COMMENT '참조: chat_participant.id',
     message_id BIGINT NOT NULL COMMENT '참조: chat_message.id',
