@@ -23,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Duration;
 import java.util.Optional;
+import java.util.List;
 
 import static com.moogsan.moongsan_backend.domain.chatting.message.ResponseMessage.*;
 import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.NOT_EXIST;
@@ -89,7 +90,7 @@ public class JoinChatRoomTest {
     @DisplayName("참여자 채팅방 참여 성공 - 참가자")
     void joinChatRoom_success_participant() {
         when(groupBuyRepository.findById(20L)).thenReturn(Optional.of(groupBuy));
-        when(orderRepository.findByUserIdAndGroupBuyIdAndStatusNot(participantUser.getId(), groupBuy.getId(), "CANCELED"))
+        when(orderRepository.findByUserIdAndGroupBuyIdAndStatusNotIn(participantUser.getId(), groupBuy.getId(), List.of("CANCELED", "REFUNDED")))
                 .thenReturn(Optional.of(order));
         when(chatRoomRepository.findByGroupBuy_IdAndType(20L, "PARTICIPANT")).thenReturn(Optional.of(chatRoom));
         when(chatParticipantRepository.existsByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoom.getId(), participantUser.getId()))
@@ -98,7 +99,7 @@ public class JoinChatRoomTest {
         joinChatRoom.joinChatRoom(participantUser, 20L);
 
         verify(groupBuyRepository, times(1)).findById(20L);
-        verify(orderRepository, times(1)).findByUserIdAndGroupBuyIdAndStatusNot(participantUser.getId(), groupBuy.getId(), "CANCELED");
+        verify(orderRepository, times(1)).findByUserIdAndGroupBuyIdAndStatusNotIn(participantUser.getId(), groupBuy.getId(), List.of("CANCELED", "REFUNDED"));
         verify(chatRoomRepository, times(1)).findByGroupBuy_IdAndType(20L, "PARTICIPANT");
         verify(chatParticipantRepository, times(1))
                 .existsByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoom.getId(), participantUser.getId());
@@ -114,7 +115,7 @@ public class JoinChatRoomTest {
                 .hasMessageContaining(NOT_EXIST);
 
         verify(groupBuyRepository, times(1)).findById(20L);
-        verify(orderRepository, never()).findByUserIdAndGroupBuyIdAndStatusNot(participantUser.getId(), groupBuy.getId(), "CANCELED");
+        verify(orderRepository, never()).findByUserIdAndGroupBuyIdAndStatusNotIn(participantUser.getId(), groupBuy.getId(), List.of("CANCELED", "REFUNDED"));
         verify(chatRoomRepository, never()).findByGroupBuy_IdAndType(20L, "PARTICIPANT");
         verify(chatParticipantRepository, never())
                 .existsByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoom.getId(), participantUser.getId());
@@ -124,7 +125,7 @@ public class JoinChatRoomTest {
     @DisplayName("참여자 채팅방 참여 실패 - 참여자가 아님")
     void joinChatRoom_success_group_buy_not_participant() {
         when(groupBuyRepository.findById(20L)).thenReturn(Optional.of(groupBuy));
-        when(orderRepository.findByUserIdAndGroupBuyIdAndStatusNot(participantUser.getId(), groupBuy.getId(), "CANCELED"))
+        when(orderRepository.findByUserIdAndGroupBuyIdAndStatusNotIn(participantUser.getId(), groupBuy.getId(), List.of("CANCELED", "REFUNDED")))
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> joinChatRoom.joinChatRoom(participantUser, 20L))
@@ -132,7 +133,7 @@ public class JoinChatRoomTest {
                 .hasMessageContaining(ORDER_NOT_FOUND);
 
         verify(groupBuyRepository, times(1)).findById(20L);
-        verify(orderRepository, times(1)).findByUserIdAndGroupBuyIdAndStatusNot(participantUser.getId(), groupBuy.getId(), "CANCELED");
+        verify(orderRepository, times(1)).findByUserIdAndGroupBuyIdAndStatusNotIn(participantUser.getId(), groupBuy.getId(), List.of("CANCELED", "REFUNDED"));
         verify(chatRoomRepository, never()).findByGroupBuy_IdAndType(20L, "PARTICIPANT");
         verify(chatParticipantRepository, never())
                 .existsByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoom.getId(), participantUser.getId());
@@ -142,7 +143,7 @@ public class JoinChatRoomTest {
     @DisplayName("참여자 채팅방 참여 실패 - 이미 참여한 채팅방")
     void joinChatRoom_success_group_buy_already_joined() {
         when(groupBuyRepository.findById(20L)).thenReturn(Optional.of(groupBuy));
-        when(orderRepository.findByUserIdAndGroupBuyIdAndStatusNot(participantUser.getId(), groupBuy.getId(), "CANCELED"))
+        when(orderRepository.findByUserIdAndGroupBuyIdAndStatusNotIn(participantUser.getId(), groupBuy.getId(), List.of("CANCELED", "REFUNDED")))
                 .thenReturn(Optional.of(order));
         when(chatRoomRepository.findByGroupBuy_IdAndType(20L, "PARTICIPANT")).thenReturn(Optional.of(chatRoom));
         when(chatParticipantRepository.existsByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoom.getId(), participantUser.getId()))
@@ -153,7 +154,7 @@ public class JoinChatRoomTest {
                 .hasMessageContaining(ALREADEY_JOINED);
 
         verify(groupBuyRepository, times(1)).findById(20L);
-        verify(orderRepository, times(1)).findByUserIdAndGroupBuyIdAndStatusNot(participantUser.getId(), groupBuy.getId(), "CANCELED");
+        verify(orderRepository, times(1)).findByUserIdAndGroupBuyIdAndStatusNotIn(participantUser.getId(), groupBuy.getId(), List.of("CANCELED", "REFUNDED"));
         verify(chatRoomRepository, times(1)).findByGroupBuy_IdAndType(20L, "PARTICIPANT");
         verify(chatParticipantRepository, times(1))
                 .existsByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoom.getId(), participantUser.getId());

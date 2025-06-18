@@ -8,6 +8,7 @@ import com.moogsan.moongsan_backend.domain.user.dto.request.UpdateProfileRequest
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import com.moogsan.moongsan_backend.domain.user.service.UpdateProfileService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,9 +52,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Import(UpdateProfileControllerTest.TestConfig.class) // 아래 TestConfig 설정을 현재 테스트에 주입
 public class UpdateProfileControllerTest {
-    // Helper method to create a test user
-    private User createTestUser() {
-        return User.builder()
+
+
+    private User user;
+    private UsernamePasswordAuthenticationToken auth;
+
+    @BeforeEach
+    void setUp() {
+        user = User.builder()
                 .id(1L)
                 .email("test@test.com")
                 .password("test123!")
@@ -62,29 +68,25 @@ public class UpdateProfileControllerTest {
                 .imageKey(null)
                 .type("USER")
                 .build();
-    }
-
-    // Helper method to create authentication token from User
-    private UsernamePasswordAuthenticationToken createAuth(User user) {
-        CustomUserDetails userDetails = new CustomUserDetails(user);
-        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        auth = new UsernamePasswordAuthenticationToken(
+            new CustomUserDetails(user), null, new CustomUserDetails(user).getAuthorities()
+        );
     }
 
     @Autowired
-    private MockMvc mockMvc; // HTTP 요청을 테스트할 수 있게 해주는 객체
+    private MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper; // 객체 → JSON 직렬화용
+    private ObjectMapper objectMapper;
 
     @Autowired
     private UpdateProfileService updateProfileService;
 
-    // 테스트 전용 구성 클래스 (실제 서비스 레이어를 모킹 처리)
     @TestConfiguration
     static class TestConfig {
         @Bean
         public UpdateProfileService updateProfileService() {
-            return org.mockito.Mockito.mock(UpdateProfileService.class); // 모킹된 서비스 빈 등록
+            return org.mockito.Mockito.mock(UpdateProfileService.class);
         }
     }
 
@@ -94,18 +96,13 @@ public class UpdateProfileControllerTest {
         UpdateProfileImageRequest request = new UpdateProfileImageRequest();
         request.setImageKey("tesT.jpg");
 
-        // 인증된 사용자 정보를 담은 CustomUserDetails 생성
-        User user = createTestUser();
-        UsernamePasswordAuthenticationToken auth = createAuth(user);
-
-        // 실제 HTTP 요청처럼 MockMvc 수행
         mockMvc.perform(patch("/api/users/profile/image")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .with(authentication(auth)) // 인증된 사용자 주입
-                        .content(objectMapper.writeValueAsString(request))) // 요청 바디 설정
-                .andExpect(status().isOk()) // 200 상태코드 검증
+                        .with(authentication(auth))
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("프로필 이미지가 수정되었습니다."))
-                .andExpect(jsonPath("$.data").doesNotExist()); // null 데이터 검증
+                .andExpect(jsonPath("$.data").doesNotExist());
 
         // 서비스가 정상적으로 호출되었는지 확인
         verify(updateProfileService).updateProfileImage(
@@ -120,9 +117,6 @@ public class UpdateProfileControllerTest {
         // 요청 객체 생성
         UpdateProfilePasswordRequest request = new UpdateProfilePasswordRequest();
         request.setPassword("newTest123!");
-
-        User user = createTestUser();
-        UsernamePasswordAuthenticationToken auth = createAuth(user);
 
         mockMvc.perform(patch("/api/users/profile/password")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -146,9 +140,6 @@ public class UpdateProfileControllerTest {
         UpdateProfilePasswordRequest request = new UpdateProfilePasswordRequest();
         request.setPassword("failedtest");
 
-        User user = createTestUser();
-        UsernamePasswordAuthenticationToken auth = createAuth(user);
-
         mockMvc.perform(patch("/api/users/profile/password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(authentication(auth))
@@ -165,9 +156,6 @@ public class UpdateProfileControllerTest {
         request.setAccountBank("신한은행");
         request.setAccountNumber("110123456789");
         request.setName("유저");
-
-        User user = createTestUser();
-        UsernamePasswordAuthenticationToken auth = createAuth(user);
 
         mockMvc.perform(patch("/api/users/profile/account")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -192,9 +180,6 @@ public class UpdateProfileControllerTest {
         UpdateProfileRequest request = new UpdateProfileRequest();
         request.setNickname("updatedUser");
 
-        User user = createTestUser();
-        UsernamePasswordAuthenticationToken auth = createAuth(user);
-
         mockMvc.perform(patch("/api/users/profile")
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(authentication(auth))
@@ -216,9 +201,6 @@ public class UpdateProfileControllerTest {
         UpdateProfileRequest request = new UpdateProfileRequest();
         request.setNickname(""); // 유효하지 않은 닉네임
 
-        User user = createTestUser();
-        UsernamePasswordAuthenticationToken auth = createAuth(user);
-
         mockMvc.perform(patch("/api/users/profile")
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(authentication(auth))
@@ -233,9 +215,6 @@ public class UpdateProfileControllerTest {
     void updateBasicInfo_shouldReturn400_whenInvalidPhoneNumber() throws Exception {
         UpdateProfileRequest request = new UpdateProfileRequest();
         request.setPhoneNumber("01012345");
-
-        User user = createTestUser();
-        UsernamePasswordAuthenticationToken auth = createAuth(user);
 
         mockMvc.perform(patch("/api/users/profile")
                         .contentType(MediaType.APPLICATION_JSON)

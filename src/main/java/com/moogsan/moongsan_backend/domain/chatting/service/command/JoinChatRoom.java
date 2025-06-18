@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static com.moogsan.moongsan_backend.domain.chatting.message.ResponseMessage.ALREADEY_JOINED;
@@ -43,7 +44,8 @@ public class JoinChatRoom {
 
         if (!isHost) {
             // 해당 공구의 주문 테이블에 해당 유저의 주문이 존재하는지 조회 -> 아니면 404
-            Order order = orderRepository.findByUserIdAndGroupBuyIdAndStatusNot(currentUser.getId(), groupBuy.getId(), "CANCELED")
+            Order order = orderRepository.findByUserIdAndGroupBuyIdAndStatusNotIn(currentUser.getId(), groupBuy.getId(),
+                            List.of("CANCELED", "REFUNDED"))
                     .orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND));
         }
 

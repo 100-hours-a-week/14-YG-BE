@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static com.moogsan.moongsan_backend.domain.chatting.message.ResponseMessage.CHAT_ROOM_NOT_FOUND;
@@ -41,7 +42,8 @@ public class LeaveChatRoom {
     public void leaveChatRoom(User currentUser, Long groupBuyId) {
 
         // 해당 공구의 주문 테이블에 해당 유저의 주문이 존재하는지 조회 -> 아니면 404
-        Order order = orderRepository.findByUserIdAndGroupBuyIdAndStatusNot(currentUser.getId(), groupBuyId, "CANCELED")
+        Order order = orderRepository.findByUserIdAndGroupBuyIdAndStatusNotIn(currentUser.getId(), groupBuyId,
+                        List.of("CANCELED", "REFUNDED"))
                 .orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND));
 
         // 해당 공구의 참여자 채팅방이 존재하는지 조회
