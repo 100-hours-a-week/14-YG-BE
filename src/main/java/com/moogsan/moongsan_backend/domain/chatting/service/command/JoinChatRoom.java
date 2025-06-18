@@ -49,6 +49,7 @@ public class JoinChatRoom {
                     .orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND));
         }
 
+
         // 해당 공구의 참여자 채팅방이 존재하는지 조회
         ChatRoom chatRoom = chatRoomRepository
                 .findByGroupBuy_IdAndType(groupBuy.getId(), "PARTICIPANT")
