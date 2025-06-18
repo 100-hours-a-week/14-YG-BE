@@ -24,6 +24,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Optional;
 
 import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.*;
@@ -80,14 +81,15 @@ public class LeaveGroupBuyTest {
         when(before.getDueDate())
                 .thenReturn(now.plusDays(1));
         when(before.getId()).thenReturn(20L);
-        when(orderRepository.findByUserIdAndGroupBuyIdAndStatusNot(1L, 20L, "CANCELED"))
+        when(orderRepository.findByUserIdAndGroupBuyIdAndStatusNotIn(1L, 20L,
+                List.of("CANCELED", "REFUNDED")))
                 .thenReturn(Optional.of(order));
 
         leaveGroupBuy.leaveGroupBuy(participant, 1L);
 
         verify(groupBuyRepository, times(1)).findById(1L);
         verify(orderRepository, times(1))
-                .findByUserIdAndGroupBuyIdAndStatusNot(1L, 20L, "CANCELED");
+                .findByUserIdAndGroupBuyIdAndStatusNotIn(1L, 20L, List.of("CANCELED", "REFUNDED"));
         verify(orderRepository, times(1)).save(any(Order.class));
     }
 
@@ -103,7 +105,7 @@ public class LeaveGroupBuyTest {
 
         verify(groupBuyRepository, times(1)).findById(1L);
         verify(orderRepository, never())
-                .findByUserIdAndGroupBuyIdAndStatusNot(1L, 20L, "CANCELED");
+                .findByUserIdAndGroupBuyIdAndStatusNotIn(1L, 20L, List.of("CANCELED", "REFUNDED"));
         verify(orderRepository, never()).save(any(Order.class));
     }
 
@@ -121,7 +123,7 @@ public class LeaveGroupBuyTest {
 
         verify(groupBuyRepository, times(1)).findById(1L);
         verify(orderRepository, never())
-                .findByUserIdAndGroupBuyIdAndStatusNot(1L, 20L, "CANCELED");
+                .findByUserIdAndGroupBuyIdAndStatusNotIn(1L, 20L, List.of("CANCELED", "REFUNDED"));
         verify(orderRepository, never()).save(any(Order.class));
     }
 
@@ -140,7 +142,7 @@ public class LeaveGroupBuyTest {
 
         verify(groupBuyRepository, times(1)).findById(1L);
         verify(orderRepository, never())
-                .findByUserIdAndGroupBuyIdAndStatusNot(1L, 20L, "CANCELED");
+                .findByUserIdAndGroupBuyIdAndStatusNotIn(1L, 20L, List.of("CANCELED", "REFUNDED"));
         verify(orderRepository, never()).save(any(Order.class));
     }
 
@@ -153,7 +155,8 @@ public class LeaveGroupBuyTest {
         when(before.getDueDate())
                 .thenReturn(LocalDateTime.now().plusDays(1));
         when(before.getId()).thenReturn(20L);
-        when(orderRepository.findByUserIdAndGroupBuyIdAndStatusNot(1L, 20L, "CANCELED"))
+        when(orderRepository.findByUserIdAndGroupBuyIdAndStatusNotIn(1L, 20L,
+                List.of("CANCELED", "REFUNDED")))
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> leaveGroupBuy.leaveGroupBuy(participant, 1L))
@@ -162,7 +165,7 @@ public class LeaveGroupBuyTest {
 
         verify(groupBuyRepository, times(1)).findById(1L);
         verify(orderRepository, times(1))
-                .findByUserIdAndGroupBuyIdAndStatusNot(1L, 20L, "CANCELED");
+                .findByUserIdAndGroupBuyIdAndStatusNotIn(1L, 20L, List.of("CANCELED", "REFUNDED"));
         verify(orderRepository, never()).save(any(Order.class));
     }
 }
