@@ -5,8 +5,10 @@ import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotFoundException;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotHostException;
+import com.moogsan.moongsan_backend.domain.image.entity.Image;
 import com.moogsan.moongsan_backend.domain.image.mapper.ImageMapper;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
+import com.moogsan.moongsan_backend.domain.image.service.S3Service;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.*;
 
@@ -23,6 +26,7 @@ import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessa
 public class UpdateGroupBuy {
     private final GroupBuyRepository groupBuyRepository;
     private final ImageMapper imageMapper;
+    private final S3Service s3Service;
     private final Clock clock;
 
     /// 공구 게시글 수정
@@ -47,8 +51,22 @@ public class UpdateGroupBuy {
         // GroupBuy 기본 필드 매핑 (팩토리 메서드 사용)
         GroupBuy gb = groupBuy.updateForm(updateGroupBuyRequest);
 
-        ///  TODO: 기존 이미지 처리 로직 필요!
-        imageMapper.mapImagesToGroupBuy(updateGroupBuyRequest.getImageKeys(), gb);
+        // 기존 S3 파일 삭제
+        gb.getImages().stream()
+                .map(Image::getImageKey)
+                .forEach(s3Service::deleteImage);
+
+        // S3 파일 이동
+        String destPrefix = "group-buys";
+        List<String> destKeys = updateGroupBuyRequest.getImageKeys().stream()
+                .map(imageKey -> {
+                    String fileName = imageKey.substring(imageKey.lastIndexOf('/') + 1);
+                    String destKey  = destPrefix + "/" + fileName;
+                    s3Service.moveImage(imageKey, destKey);
+                    return destKey;
+                }).toList();
+
+        imageMapper.mapImagesToGroupBuy(destKeys, gb);
 
         groupBuyRepository.save(gb);
 
