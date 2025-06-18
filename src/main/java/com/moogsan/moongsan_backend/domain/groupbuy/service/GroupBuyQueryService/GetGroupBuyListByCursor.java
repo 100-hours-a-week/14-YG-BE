@@ -11,6 +11,7 @@ import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepositor
 import com.moogsan.moongsan_backend.domain.groupbuy.util.FetchWishUtil;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -128,10 +129,14 @@ public class GetGroupBuyListByCursor {
 
     private Specification<GroupBuy> dueSoonOnlyEq(String orderBy) {
         return (root, query, cb) -> {
+            Predicate statusOpen = cb.equal(root.get("postStatus"), "OPEN");
             if (!"due_soon_only".equals(orderBy)) {
                 return cb.conjunction();
             }
-            return cb.isTrue(root.get("dueSoon"));
+            return cb.and(
+                    statusOpen,
+                    cb.isTrue(root.get("dueSoon"))
+            );
         };
     }
 
