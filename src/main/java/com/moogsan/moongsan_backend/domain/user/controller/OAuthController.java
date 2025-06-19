@@ -3,7 +3,6 @@ package com.moogsan.moongsan_backend.domain.user.controller;
 import com.moogsan.moongsan_backend.domain.WrapperResponse;
 import com.moogsan.moongsan_backend.domain.user.dto.response.LoginResponse;
 import com.moogsan.moongsan_backend.domain.user.service.KakaoOAuthService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
@@ -26,33 +25,19 @@ public class OAuthController {
     private String kakaoCompleteRedirectUrl;
 
     @GetMapping("/kakao/callback")
-    public void kakaoCallback(@RequestParam("code") String code, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void kakaoCallback(@RequestParam("code") String code, HttpServletResponse response) throws IOException {
         log.debug("Received Kakao OAuth callback with code: {}", code);
-        request.getSession(true).setAttribute("kakaoCode", code);
-        response.sendRedirect(kakaoCompleteRedirectUrl);
-    }
-
-    @GetMapping("/kakao/callback/response")
-    public ResponseEntity<WrapperResponse<LoginResponse>> kakaoLoginResponse(HttpServletRequest request, HttpServletResponse response) {
-        String code = (String) request.getSession().getAttribute("kakaoCode");
-        log.debug("Fetching login response with code from session: {}", code);
 
         LoginResponse loginResponse = kakaoOAuthService.kakaoLogin(code, response);
-        request.getSession().removeAttribute("kakaoCode");
 
-        return ResponseEntity.ok(
-                WrapperResponse.<LoginResponse>builder()
-                        .message("로그인에 성공했습니다.")
-                        .data(loginResponse)
-                        .build()
-        );
+        // 로그인 성공 후 메인 페이지로 redirect
+        response.sendRedirect("/");
     }
-
-    @GetMapping("/kakao/callback/complete")
-    public String oauthComplete() {
-        log.debug("OAuth login complete page accessed.");
-        return "OAuth 로그인 처리가 완료되었습니다.";
-    }
+//    @GetMapping("/kakao/callback/complete")
+//    public String oauthComplete() {
+//        log.debug("OAuth login complete page accessed.");
+//        return "OAuth 로그인 처리가 완료되었습니다.";
+//    }
 //    @GetMapping("/kakao/callback")
 //    public ResponseEntity<WrapperResponse<?>> kakaoCallback(@RequestParam("code") String code, HttpServletResponse response) {
 //        LoginResponse loginResponse = kakaoOAuthService.kakaoLogin(code, response);

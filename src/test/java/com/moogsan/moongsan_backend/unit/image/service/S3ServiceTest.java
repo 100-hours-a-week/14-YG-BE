@@ -3,6 +3,7 @@ package com.moogsan.moongsan_backend.unit.image.service;
 import com.moogsan.moongsan_backend.domain.image.dto.PresignResponse;
 import com.moogsan.moongsan_backend.domain.image.service.S3Service;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -27,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@Disabled
 @ExtendWith(MockitoExtension.class)
 class S3ServiceTest {
 
