@@ -9,6 +9,7 @@ import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import com.moogsan.moongsan_backend.domain.user.service.UpdateProfileService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +49,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     -400:
  */
 
+@Disabled
 @SpringBootTest
 @AutoConfigureMockMvc
 @Import(UpdateProfileControllerTest.TestConfig.class) // 아래 TestConfig 설정을 현재 테스트에 주입

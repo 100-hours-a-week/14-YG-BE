@@ -63,7 +63,9 @@ public class SecurityConfig {
                                 "/uploads/**",
                                 "/api/group-buys/generation/description",
                                 "/api/users/check/account",
-                                "/api/oauth/kakao/callback"
+                                "/api/oauth/kakao/callback",
+                                "/api/oauth/kakao/callback/response",
+                                "/api/oauth/kakao/callback/complete"
                         ).permitAll() // 해당 위치 외에는 토큰 적용
                         .anyRequest().authenticated()
                 )
