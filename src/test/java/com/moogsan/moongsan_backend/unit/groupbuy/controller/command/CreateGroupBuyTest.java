@@ -61,7 +61,7 @@ class CreateGroupBuyTest {
                 .dueDate(LocalDateTime.now().plusDays(3))
                 .location("카카오테크 교육장")
                 .pickupDate(LocalDateTime.now().plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"));
+                .imageKeys(List.of("tmp/image1.jpg"));
     }
 
     @Test
@@ -965,9 +965,9 @@ class CreateGroupBuyTest {
         // ====== 요청 바디 준비 ======
         CreateGroupBuyRequest request = defaultValidRequest()
                 .imageKeys(List.of(
-                        "images/image1.jpg", "images/image2.jpg",
-                        "images/image3.jpg", "images/image4.jpg",
-                        "images/image5.jpg", "images/image6.jpg"))
+                        "tmp/image1.jpg", "tmp/image2.jpg",
+                        "tmp/image3.jpg", "tmp/image4.jpg",
+                        "tmp/image5.jpg", "tmp/image6.jpg"))
                 .build();
 
         // ====== Facade 스텁 ======
@@ -989,7 +989,7 @@ class CreateGroupBuyTest {
     void createGroupBuyFail_blank_imageKeys() throws Exception {
         // ====== 요청 바디 준비 ======
         CreateGroupBuyRequest request = defaultValidRequest()
-                .imageKeys(List.of("   ", "images/image2.jpg"))
+                .imageKeys(List.of("   ", "tmp/image2.jpg"))
                 .build();
 
         // ====== Facade 스텁 ======

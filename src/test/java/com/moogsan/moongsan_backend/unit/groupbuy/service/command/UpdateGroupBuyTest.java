@@ -11,6 +11,7 @@ import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandServi
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.UpdateGroupBuy;
 import com.moogsan.moongsan_backend.domain.image.entity.Image;
 import com.moogsan.moongsan_backend.domain.image.mapper.ImageMapper;
+import com.moogsan.moongsan_backend.domain.image.service.S3Service;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,10 +34,21 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class UpdateGroupBuyTest {
 
-    @Mock private GroupBuyRepository groupBuyRepository;
-    @Mock private ImageMapper imageMapper;
+    @Mock
+    private GroupBuyRepository groupBuyRepository;
 
+    @Mock
+    private ImageMapper imageMapper;
+
+    @Mock
+    private S3Service s3Service;
+
+    @Mock
+    private Clock clock;
+
+    @InjectMocks
     private UpdateGroupBuy updateGroupBuy;
+
     private User hostUser;
     private Image image;
     private GroupBuy gb;
@@ -72,7 +84,7 @@ class UpdateGroupBuyTest {
 
         image = Image.builder()
                 .id(2L)
-                .imageKey("images/1")
+                .imageKey("group-buys/image2.jpg")
                 .imageSeqNo(0)
                 .thumbnail(true)
                 .build();
@@ -87,6 +99,7 @@ class UpdateGroupBuyTest {
         updateGroupBuy = new UpdateGroupBuy(
                 groupBuyRepository,
                 imageMapper,
+                s3Service,
                 fixedClock
         );
 
@@ -98,7 +111,7 @@ class UpdateGroupBuyTest {
                 .dueDate(now.plusDays(10))
                 .pickupDate(now.plusDays(12))
                 .dateModificationReason("배송이 늦네요...")
-                .imageKeys(List.of("images/image2.jpg"))
+                .imageKeys(List.of("tmp/image1.jpg"))
                 .build();
     }
 
@@ -122,12 +135,9 @@ class UpdateGroupBuyTest {
         assertThat(gb.getDueDate()).isEqualTo(updateRequest.getDueDate());
         assertThat(gb.getPickupDate()).isEqualTo(updateRequest.getPickupDate());
         assertThat(gb.getDateModificationReason()).isEqualTo(updateRequest.getDateModificationReason());
-        ///  이미지 변경 여부도 확인 필요
-        verify(groupBuyRepository, times(1)).save(any(GroupBuy.class));
-        verify(imageMapper, times(1)).mapImagesToGroupBuy(
-                eq(updateRequest.getImageKeys()),
-                any(GroupBuy.class)
-        );
+        verify(s3Service).deleteImage("group-buys/image2.jpg");
+        verify(s3Service).moveImage("tmp/image1.jpg", "group-buys/image1.jpg");
+        verify(imageMapper).mapImagesToGroupBuy(List.of("group-buys/image1.jpg"), gb);
     }
 
     @Test

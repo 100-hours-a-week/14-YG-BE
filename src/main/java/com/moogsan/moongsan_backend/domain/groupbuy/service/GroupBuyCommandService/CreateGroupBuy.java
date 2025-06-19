@@ -7,6 +7,7 @@ import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyI
 import com.moogsan.moongsan_backend.domain.groupbuy.mapper.GroupBuyCommandMapper;
 import com.moogsan.moongsan_backend.domain.image.mapper.ImageMapper;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
+import com.moogsan.moongsan_backend.domain.image.service.S3Service;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import com.moogsan.moongsan_backend.global.exception.specific.DuplicateRequestException;
 import com.moogsan.moongsan_backend.global.lock.DuplicateRequestPreventer;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
+import java.util.List;
 
 import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.NOT_DIVISOR;
 
@@ -27,6 +29,7 @@ public class CreateGroupBuy {
     private final GroupBuyCommandMapper groupBuyCommandMapper;
     private final ChattingCommandFacade chattingCommandFacade;
     private final DuplicateRequestPreventer duplicateRequestPreventer;
+    private final S3Service s3Service;
     private final Clock clock;
 
     /// 공구 게시글 작성
@@ -47,7 +50,18 @@ public class CreateGroupBuy {
         }
 
         GroupBuy gb = groupBuyCommandMapper.create(createGroupBuyRequest, currentUser);
-        imageMapper.mapImagesToGroupBuy(createGroupBuyRequest.getImageKeys(), gb);
+
+        // S3 파일 이동
+        String destPrefix = "group-buys";
+        List<String> destKeys = createGroupBuyRequest.getImageKeys().stream()
+            .map(srcKey -> {
+                String fileName = srcKey.substring(srcKey.lastIndexOf('/') + 1);
+                String destKey  = destPrefix + "/" + fileName;
+                s3Service.moveImage(srcKey, destKey);
+                return destKey;
+            }).toList();
+
+        imageMapper.mapImagesToGroupBuy(destKeys, gb);
         gb.increaseParticipantCount();
         groupBuyRepository.save(gb);
 
