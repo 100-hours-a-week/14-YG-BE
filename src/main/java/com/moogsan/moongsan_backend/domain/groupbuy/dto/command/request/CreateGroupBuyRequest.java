@@ -82,7 +82,7 @@ public class CreateGroupBuyRequest {
     private List<
             @NotBlank(message = INVALID_IMAGE)
             @Pattern(
-                    regexp = "^.*images/.*$",
+                    regexp = "^.*tmp/.*$",
                     message = INVALID_IMAGE
             ) String> imageKeys;
 }

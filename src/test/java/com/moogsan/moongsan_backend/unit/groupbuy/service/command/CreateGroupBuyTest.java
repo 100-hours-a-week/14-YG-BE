@@ -8,6 +8,7 @@ import com.moogsan.moongsan_backend.domain.groupbuy.mapper.GroupBuyCommandMapper
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.CreateGroupBuy;
 import com.moogsan.moongsan_backend.domain.image.mapper.ImageMapper;
+import com.moogsan.moongsan_backend.domain.image.service.S3Service;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import com.moogsan.moongsan_backend.global.lock.DuplicateRequestPreventer;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,6 +48,9 @@ public class CreateGroupBuyTest {
     @Mock
     private ChattingCommandFacade chattingCommandFacade;
 
+    @Mock
+    private S3Service s3Service;
+
     private CreateGroupBuy createGroupBuy;
     private CreateGroupBuyRequest request;
     private User user;
@@ -71,6 +75,7 @@ public class CreateGroupBuyTest {
                 groupBuyCommandMapper,
                 chattingCommandFacade,
                 duplicateRequestPreventer,
+                s3Service,
                 fixedClock
         );
 
@@ -86,7 +91,7 @@ public class CreateGroupBuyTest {
                 .dueDate(now.plusDays(3))
                 .location("카카오테크 교육장")
                 .pickupDate(now.plusDays(4))
-                .imageKeys(List.of("images/image1.jpg"))
+                .imageKeys(List.of("tmp/image1.jpg"))
                 .build();
 
         user = User.builder().id(1L).build();
@@ -107,7 +112,9 @@ public class CreateGroupBuyTest {
 
         // then
         verify(groupBuyCommandMapper, times(1)).create(request, user);
-        verify(imageMapper, times(1)).mapImagesToGroupBuy(request.getImageKeys(), mockGb);
+        verify(s3Service).moveImage(eq("tmp/image1.jpg"), eq("group-buys/image1.jpg"));
+        verify(imageMapper).mapImagesToGroupBuy(eq(List.of("group-buys/image1.jpg")), eq(mockGb));
+        verify(imageMapper).mapImagesToGroupBuy(eq(List.of("group-buys/image1.jpg")), eq(mockGb));
         verify(mockGb, times(1)).increaseParticipantCount();
         verify(groupBuyRepository, times(1)).save(mockGb);
         verify(chattingCommandFacade, times(1)).joinChatRoom(user, mockGb.getId());

@@ -1,7 +1,7 @@
 package com.moogsan.moongsan_backend.domain.image.controller;
 
 import com.moogsan.moongsan_backend.domain.image.dto.PresignResponse;
-import com.moogsan.moongsan_backend.domain.image.service.FileService;
+import com.moogsan.moongsan_backend.domain.image.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class FileController {
 
-    private final FileService fileService;
+    private final S3Service s3Service;
 
     /**
      * 이미지 엔티티를 먼저 생성한 뒤, S3 PUT용 Presigned URL을 발급합니다.
@@ -21,7 +21,7 @@ public class FileController {
      */
     @GetMapping("/presign")
     public ResponseEntity<PresignResponse> presign() {
-        PresignResponse presign = fileService.presign();
+        PresignResponse presign = s3Service.presign();
         return ResponseEntity.ok(presign);
     }
 }
