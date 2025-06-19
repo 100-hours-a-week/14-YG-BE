@@ -1,43 +1,57 @@
 version: "3.8"
 
 services:
-  # 1) Redis 서비스
-  my-redis:
-    image: redis:6-alpine
-    container_name: my-redis
-    restart: unless-stopped
-    networks:
-      - moongsan-net
-    volumes:
-      - redis-data:/data
-    ports:
-      - "6379:6379"
-
-  # 2) Backend 서비스
+  # Backend Spring Boot Service
   be-moongsan:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: be-moongsan
-    restart: unless-stopped
-    depends_on:
-      - my-redis
-    env_file:
-      - ./backend.env.prod
-    networks:
-      - moongsan-net
     ports:
       - "8080:8080"
+    networks:
+      - moongsan-net
+    depends_on:
+      - redis-moongsan
+      - mongo-moongsan
+    restart: unless-stopped
     volumes:
-      - /var/moongsan/log:/var/moongsan/log
-      - ./config:/config
-    environment:
-      SPRING_CONFIG_ADDITIONAL_LOCATION: file:/config/
+      - /var/moongsan/log:/app/logs
 
+  # Redis Cache Service
+  redis-moongsan:
+    image: redis:7.2-alpine
+    container_name: redis-moongsan
+    ports:
+      - "6379:6379"
+    networks:
+      - moongsan-net
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
 
-volumes:
-  redis-data:
+  # MongoDB Service
+  mongo-moongsan:
+    image: mongo:6.0.7
+    container_name: mongo-moongsan
+    ports:
+      - "27017:27017"
+    networks:
+      - moongsan-net
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
 
 networks:
   moongsan-net:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
+
+volumes:
+  redis-data:
+    driver: local
+  mongo-data:
+    driver: local
