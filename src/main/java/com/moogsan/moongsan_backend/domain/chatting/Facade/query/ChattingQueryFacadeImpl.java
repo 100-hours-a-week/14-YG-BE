@@ -49,7 +49,7 @@ public class ChattingQueryFacadeImpl implements ChattingQueryFacade{
         }
 
         // 2) 롱폴링 대기 (노 트랜잭션)
-        return getLatestMessages.createLongPollingResult(chatRoomId);
+        return getLatestMessages.createLongPollingResult(user, chatRoomId);
     }
 
     @Override

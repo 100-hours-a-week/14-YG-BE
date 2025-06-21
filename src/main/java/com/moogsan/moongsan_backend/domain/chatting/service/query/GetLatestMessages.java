@@ -35,8 +35,8 @@ public class GetLatestMessages {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageQueryMapper chatMessageQueryMapper;
 
-    // 채팅방별 롱폴링 요청 큐
-    private final Map<Long, List<DeferredResult<List<ChatMessageResponse>>>> listeners = new ConcurrentHashMap<>();
+    // 채팅방별 롱폴링 요청 큐 (유저 ID → 연결 1개만)
+    private final Map<Long, Map<Long, DeferredResult<List<ChatMessageResponse>>>> listeners = new ConcurrentHashMap<>();
 
     public List<ChatMessageResponse> getLatestMessages(
             User currentUser, Long chatRoomId, String lastMessageId
@@ -61,17 +61,22 @@ public class GetLatestMessages {
                 .collect(Collectors.toList());
     }
 
-    public DeferredResult<List<ChatMessageResponse>> createLongPollingResult(Long chatRoomId) {
+    public DeferredResult<List<ChatMessageResponse>> createLongPollingResult(User currentUser, Long chatRoomId) {
+        Long userId = currentUser.getId(); // 유저 ID를 키로 사용
         DeferredResult<List<ChatMessageResponse>> dr = new DeferredResult<>(TIMEOUT_MILLIS);
 
-        listeners.computeIfAbsent(chatRoomId, id -> Collections.synchronizedList(new ArrayList<>()))
-                .add(dr);
+        listeners
+                .computeIfAbsent(chatRoomId, k -> new ConcurrentHashMap<>())
+                .put(userId, dr);
+
 
         dr.onTimeout(() -> {
+            listeners.getOrDefault(chatRoomId, Map.of()).remove(userId);
             dr.setResult(Collections.emptyList());
-            listeners.get(chatRoomId).remove(dr);
         });
-        dr.onCompletion(() -> listeners.get(chatRoomId).remove(dr));
+        dr.onCompletion(() -> {
+            listeners.getOrDefault(chatRoomId, Map.of()).remove(userId);
+        });
 
         return dr;
     }
@@ -84,19 +89,16 @@ public class GetLatestMessages {
             SecurityContext context
     ) {
         Long chatRoomId = newMessage.getChatRoomId();
-        List<DeferredResult<List<ChatMessageResponse>>> results = listeners.getOrDefault(chatRoomId, new ArrayList<>());
+        Map<Long, DeferredResult<List<ChatMessageResponse>>> roomListeners = listeners.getOrDefault(chatRoomId, Map.of());
 
         ChatMessageResponse response = chatMessageQueryMapper.toMessageResponse(newMessage, nickname, imageKey);
-        for (DeferredResult<List<ChatMessageResponse>> r : results) {
-            Runnable task = () -> {
-                r.setResult(List.of(response));
-            };
-
+        for (DeferredResult<List<ChatMessageResponse>> dr : roomListeners.values()) {
+            Runnable task = () -> dr.setResult(List.of(response));
             Runnable securedTask = new DelegatingSecurityContextRunnable(task, context);
             // securedTask.run(); // 현재 스레드에서 즉시 실행 (r.setResult(...)가 현재 스레드에서 동기적 실행
-            Thread.startVirtualThread(securedTask); // 새로운 Loom 가상 스레드를 띄워서 r.setResult(...)를 비동기적으로 실행
+            Thread.startVirtualThread(securedTask); // Loom 스레드 사용
         }
 
-        results.clear();
+        // 응답 후 연결 자동 제거
     }
 }
