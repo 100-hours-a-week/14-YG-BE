@@ -20,7 +20,7 @@ public interface GroupBuyRepository extends JpaRepository<GroupBuy, Long>, JpaSp
     List<GroupBuy> findByPostStatusAndDueDateBefore(String postStatus, LocalDateTime now);
 
     // 공구 종료 조건 기반 조회 (백그라운드 API용)
-    List<GroupBuy> findByPostStatusAndPickupDateBefore(String postStatus, LocalDateTime now);
+    List<GroupBuy> findByPostStatusAndPickupDateLessThanEqual(String postStatus, LocalDateTime now);
 
     // 공구 주최 리스트 첫 조회
     List<GroupBuy> findByUser_IdAndPostStatus(Long userId, String postStatus, Pageable pageable);

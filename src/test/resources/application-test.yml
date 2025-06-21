@@ -36,8 +36,16 @@ cloud:
     s3:
       bucket: dummy-bucket
 
+app:
+  oauth:
+    kakao-client-id: dummy-client-id
+    kakao-client-secret: dummy-client-secret
+    kakao-redirect-uri: http://localhost:18080/oauth2/callback/kakao
+    kakao-complete-redirect: http://localhost:18080/dummy
+
 oauth:
   kakao:
     client-id: dummy-client-id
     client-secret: dummy-client-secret
     redirect-uri: http://localhost:18080/oauth2/callback/kakao
+    complete-redirect: http://localhost:18080/dummy
