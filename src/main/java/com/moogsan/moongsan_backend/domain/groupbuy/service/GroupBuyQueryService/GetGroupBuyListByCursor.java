@@ -77,7 +77,9 @@ public class GetGroupBuyListByCursor {
         Pageable page = PageRequest.of(0, limit, sort);
 
         // 3) Specification 조립
-        Specification<GroupBuy> spec = Specification.where(excludeEndedOrDeleted())
+        Specification<GroupBuy> spec = Specification
+                .where(distinct())
+                .and(excludeEndedOrDeleted())
                 .and(dueSoonOnlyEq(orderBy))
                 .and(categoryEq(categoryId))
                 .and(openOnlyEq(openOnly))
@@ -120,6 +122,13 @@ public class GetGroupBuyListByCursor {
     // ────────────────────────────────────────────────────────────────────
     // Specification 헬퍼 메서드들
     // ────────────────────────────────────────────────────────────────────
+
+    private Specification<GroupBuy> distinct() {
+        return (root, query, cb) -> {
+            query.distinct(true);
+            return cb.conjunction();   // where 조건 없음
+        };
+    }
 
     private Specification<GroupBuy> excludeEndedOrDeleted() {
         return (root, query, cb) ->
@@ -199,15 +208,15 @@ public class GetGroupBuyListByCursor {
                     Path<Integer> price  = root.get("unitPrice");
                     Path<LocalDateTime> created = root.get("createdAt");
                     return cb.or(
-                            cb.lessThan(price, cursorPrice),
+                            cb.greaterThan(price, cursorPrice),
                             cb.and(
                                     cb.equal(price, cursorPrice),
-                                    cb.lessThan(created, cursorCreatedAt)
+                                    cb.greaterThan(created, cursorCreatedAt)
                             ),
                             cb.and(
                                     cb.equal(price, cursorPrice),
                                     cb.equal(created, cursorCreatedAt),
-                                    cb.lessThan(root.get("id"), cursorId)
+                                    cb.greaterThan(root.get("id"), cursorId)
                             )
                     );
                 }
@@ -215,10 +224,10 @@ public class GetGroupBuyListByCursor {
                 case "due_soon_only": {
                     Path<LocalDateTime> dueDate = root.get("dueDate");
                     return cb.or(
-                            cb.lessThan(dueDate, cursorCreatedAt),
+                            cb.greaterThan(dueDate, cursorCreatedAt),
                             cb.and(
                                     cb.equal(dueDate, cursorCreatedAt),
-                                    cb.lessThan(root.get("id"), cursorId)
+                                    cb.greaterThan(root.get("id"), cursorId)
                             )
                     );
                 }
