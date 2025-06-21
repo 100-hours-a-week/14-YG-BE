@@ -24,15 +24,15 @@ public class GroupBuyScheduler {
         closePastDueGroupBuys.closePastDueGroupBuys(now);
     }
 
-    // 공구 게시글 pickupDate 기반 자동 공구 종료 스케줄러 (매 정각(0분)과 31분에 작동)
-    @Scheduled(cron = "0 0/31 * * * *")
+    // 공구 게시글 pickupDate 기반 자동 공구 종료 스케줄러 (매 정각(1분)과 31분에 작동)
+    @Scheduled(cron = "0 1/31 * * * *")
     public void endPastPickupGroupBuys() {
         LocalDateTime now = LocalDateTime.now();
         endPastPickupGroupBuys.endPastPickupGroupBuys(now);
     }
 
     // 공구 참여 자동 취소 스케줄러 (매 정각 1분10분)과 40분에 작동)
-    @Scheduled(cron = "0 1/40 * * * *")
+    @Scheduled(cron = "0 10/40 * * * *")
     public void runAutoCancellation() {
         cancelGroupBuyParticipant.cancelUnconfirmedOrders();
     }

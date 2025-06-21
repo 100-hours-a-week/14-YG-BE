@@ -19,7 +19,7 @@ public class EndPastPickupGroupBuys {
     /// 공구 종료 (백그라운드 API)
     public void endPastPickupGroupBuys(LocalDateTime now) {
         List<GroupBuy> toEnd = groupBuyRepository
-                .findByPostStatusAndPickupDateBefore("CLOSED", now);
+                .findByPostStatusAndPickupDateLessThanEqual("CLOSED", now);
 
         for (GroupBuy gb : toEnd) {
             gb.changePostStatus("ENDED");
