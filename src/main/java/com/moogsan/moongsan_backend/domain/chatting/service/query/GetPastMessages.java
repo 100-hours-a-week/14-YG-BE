@@ -30,6 +30,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.moogsan.moongsan_backend.global.util.ObjectIdScoreUtil.toScore;
 
@@ -68,11 +69,11 @@ public class GetPastMessages {
         String redisKey = "chatting:messages:" + chatRoomId;
 
         // 레디스 캐시 조회
-        double minScore = 0.0;
-        double maxScore = cursorId != null ? toScore(cursorId) : Double.MAX_VALUE;
+        double minScore = cursorId != null ? toScore(cursorId) : Double.MIN_VALUE;
+        double maxScore = Double.MAX_VALUE;
 
         Set<String> cachedJsons = redisTemplate.opsForZSet()
-                .reverseRangeByScore(redisKey, minScore, maxScore, 0, PAGE_SIZE + 1);
+                .rangeByScore(redisKey, minScore, maxScore, 0, PAGE_SIZE + 1);
 
 
         List<ChatMessageDocument> cachedMessages = Objects.requireNonNull(cachedJsons).stream()
@@ -103,14 +104,11 @@ public class GetPastMessages {
             } else {
                 q.addCriteria(new Criteria().andOperator(
                         Criteria.where("chatRoomId").is(chatRoomId),
-                        Criteria.where("_id").lt(new ObjectId(cursorId))
+                        Criteria.where("_id").gt(new ObjectId(cursorId))
                 ));
             }
 
-            q.with(Sort.by(Sort.Order.desc("_id"))).limit(needCount + 1);
-
-            List<ChatMessageDocument> cursorDocs =
-                    mongoTemplate.find(q, ChatMessageDocument.class);
+            q.with(Sort.by(Sort.Order.asc("_id"))).limit(needCount + 1);
 
             List<ChatMessageDocument> mongoDocs = mongoTemplate.find(q, ChatMessageDocument.class);
             hasNext = mongoDocs.size() > needCount;
@@ -129,22 +127,30 @@ public class GetPastMessages {
                     log.warn("❌ Redis 캐싱 실패: {}", e.getMessage());
                 }
             });
-        } else {                        // ★ 캐시에서 이미 10개 꽉 찬 경우
+        } else {                        // 캐시에서 이미 10개 꽉 찬 경우
             // 마지막 메시지 ID 기준으로 DB에 추가 1건만 확인
             String lastId = page.get(PAGE_SIZE - 1).getId();
 
             Query extraQ = new Query().addCriteria(
                     new Criteria().andOperator(
                             Criteria.where("chatRoomId").is(chatRoomId),
-                            Criteria.where("_id").lt(new ObjectId(lastId))
+                            Criteria.where("_id").gt(new ObjectId(lastId))
                     ));
-            extraQ.with(Sort.by(Sort.Order.desc("_id"))).limit(1);
+            extraQ.with(Sort.by(Sort.Order.asc("_id"))).limit(1);
 
             hasNext = !mongoTemplate.find(extraQ, ChatMessageDocument.class).isEmpty();
         }
 
 
-        page = page.stream().limit(PAGE_SIZE).toList();
+        LinkedHashMap<String, ChatMessageDocument> dedup = new LinkedHashMap<>();
+        Stream.concat(cachedMessages.stream(), page.stream())                          // page = mongoPage
+                .sorted(Comparator.comparing(ChatMessageDocument::getId))              // 오름차순
+                .forEach(doc -> dedup.put(doc.getId(), doc));      // key = messageId
+
+        List<ChatMessageDocument> pageSorted = dedup.values()
+                .stream()
+                .limit(PAGE_SIZE)                                                       // 최종 슬라이스
+                .toList();
 
         log.info("[Chat-Cache] room={}, cursorId={}, hitCount={}, finalSize={}, hasNext={}",
                 chatRoomId, cursorId, cachedMessages.size(), page.size(), hasNext);
@@ -160,7 +166,7 @@ public class GetPastMessages {
         }
 
         // 참여자 정보 매핑
-        Set<Long> participantIds = page.stream()
+        Set<Long> participantIds = pageSorted.stream()
                 .map(ChatMessageDocument::getChatParticipantId)
                 .collect(Collectors.toSet());
         List<ChatParticipant> participants = chatParticipantRepository.findAllById(participantIds);
@@ -170,12 +176,11 @@ public class GetPastMessages {
                         ChatParticipant::getUser
                 ));
 
-        ChatMessageDocument last = page.getLast();
+        ChatMessageDocument last = pageSorted.getLast();
         String nextCursorId    = last.getId();
-        LocalDateTime nextTime = last.getCreatedAt();
 
         // DTO 변환 후 반환
-        List<ChatMessageResponse> responses =  page.stream()
+        List<ChatMessageResponse> responses =  pageSorted.stream()
                 .map(doc -> {
                     User user = participantIdToUser.get(doc.getChatParticipantId());
                     String nickname = (user != null ? user.getNickname() : "알수없음");
