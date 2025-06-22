@@ -65,8 +65,8 @@ public class GetGroupBuyListByCursor {
                             .and(Sort.by("createdAt").ascending())
                             .and(Sort.by("id").ascending());
                     case "ending_soon"  -> Sort.by("dueDate").ascending()
-                            .and(Sort.by("createdAt").descending())
-                            .and(Sort.by("id").descending());
+                            .and(Sort.by("createdAt").ascending())
+                            .and(Sort.by("id").ascending());
                     case "due_soon_only"-> Sort.by("dueDate").ascending()
                             .and(Sort.by("id").ascending());
                     default            -> Sort.by("createdAt").descending()
