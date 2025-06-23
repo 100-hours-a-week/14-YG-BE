@@ -31,10 +31,19 @@ public class GetPastMessagesController {
     public ResponseEntity<WrapperResponse<ChatMessagePageResponse>> getPastMessages(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable("chatRoomId") Long chatRoomId,
-            @RequestParam(required = false) String cursorId
+            @RequestParam(required = false) String cursorMessageIdBefore,
+            @RequestParam(required = false) String cursorMessageIdAfter
     ) {
 
-        ChatMessagePageResponse response = chattingQueryFacade.getPastMessages(userDetails.getUser(), chatRoomId, cursorId);
+        if (cursorMessageIdBefore != null && cursorMessageIdAfter != null) {
+            throw new IllegalArgumentException("하나의 커서만 제공해야 합니다.");
+        }
+
+        boolean isPrev = cursorMessageIdAfter != null;
+        String cursorId = isPrev ? cursorMessageIdAfter : cursorMessageIdBefore;
+
+
+        ChatMessagePageResponse response = chattingQueryFacade.getPastMessages(userDetails.getUser(), chatRoomId, cursorId, isPrev);
 
         return ResponseEntity.ok(
                 WrapperResponse.<ChatMessagePageResponse>builder()
