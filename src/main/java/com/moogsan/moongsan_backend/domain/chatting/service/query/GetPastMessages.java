@@ -49,7 +49,8 @@ public class GetPastMessages {
     public ChatMessagePageResponse getPastMessages(
             User currentUser,
             Long chatRoomId,
-            String cursorId
+            String cursorId,
+            boolean isPrev
     ) {
         // 1) 권한 및 방 검증
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
@@ -59,18 +60,20 @@ public class GetPastMessages {
         if (!isParticipant) throw new NotParticipantException("참여자만 메세지를 조회할 수 있습니다.");
 
         String redisKey = "chatting:messages:" + chatRoomId;
-        double cursorScore = cursorId != null ? toScore(cursorId) : Double.MIN_VALUE;
+        double cursorScore = cursorId != null
+                ? toScore(cursorId)
+                : (isPrev ? Double.MAX_VALUE : Double.MIN_VALUE);
 
-        // 2) Redis에서 캐시된 member(=JSON or id) 조회
-        Set<String> cachedMembers = redisTemplate.opsForZSet()
-                .rangeByScore(redisKey, cursorScore, Double.MAX_VALUE, 0, PAGE_SIZE + 1);
+        // 2) Redis 조회 (방향 분기)
+        Set<String> cachedMembers = isPrev
+                ? redisTemplate.opsForZSet().reverseRangeByScore(redisKey, cursorScore - 1, Double.NEGATIVE_INFINITY, 0, PAGE_SIZE + 1)
+                : redisTemplate.opsForZSet().rangeByScore(redisKey, cursorScore + 1, Double.MAX_VALUE, 0, PAGE_SIZE + 1);
 
-        // 3) member를 messageId로 변환 (JSON이면 id 필드 추출)
+        // 3) 캐시 메시지를 ID로 변환
         List<String> idList = cachedMembers.stream()
                 .map(member -> {
                     member = member.trim();
                     if (member.startsWith("{")) {
-                        // JSON 형태
                         try {
                             JsonNode node = objectMapper.readTree(member);
                             return node.get("id").asText();
@@ -79,7 +82,6 @@ public class GetPastMessages {
                             return null;
                         }
                     }
-                    // 단순 id 문자열
                     return member;
                 })
                 .filter(Objects::nonNull)
@@ -88,45 +90,51 @@ public class GetPastMessages {
                 .collect(Collectors.toList());
         if (cursorId != null) idList.removeIf(id -> id.equals(cursorId));
 
-        // 4) 부족한 메시지는 MongoDB에서 조회 및 캐싱
+        // 4) 부족한 메시지 MongoDB 조회
         List<ChatMessageDocument> dbDocs = new ArrayList<>();
         if (idList.size() < PAGE_SIZE) {
             int need = PAGE_SIZE - idList.size();
             Query q = new Query(Criteria.where("chatRoomId").is(chatRoomId));
-            if (!idList.isEmpty()) {
-                q.addCriteria(Criteria.where("_id").nin(
-                        idList.stream().map(ObjectId::new).collect(Collectors.toList())
-                ));
+            if (cursorId != null) {
+                Criteria cursorCriteria = Criteria.where("_id");
+                q.addCriteria(isPrev
+                        ? cursorCriteria.lt(new ObjectId(cursorId))
+                        : cursorCriteria.gt(new ObjectId(cursorId)));
             }
-            q.with(Sort.by(Sort.Order.asc("_id"))).limit(need + 1);
+            q.with(Sort.by(isPrev ? Sort.Direction.DESC : Sort.Direction.ASC, "_id")).limit(need + 1);
             List<ChatMessageDocument> fetched = mongoTemplate.find(q, ChatMessageDocument.class);
             List<ChatMessageDocument> toCache = fetched.stream().limit(need).toList();
-            // Redis 캐싱: messageId만 저장
+
             toCache.forEach(doc -> {
                 double score = toScore(doc.getId());
                 Boolean added = redisTemplate.opsForZSet().add(redisKey, doc.getId(), score);
-                if (Boolean.TRUE.equals(added)) redisTemplate.expire(redisKey, Duration.ofHours(1));
+                if (Boolean.TRUE.equals(added)) {
+                    redisTemplate.expire(redisKey, Duration.ofHours(1));
+                }
             });
+
             dbDocs.addAll(toCache);
         }
 
-        // 5) 최종 ID 리스트 병합
-        Stream<ObjectId> fromCache = idList.stream()
-                .limit(PAGE_SIZE)
-                .map(ObjectId::new);
-        Stream<ObjectId> fromDb = dbDocs.stream()
-                .map(doc -> new ObjectId(doc.getId()));
+        // 5) ID 병합
+        Stream<ObjectId> fromCache = idList.stream().limit(PAGE_SIZE).map(ObjectId::new);
+        Stream<ObjectId> fromDb = dbDocs.stream().map(doc -> new ObjectId(doc.getId()));
         List<ObjectId> finalIds = Stream.concat(fromCache, fromDb)
                 .distinct()
                 .limit(PAGE_SIZE)
                 .collect(Collectors.toList());
 
-        // 6) 최종 문서 조회 & 정렬
+        // 6) 최종 정렬 및 조회
         Query finalQ = new Query(Criteria.where("_id").in(finalIds));
         finalQ.with(Sort.by(Sort.Order.asc("_id")));
         List<ChatMessageDocument> finalPage = mongoTemplate.find(finalQ, ChatMessageDocument.class);
 
-        // 7) hasNext 재계산
+        // ❗ 정렬 역전 보정
+        if (isPrev) {
+            Collections.reverse(finalPage);
+        }
+
+        // 7) hasNext 계산
         boolean hasNext = finalPage.size() == PAGE_SIZE && (
                 !dbDocs.isEmpty() || cachedMembers.size() > PAGE_SIZE
         );
@@ -147,6 +155,7 @@ public class GetPastMessages {
         }).collect(Collectors.toList());
 
         String nextCursor = finalPage.isEmpty() ? null : finalPage.get(finalPage.size() - 1).getId();
+
         return ChatMessagePageResponse.builder()
                 .chatMessageResponses(responses)
                 .nextCursorId(nextCursor)
