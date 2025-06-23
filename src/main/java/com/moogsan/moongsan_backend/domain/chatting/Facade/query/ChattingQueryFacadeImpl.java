@@ -30,10 +30,9 @@ public class ChattingQueryFacadeImpl implements ChattingQueryFacade{
     public ChatMessagePageResponse getPastMessages(
             User user,
             Long chatRoomId,
-            String cursorId,
-            boolean isPrev
+            String cursorId
     ) {
-        return getPastMessages.getPastMessages(user, chatRoomId, cursorId, isPrev);
+        return getPastMessages.getPastMessages(user, chatRoomId, cursorId);
     }
 
     @Override

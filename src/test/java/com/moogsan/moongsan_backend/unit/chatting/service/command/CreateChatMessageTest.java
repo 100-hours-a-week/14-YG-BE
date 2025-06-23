@@ -138,7 +138,7 @@ public class CreateChatMessageTest {
         verify(messageSequenceGenerator, times(1)).getNextMessageSeq(chatRoom.getId());
         verify(chatMessageCommandMapper, times(1)).toMessageDocument(chatRoom, chatParticipant.getId(), request, 2L);
         verify(redisTemplate.opsForZSet(), times(1)).add(anyString(), anyString(), anyDouble());
-        verify(redisTemplate, times(1)).expire(anyString(), eq(Duration.ofHours(1)));
+        verify(redisTemplate, times(1)).expire(anyString(), eq(Duration.ofHours(24)));
     }
 
     @Test

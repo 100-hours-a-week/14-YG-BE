@@ -15,8 +15,7 @@ public interface ChattingQueryFacade {
     ChatMessagePageResponse getPastMessages(
             User user,
             Long chatRoomId,
-            String cursorId,
-            boolean isPrev
+            String cursorId
     );
 
     DeferredResult<List<ChatMessageResponse>> getLatestMessages(
