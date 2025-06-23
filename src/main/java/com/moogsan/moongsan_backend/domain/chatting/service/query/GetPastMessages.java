@@ -105,7 +105,7 @@ public class GetPastMessages {
             toCache.forEach(doc -> {
                 double score = toScore(doc.getId());
                 Boolean added = redisTemplate.opsForZSet().add(redisKey, doc.getId(), score);
-                if (Boolean.TRUE.equals(added)) redisTemplate.expire(redisKey, Duration.ofHours(24));
+                if (Boolean.TRUE.equals(added)) redisTemplate.expire(redisKey, Duration.ofHours(1));
             });
             dbDocs.addAll(toCache);
         }
