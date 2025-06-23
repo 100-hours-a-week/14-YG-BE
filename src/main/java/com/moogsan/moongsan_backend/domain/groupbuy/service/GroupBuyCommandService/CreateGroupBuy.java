@@ -62,7 +62,12 @@ public class CreateGroupBuy {
             }).toList();
 
         imageMapper.mapImagesToGroupBuy(destKeys, gb);
+        gb.decreaseLeftAmount(createGroupBuyRequest.getHostQuantity());
         gb.increaseParticipantCount();
+
+        if (gb.isAlmostSoldOut()) {
+            gb.changePostStatus("CLOSED");
+        }
         groupBuyRepository.save(gb);
 
         Long chatRoomId = chattingCommandFacade.joinChatRoom(currentUser, gb.getId());

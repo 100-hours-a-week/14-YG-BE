@@ -82,7 +82,7 @@ public class CreateChatMessage {
             double score = toScore(document.getId()); // tie-breaker 점수
             Boolean added = redisTemplate.opsForZSet().add(redisKey, json, score);
             if (Boolean.TRUE.equals(added)) {
-                redisTemplate.expire(redisKey, Duration.ofHours(24)); // 키가 새로 생성됐을 때만 TTL 부여
+                redisTemplate.expire(redisKey, Duration.ofHours(1)); // 키가 새로 생성됐을 때만 TTL 부여
             }
         } catch (JsonProcessingException e) {
             log.warn("❌ Redis 캐싱 실패 [chatRoomId={}]: {}", chatRoomId, e.getMessage());

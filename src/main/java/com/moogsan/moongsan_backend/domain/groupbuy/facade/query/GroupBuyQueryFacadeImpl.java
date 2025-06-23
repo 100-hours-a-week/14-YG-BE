@@ -10,7 +10,6 @@ import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyL
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.WishList.WishListResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyUpdate.GroupBuyForUpdateResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyQueryService.*;
-import com.moogsan.moongsan_backend.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -51,6 +50,7 @@ public class GroupBuyQueryFacadeImpl implements GroupBuyQueryFacade {
             String orderBy,
             Long cursorId,
             LocalDateTime cursorCreatedAt,
+            Integer cursorSoldRatio,
             Integer cursorPrice,
             Integer limit,
             Boolean openOnly,
@@ -58,7 +58,7 @@ public class GroupBuyQueryFacadeImpl implements GroupBuyQueryFacade {
 
         return listByCursorSvc.getGroupBuyListByCursor(
                 userId, categoryId, orderBy, cursorId,
-                cursorCreatedAt, cursorPrice, limit, openOnly, keyword);
+                cursorCreatedAt, cursorSoldRatio, cursorPrice, limit, openOnly, keyword);
     }
 
     @Override

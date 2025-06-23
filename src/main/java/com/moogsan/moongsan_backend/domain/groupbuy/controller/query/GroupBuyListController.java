@@ -30,6 +30,7 @@ public class GroupBuyListController {
             @RequestParam(value = "cursorId", required = false) Long cursorId,
             @RequestParam(value = "cursorCreatedAt", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime cursorCreatedAt,
+            @RequestParam(value = "cursorSoldRatio", required = false) Integer cursorSoldRatio,
             @RequestParam(value = "cursorPrice", required = false) Integer cursorPrice,
             @RequestParam(value = "limit", defaultValue = "10") Integer limit,
             @RequestParam(value = "openOnly", required = false) Boolean openOnly,
@@ -38,7 +39,7 @@ public class GroupBuyListController {
         Long userId = (principal != null) ? principal.getUser().getId() : null;
         PagedResponse<BasicListResponse> pagedResponse =
                 queryFacade.getGroupBuyListByCursor(userId, categoryId, orderBy,
-                        cursorId, cursorCreatedAt, cursorPrice, limit, openOnly, keyword);
+                        cursorId, cursorCreatedAt, cursorSoldRatio, cursorPrice, limit, openOnly,keyword);
         return ResponseEntity.ok(
                 WrapperResponse.<PagedResponse<BasicListResponse>>builder()
                         .message(GET_LIST_SUCCESS)

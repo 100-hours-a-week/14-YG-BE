@@ -48,7 +48,15 @@ public class ChattingQueryFacadeImpl implements ChattingQueryFacade{
             return dr;
         }
 
-        // 2) 롱폴링 대기 (노 트랜잭션)
+        // 2) lastMessageId가 들어오면 즉시 조회
+        if (lastMessageId != null && !lastMessageId.isBlank()) {
+            DeferredResult<List<ChatMessageResponse>> dr = new DeferredResult<>(0L);
+            List<ChatMessageResponse> list = getLatestMessages.getLatestMessages(user, chatRoomId, lastMessageId);
+            dr.setResult(list);
+            return dr;
+        }
+
+        // 3) 롱폴링 대기 (노 트랜잭션)
         return getLatestMessages.createLongPollingResult(user, chatRoomId);
     }
 
