@@ -99,9 +99,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
          WHERE o.groupBuy.id = :postId
          ORDER BY
              CASE o.status
-                 WHEN 'PENDING' THEN 1
-                 WHEN 'CONFIRMED' THEN 2
-                 WHEN 'CANCELED' THEN 3
+                 WHEN 'CANCELED' THEN 1
+                 WHEN 'PENDING' THEN 2
+                 WHEN 'CONFIRMED' THEN 3
                  WHEN 'REFUNDED' THEN 4
                  ELSE 5
              END
