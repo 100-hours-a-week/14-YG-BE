@@ -4,7 +4,6 @@ import com.moogsan.moongsan_backend.domain.WrapperResponse;
 import com.moogsan.moongsan_backend.domain.user.dto.response.LoginResponse;
 import com.moogsan.moongsan_backend.domain.user.service.KakaoOAuthService;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,28 +24,22 @@ public class OAuthController {
     private String kakaoCompleteRedirectUrl;
 
     @GetMapping("/kakao/callback")
-    public void kakaoCallback(@RequestParam("code") String code, HttpServletResponse response) throws IOException {
+    public void kakaoCallback(@RequestParam("code") String code, HttpServletResponse response) {
         log.debug("Received Kakao OAuth callback with code: {}", code);
+    }
+
+    @GetMapping("/kakao/callback/complete")
+    public ResponseEntity<WrapperResponse<?>> kakaoLoginComplete(
+            @RequestParam("code") String code,
+            HttpServletResponse response) {
 
         LoginResponse loginResponse = kakaoOAuthService.kakaoLogin(code, response);
 
-        // 로그인 성공 후 메인 페이지로 redirect
-        response.sendRedirect("/");
+        return ResponseEntity.ok(
+                WrapperResponse.builder()
+                        .message("로그인에 성공했습니다.")
+                        .data(loginResponse)
+                        .build()
+        );
     }
-//    @GetMapping("/kakao/callback/complete")
-//    public String oauthComplete() {
-//        log.debug("OAuth login complete page accessed.");
-//        return "OAuth 로그인 처리가 완료되었습니다.";
-//    }
-//    @GetMapping("/kakao/callback")
-//    public ResponseEntity<WrapperResponse<?>> kakaoCallback(@RequestParam("code") String code, HttpServletResponse response) {
-//        LoginResponse loginResponse = kakaoOAuthService.kakaoLogin(code, response);
-//
-//        return ResponseEntity.ok(
-//            WrapperResponse.builder()
-//                    .message("로그인에 성공했습니다.")
-//                    .data(loginResponse)
-//                    .build()
-//        );
-//    }
 }
