@@ -107,7 +107,7 @@ public class GetGroupBuyListByCursor {
         Integer nextCursorSoldRatio = null;
 
         if (hasMore && !entities.isEmpty()) {
-            GroupBuy last = entities.get(entities.size() - 1);
+            GroupBuy last = entities.getLast();
             nextCursorId    = last.getId();
             nextCreatedAt   = last.getCreatedAt();
             if ("price_asc".equals(orderBy)) {
@@ -205,10 +205,12 @@ public class GetGroupBuyListByCursor {
                 }
                 case "ending_soon": {
                     Path<Integer> ratio = root.get("soldRatio");
+                    Path<Long> id = root.get("id");
                     return cb.or(
                             cb.lessThan(ratio, cursorSoldRatio),
                             cb.and(cb.equal(ratio, cursorSoldRatio),
-                                    cb.lessThan(root.get("id"), cursorId))
+                                    cb.lessThan(root.get("id"), cursorId)),
+                            cb.lessThan(id, cursorId)
                     );
                 }
                 case "due_soon_only": {
