@@ -73,6 +73,7 @@ public class GetGroupBuyListByCursorTest {
                 eq("created"),                       // orderBy
                 eq(50L),                             // cursorId
                 eq(LocalDateTime.parse("2025-05-26T12:00:00")), // cursorCreatedAt
+                eq(5),
                 eq(1000),                            // cursorPrice
                 eq(5),                               // limit
                 eq(false),                           // openOnly
@@ -98,6 +99,7 @@ public class GetGroupBuyListByCursorTest {
                 eq("created"),                                  // orderBy
                 eq(50L),                                        // cursorId
                 eq(LocalDateTime.parse("2025-05-26T12:00:00")), // cursorCreatedAt
+                eq(5),
                 eq(1000),                                       // cursorPrice
                 eq(5),                                          // limit
                 eq(false),                                      // openOnly

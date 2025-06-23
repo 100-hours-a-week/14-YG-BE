@@ -43,6 +43,7 @@ public class GetGroupBuyListByCursor {
             String orderBy,
             Long cursorId,
             LocalDateTime cursorCreatedAt,
+            Integer cursorSoldRatio,
             Integer cursorPrice,
             Integer limit,
             Boolean openOnly,
@@ -64,8 +65,7 @@ public class GetGroupBuyListByCursor {
                     case "price_asc"    -> Sort.by("unitPrice").ascending()
                             .and(Sort.by("createdAt").ascending())
                             .and(Sort.by("id").ascending());
-                    case "ending_soon"  -> Sort.by("dueDate").ascending()
-                            .and(Sort.by("createdAt").ascending())
+                    case "ending_soon"  -> Sort.by("soldRatio").descending()   // 비율 높은 순
                             .and(Sort.by("id").ascending());
                     case "due_soon_only"-> Sort.by("dueDate").ascending()
                             .and(Sort.by("id").ascending());
@@ -77,14 +77,12 @@ public class GetGroupBuyListByCursor {
         Pageable page = PageRequest.of(0, limit, sort);
 
         // 3) Specification 조립
-        Specification<GroupBuy> spec = Specification
-                .where(distinct())
-                .and(excludeEndedOrDeleted())
+        Specification<GroupBuy> spec = Specification.where(excludeEndedOrDeleted())
                 .and(dueSoonOnlyEq(orderBy))
                 .and(categoryEq(categoryId))
                 .and(openOnlyEq(openOnly))
                 .and(keywordLike(keyword))
-                .and(cursorSpec(orderBy, cursorId, cursorCreatedAt, cursorPrice));
+                .and(cursorSpec(orderBy, cursorId, cursorCreatedAt, cursorSoldRatio, cursorPrice));
 
         // 4) DB 조회 (필터+정렬+커서+페이징)
         Page<GroupBuy> result = groupBuyRepository.findAll(spec, page);
@@ -99,6 +97,7 @@ public class GetGroupBuyListByCursor {
         Long nextCursorId = null;
         Integer nextCursorPrice = null;
         LocalDateTime nextCreatedAt = null;
+        Integer nextCursorSoldRatio = null;
 
         if (hasMore) {
             GroupBuy last = entities.getLast();
@@ -106,6 +105,8 @@ public class GetGroupBuyListByCursor {
             nextCreatedAt   = last.getCreatedAt();
             if ("price_asc".equals(orderBy)) {
                 nextCursorPrice = last.getUnitPrice();
+            } else if ("ending_soon".equals(orderBy)) {
+                nextCursorSoldRatio = last.getSoldRatio();
             }
         }
 
@@ -114,6 +115,7 @@ public class GetGroupBuyListByCursor {
                 .posts(posts)
                 .nextCursor(nextCursorId != null ? nextCursorId.intValue() : null)
                 .nextCursorPrice(nextCursorPrice)
+                .nextSoldRatio(nextCursorSoldRatio)
                 .nextCreatedAt(nextCreatedAt)
                 .hasMore(hasMore)
                 .build();
@@ -122,13 +124,6 @@ public class GetGroupBuyListByCursor {
     // ────────────────────────────────────────────────────────────────────
     // Specification 헬퍼 메서드들
     // ────────────────────────────────────────────────────────────────────
-
-    private Specification<GroupBuy> distinct() {
-        return (root, query, cb) -> {
-            query.distinct(true);
-            return cb.conjunction();   // where 조건 없음
-        };
-    }
 
     private Specification<GroupBuy> excludeEndedOrDeleted() {
         return (root, query, cb) ->
@@ -196,6 +191,7 @@ public class GetGroupBuyListByCursor {
             String orderBy,
             Long cursorId,
             LocalDateTime cursorCreatedAt,
+            Integer cursorSoldRatio,
             Integer cursorPrice
     ) {
         return (root, query, cb) -> {
@@ -208,26 +204,36 @@ public class GetGroupBuyListByCursor {
                     Path<Integer> price  = root.get("unitPrice");
                     Path<LocalDateTime> created = root.get("createdAt");
                     return cb.or(
-                            cb.greaterThan(price, cursorPrice),
+                            cb.lessThan(price, cursorPrice),
                             cb.and(
                                     cb.equal(price, cursorPrice),
-                                    cb.greaterThan(created, cursorCreatedAt)
+                                    cb.lessThan(created, cursorCreatedAt)
                             ),
                             cb.and(
                                     cb.equal(price, cursorPrice),
                                     cb.equal(created, cursorCreatedAt),
-                                    cb.greaterThan(root.get("id"), cursorId)
+                                    cb.lessThan(root.get("id"), cursorId)
                             )
                     );
                 }
                 case "ending_soon":
+                    Path<Integer> ratio = root.get("soldRatio");
+                    return cb.or(
+                            // 비율이 낮은 것(= 뒤 페이지)
+                            cb.lessThan(ratio, cursorSoldRatio),
+                            // 같은 비율일 땐 ID 작은 순
+                            cb.and(
+                                cb.equal(ratio,cursorSoldRatio),
+                                cb.lessThan(root.get("id"), cursorId)
+                            )
+                    );
                 case "due_soon_only": {
                     Path<LocalDateTime> dueDate = root.get("dueDate");
                     return cb.or(
-                            cb.greaterThan(dueDate, cursorCreatedAt),
+                            cb.lessThan(dueDate, cursorCreatedAt),
                             cb.and(
                                     cb.equal(dueDate, cursorCreatedAt),
-                                    cb.greaterThan(root.get("id"), cursorId)
+                                    cb.lessThan(root.get("id"), cursorId)
                             )
                     );
                 }
