@@ -64,6 +64,7 @@ public class GetGroupBuyListByCursorTest {
                 .nextCursor(101)
                 .nextCursorPrice(null)
                 .nextCreatedAt(LocalDateTime.of(2025,5,20,12,0))
+                .nextSoldRatio(5)
                 .hasMore(false)
                 .build();
 
@@ -86,6 +87,7 @@ public class GetGroupBuyListByCursorTest {
                         .param("sort", "created")
                         .param("cursorId", "50")
                         .param("cursorCreatedAt", "2025-05-26T12:00:00") // 날짜 일치시켜야 함
+                        .param("cursorSoldRatio", "5")
                         .param("cursorPrice", "1000")
                         .param("limit", "5")
                         .param("openOnly", "false")
