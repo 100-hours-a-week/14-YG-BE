@@ -29,6 +29,7 @@ public interface GroupBuyQueryFacade {
             String orderBy,
             Long cursorId,
             LocalDateTime cursorCreatedAt,
+            Integer cursorSoldRatio,
             Integer cursorPrice,
             Integer limit,
             Boolean openOnly,
