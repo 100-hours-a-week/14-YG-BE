@@ -2,6 +2,7 @@ package com.moogsan.moongsan_backend.domain.chatting.service.query;
 
 import com.moogsan.moongsan_backend.domain.chatting.dto.query.ChatMessageResponse;
 import com.moogsan.moongsan_backend.domain.chatting.entity.ChatMessageDocument;
+import com.moogsan.moongsan_backend.domain.chatting.entity.ChatParticipant;
 import com.moogsan.moongsan_backend.domain.chatting.entity.ChatRoom;
 import com.moogsan.moongsan_backend.domain.chatting.exception.specific.ChatRoomNotFoundException;
 import com.moogsan.moongsan_backend.domain.chatting.exception.specific.NotParticipantException;
@@ -89,16 +90,29 @@ public class GetLatestMessages {
             SecurityContext context
     ) {
         Long chatRoomId = newMessage.getChatRoomId();
+        Long senderParticipantId = newMessage.getChatParticipantId();
         Map<Long, DeferredResult<List<ChatMessageResponse>>> roomListeners = listeners.getOrDefault(chatRoomId, Map.of());
 
         ChatMessageResponse response = chatMessageQueryMapper.toMessageResponse(newMessage, nickname, imageKey);
-        for (DeferredResult<List<ChatMessageResponse>> dr : roomListeners.values()) {
+
+        for (Map.Entry<Long, DeferredResult<List<ChatMessageResponse>>> entry : roomListeners.entrySet()) {
+            Long userId = entry.getKey();
+            DeferredResult<List<ChatMessageResponse>> dr = entry.getValue();
+
+            // 해당 유저의 ChatParticipantId 조회
+            Optional<Long> participantIdOpt = chatParticipantRepository
+                    .findByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoomId, userId)
+                    .map(ChatParticipant::getId);
+
+            // 작성자 본인은 notify 대상에서 제외
+            if (participantIdOpt.isEmpty() || participantIdOpt.get().equals(senderParticipantId)) {
+                continue;
+            }
+
             Runnable task = () -> dr.setResult(List.of(response));
             Runnable securedTask = new DelegatingSecurityContextRunnable(task, context);
             // securedTask.run(); // 현재 스레드에서 즉시 실행 (r.setResult(...)가 현재 스레드에서 동기적 실행
-            Thread.startVirtualThread(securedTask); // Loom 스레드 사용
+            Thread.startVirtualThread(securedTask);
         }
-
-        // 응답 후 연결 자동 제거
     }
 }
