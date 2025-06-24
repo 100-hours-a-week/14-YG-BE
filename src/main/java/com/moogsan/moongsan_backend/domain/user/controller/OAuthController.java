@@ -9,13 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/oauth")
 @RequiredArgsConstructor
 public class OAuthController {
     private final KakaoOAuthService kakaoOAuthService;
@@ -28,7 +26,7 @@ public class OAuthController {
         log.debug("Received Kakao OAuth callback with code: {}", code);
     }
 
-    @GetMapping("/kakao/callback/complete")
+    @GetMapping("/api/oauth/kakao/callback/complete")
     public ResponseEntity<WrapperResponse<?>> kakaoLoginComplete(
             @RequestParam("code") String code,
             HttpServletResponse response) {
