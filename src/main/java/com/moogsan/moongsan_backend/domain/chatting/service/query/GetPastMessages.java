@@ -154,12 +154,12 @@ public class GetPastMessages {
             );
         }).collect(Collectors.toList());
 
-        String nextCursor = finalPage.isEmpty() ? null : finalPage.getLast().getId();
+        String beforeCursor = finalPage.isEmpty() ? null : finalPage.getLast().getId();
 
         return ChatMessagePageResponse.builder()
                 .chatMessageResponses(responses)
-                .nextCursorId(nextCursor)
-                .hasNext(hasNext)
+                .beforeCursorId(beforeCursor)
+                .hasBefore(hasNext)
                 .build();
     }
 }
