@@ -1,5 +1,6 @@
 package com.moogsan.moongsan_backend.domain.user.service;
 
+import com.moogsan.moongsan_backend.domain.image.service.S3Service;
 import com.moogsan.moongsan_backend.domain.user.dto.request.UpdateProfileAccountRequest;
 import com.moogsan.moongsan_backend.domain.user.dto.request.UpdateProfileRequest;
 import com.moogsan.moongsan_backend.domain.user.dto.request.UpdateProfileImageRequest;
@@ -20,6 +21,7 @@ public class UpdateProfileService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final S3Service s3Service;
 
     // 프로필 이미지 수정
     public void updateProfileImage(Long userId, UpdateProfileImageRequest request) {
@@ -27,6 +29,14 @@ public class UpdateProfileService {
                 .orElseThrow(() -> new UserException(UserErrorCode.NOT_FOUND));
         if (request.getImageKey() == null && !request.toString().contains("imageKey")) {
             throw new UserException(UserErrorCode.INVALID_INPUT, "잘못된 요청입니다. 'imageKey' 필드가 필요합니다.");
+        }
+        if (!request.getImageKey().startsWith("users/")) {
+            String fileName = request.getImageKey().substring(request.getImageKey().lastIndexOf('/') + 1);
+            String destKey = "users/" + fileName;
+            s3Service.moveImage(request.getImageKey(), destKey);
+            s3Service.deleteImage(request.getImageKey());
+            user.updateImage(destKey);
+            return;
         }
         user.updateImage(request.getImageKey());
     }
