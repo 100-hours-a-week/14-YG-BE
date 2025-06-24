@@ -129,7 +129,7 @@ public class GetPastMessages {
         finalQ.with(Sort.by(Sort.Order.asc("_id")));
         List<ChatMessageDocument> finalPage = mongoTemplate.find(finalQ, ChatMessageDocument.class);
 
-        // ❗ 정렬 역전 보정
+        // 정렬 역전 보정
         if (isPrev) {
             Collections.reverse(finalPage);
         }
@@ -154,7 +154,7 @@ public class GetPastMessages {
             );
         }).collect(Collectors.toList());
 
-        String nextCursor = finalPage.isEmpty() ? null : finalPage.get(finalPage.size() - 1).getId();
+        String nextCursor = finalPage.isEmpty() ? null : finalPage.getLast().getId();
 
         return ChatMessagePageResponse.builder()
                 .chatMessageResponses(responses)
