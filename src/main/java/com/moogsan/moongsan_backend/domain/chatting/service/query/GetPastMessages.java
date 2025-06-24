@@ -62,12 +62,14 @@ public class GetPastMessages {
         String redisKey = "chatting:messages:" + chatRoomId;
         double cursorScore = cursorId != null
                 ? toScore(cursorId)
-                : (isPrev ? Double.MAX_VALUE : Double.MIN_VALUE);
+                : Double.MAX_VALUE; // 일단 최신으로 고정 (양방향 사용 시 수정 필요)
 
         // 2) Redis 조회 (방향 분기)
-        Set<String> cachedMembers = isPrev
+        Set<String> cachedMembers = redisTemplate.opsForZSet().reverseRangeByScore(redisKey, cursorScore - 1, Double.NEGATIVE_INFINITY, 0, PAGE_SIZE + 1);
+                /*isPrev
                 ? redisTemplate.opsForZSet().reverseRangeByScore(redisKey, cursorScore - 1, Double.NEGATIVE_INFINITY, 0, PAGE_SIZE + 1)
                 : redisTemplate.opsForZSet().rangeByScore(redisKey, cursorScore + 1, Double.MAX_VALUE, 0, PAGE_SIZE + 1);
+                 */
 
         // 3) 캐시 메시지를 ID로 변환
         List<String> idList = cachedMembers.stream()
@@ -101,7 +103,8 @@ public class GetPastMessages {
                         ? cursorCriteria.lt(new ObjectId(cursorId))
                         : cursorCriteria.gt(new ObjectId(cursorId)));
             }
-            q.with(Sort.by(isPrev ? Sort.Direction.DESC : Sort.Direction.ASC, "_id")).limit(need + 1);
+            q.with(Sort.by(Sort.Direction.DESC, "_id")).limit(need + 1);
+            //q.with(Sort.by(isPrev ? Sort.Direction.DESC : Sort.Direction.ASC, "_id")).limit(need + 1);
             List<ChatMessageDocument> fetched = mongoTemplate.find(q, ChatMessageDocument.class);
             List<ChatMessageDocument> toCache = fetched.stream().limit(need).toList();
 
