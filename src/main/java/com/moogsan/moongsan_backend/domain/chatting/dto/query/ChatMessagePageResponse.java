@@ -11,8 +11,7 @@ import java.util.List;
 public class ChatMessagePageResponse {
     private List<ChatMessageResponse> chatMessageResponses;   // 채팅 메세지
 
-    private String nextCursorId;           // 다음 페이지용 postId
-    private LocalDateTime nextCreatedAt;  // 다음 페이지용 createdAt
+    private String beforeCursorId;           // 이전 페이지용 postId
 
-    private boolean hasNext;              // 다음 페이지 존재 여부
+    private boolean hasBefore;               // 이전 페이지 존재 여부
 }

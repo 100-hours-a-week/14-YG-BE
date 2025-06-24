@@ -35,6 +35,15 @@ public class GetPastMessagesController {
             @RequestParam(required = false) String cursorMessageIdAfter
     ) {
 
+        if (cursorMessageIdBefore == null && cursorMessageIdAfter == null) {
+            // 최초 요청 → 최신 메시지부터 시작
+            return ResponseEntity.ok(
+                    WrapperResponse.<ChatMessagePageResponse>builder()
+                            .message("최신 메시지 조회 성공")
+                            .data(chattingQueryFacade.getPastMessages(userDetails.getUser(), chatRoomId, null, true)) // 최신 → 과거 방향
+                            .build());
+        }
+
         if (cursorMessageIdBefore != null && cursorMessageIdAfter != null) {
             throw new IllegalArgumentException("하나의 커서만 제공해야 합니다.");
         }

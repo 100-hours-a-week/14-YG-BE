@@ -75,19 +75,6 @@ public class CreateChatMessage {
         SecurityContext context = SecurityContextHolder.getContext();
         chatMessageRepository.save(document);
 
-        String redisKey = "chatting:messages:" + chatRoomId;
-
-        try {
-            String json = objectMapper.writeValueAsString(document);
-            double score = toScore(document.getId()); // tie-breaker 점수
-            Boolean added = redisTemplate.opsForZSet().add(redisKey, json, score);
-            if (Boolean.TRUE.equals(added)) {
-                redisTemplate.expire(redisKey, Duration.ofHours(1)); // 키가 새로 생성됐을 때만 TTL 부여
-            }
-        } catch (JsonProcessingException e) {
-            log.warn("❌ Redis 캐싱 실패 [chatRoomId={}]: {}", chatRoomId, e.getMessage());
-        }
-
         // 롱 폴링
         getLatestMessages.notifyNewMessage(document, currentUser.getNickname(), currentUser.getImageKey(), context);
 
@@ -101,5 +88,18 @@ public class CreateChatMessage {
         );
 
          */
+
+        String redisKey = "chatting:messages:" + chatRoomId;
+
+        try {
+            String json = objectMapper.writeValueAsString(document);
+            double score = toScore(document.getId()); // tie-breaker 점수
+            Boolean added = redisTemplate.opsForZSet().add(redisKey, json, score);
+            if (Boolean.TRUE.equals(added)) {
+                redisTemplate.expire(redisKey, Duration.ofHours(1)); // 키가 새로 생성됐을 때만 TTL 부여
+            }
+        } catch (JsonProcessingException e) {
+            log.warn("❌ Redis 캐싱 실패 [chatRoomId={}]: {}", chatRoomId, e.getMessage());
+        }
     }
 }
