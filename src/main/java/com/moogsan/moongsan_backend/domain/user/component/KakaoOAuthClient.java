@@ -23,12 +23,8 @@ public class KakaoOAuthClient {
     @Value("${oauth.kakao.client-id}")
     private String clientId;
 
-    // Kakao OAuth redirect URI 설정
-    @Value("${oauth.kakao.redirect-uri}")
-    private String redirectUri;
-
     // 인가 코드를 이용해 Kakao로부터 Access Token을 요청하는 메서드
-    public KakaoTokenResponse requestAccessToken(String code) {
+    public KakaoTokenResponse requestAccessToken(String code, String redirectUri) {
         String tokenUri = "https://kauth.kakao.com/oauth/token";
 
         // HTTP 요청 헤더 설정 (Content-Type: application/x-www-form-urlencoded)
