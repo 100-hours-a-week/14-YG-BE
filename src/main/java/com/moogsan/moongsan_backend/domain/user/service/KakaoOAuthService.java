@@ -4,6 +4,7 @@ import com.moogsan.moongsan_backend.domain.user.exception.base.UserException;
 import com.moogsan.moongsan_backend.domain.user.exception.code.UserErrorCode;
 import com.moogsan.moongsan_backend.global.security.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import com.moogsan.moongsan_backend.domain.user.dto.response.LoginResponse;
 import com.moogsan.moongsan_backend.domain.user.dto.response.OAuthSignUpInfoResponse;
@@ -24,6 +25,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class KakaoOAuthService {
 
     private final KakaoOAuthClient kakaoOAuthClient;
@@ -33,14 +35,16 @@ public class KakaoOAuthService {
     private final TokenRepository refreshTokenRepository;
 
     @Transactional
-    public LoginResponse kakaoLogin(String code, HttpServletResponse response) {
+    public LoginResponse kakaoLogin(String code, String redirectUri, HttpServletResponse response) {
         // 카카오 토큰, 정보 요청
         KakaoTokenResponse tokenResponse;
         KakaoUserInfoResponse kakaoUser;
         try {
-            tokenResponse = kakaoOAuthClient.requestAccessToken(code);
+            log.debug("카카오 OAuth 요청: code = {}, redirectUri = {}", code, redirectUri);
+            tokenResponse = kakaoOAuthClient.requestAccessToken(code, redirectUri);
             kakaoUser = kakaoOAuthClient.requestUserInfo(tokenResponse.getAccessToken());
         } catch (Exception e) {
+            log.error("카카오 OAuth 요청 중 예외 발생", e);
             throw new UserException(
                 UserErrorCode.INTERNAL_SERVER_ERROR,
                 "OAuth 요청 중 오류 발생"
