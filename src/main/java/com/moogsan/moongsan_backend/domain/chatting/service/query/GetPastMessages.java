@@ -132,11 +132,6 @@ public class GetPastMessages {
         finalQ.with(Sort.by(Sort.Order.asc("_id")));
         List<ChatMessageDocument> finalPage = mongoTemplate.find(finalQ, ChatMessageDocument.class);
 
-        // 정렬 역전 보정
-        if (isPrev) {
-            Collections.reverse(finalPage);
-        }
-
         // 7) hasNext 계산
         boolean hasNext = finalPage.size() == PAGE_SIZE && (
                 !dbDocs.isEmpty() || cachedMembers.size() > PAGE_SIZE
