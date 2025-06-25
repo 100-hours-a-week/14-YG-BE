@@ -23,15 +23,17 @@ public class OAuthController {
 
     @GetMapping("/kakao/callback")
     public void kakaoCallback(@RequestParam("code") String code, HttpServletResponse response) {
-        log.debug("Received Kakao OAuth callback with code: {}", code);
+        log.debug("카카오로부터 사용자 코드를 받아옴: {}", code);
     }
 
     @GetMapping("/api/oauth/kakao/callback/complete")
     public ResponseEntity<WrapperResponse<?>> kakaoLoginComplete(
             @RequestParam("code") String code,
             HttpServletResponse response) {
+        log.debug("카카오 로그인 성공: {}", code);
 
         LoginResponse loginResponse = kakaoOAuthService.kakaoLogin(code, response);
+        log.debug("서비스 로그인 성공: {}", code);
 
         return ResponseEntity.ok(
                 WrapperResponse.builder()
