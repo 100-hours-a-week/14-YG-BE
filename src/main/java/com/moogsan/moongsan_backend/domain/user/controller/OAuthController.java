@@ -3,7 +3,6 @@ package com.moogsan.moongsan_backend.domain.user.controller;
 import com.moogsan.moongsan_backend.domain.WrapperResponse;
 import com.moogsan.moongsan_backend.domain.user.dto.response.LoginResponse;
 import com.moogsan.moongsan_backend.domain.user.service.KakaoOAuthService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,14 +28,9 @@ public class OAuthController {
 
     @GetMapping("/api/oauth/kakao/callback/complete")
     public ResponseEntity<WrapperResponse<?>> kakaoLoginComplete(
+            @RequestParam("redirectUri") String redirectUri,
             @RequestParam("code") String code,
-            HttpServletRequest request,
             HttpServletResponse response) {
-
-        String baseUrl = request.getScheme() + "://" + request.getServerName() +
-                ((request.getServerPort() == 80 || request.getServerPort() == 443) ? "" : ":" + request.getServerPort());
-
-        String redirectUri = baseUrl + "/kakao/callback";
 
         log.debug("카카오 로그인 redirectUri: {}", redirectUri);
         log.debug("카카오 로그인 성공: {}", code);
