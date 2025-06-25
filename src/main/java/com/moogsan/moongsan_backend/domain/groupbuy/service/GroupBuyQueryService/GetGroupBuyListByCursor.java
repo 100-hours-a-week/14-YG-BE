@@ -208,9 +208,7 @@ public class GetGroupBuyListByCursor {
                     Path<Long> id = root.get("id");
                     return cb.or(
                             cb.lessThan(ratio, cursorSoldRatio),
-                            cb.and(cb.equal(ratio, cursorSoldRatio),
-                                    cb.lessThan(root.get("id"), cursorId)),
-                            cb.lessThan(id, cursorId)
+                            cb.and(cb.equal(ratio, cursorSoldRatio), cb.greaterThan(id, cursorId))
                     );
                 }
                 case "due_soon_only": {
