@@ -90,7 +90,6 @@ public class GetLatestMessages {
             SecurityContext context
     ) {
         Long chatRoomId = newMessage.getChatRoomId();
-        Long senderParticipantId = newMessage.getChatParticipantId();
         Map<Long, DeferredResult<List<ChatMessageResponse>>> roomListeners = listeners.getOrDefault(chatRoomId, Map.of());
 
         ChatMessageResponse response = chatMessageQueryMapper.toMessageResponse(newMessage, nickname, imageKey);
@@ -98,16 +97,6 @@ public class GetLatestMessages {
         for (Map.Entry<Long, DeferredResult<List<ChatMessageResponse>>> entry : roomListeners.entrySet()) {
             Long userId = entry.getKey();
             DeferredResult<List<ChatMessageResponse>> dr = entry.getValue();
-
-            // 해당 유저의 ChatParticipantId 조회
-            Optional<Long> participantIdOpt = chatParticipantRepository
-                    .findByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoomId, userId)
-                    .map(ChatParticipant::getId);
-
-            // 작성자 본인은 notify 대상에서 제외
-            if (participantIdOpt.isEmpty() || participantIdOpt.get().equals(senderParticipantId)) {
-                continue;
-            }
 
             Runnable task = () -> dr.setResult(List.of(response));
             Runnable securedTask = new DelegatingSecurityContextRunnable(task, context);
