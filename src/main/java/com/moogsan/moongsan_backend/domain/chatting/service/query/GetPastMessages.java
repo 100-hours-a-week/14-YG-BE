@@ -62,14 +62,12 @@ public class GetPastMessages {
         String redisKey = "chatting:messages:" + chatRoomId;
         double cursorScore = cursorId != null
                 ? toScore(cursorId)
-                : Double.MAX_VALUE; // 일단 최신으로 고정 (양방향 사용 시 수정 필요)
+                : (isPrev ? Double.MAX_VALUE : Double.MIN_VALUE);
 
         // 2) Redis 조회 (방향 분기)
-        Set<String> cachedMembers = redisTemplate.opsForZSet().reverseRangeByScore(redisKey, cursorScore - 1, Double.NEGATIVE_INFINITY, 0, PAGE_SIZE + 1);
-                /*isPrev
+        Set<String> cachedMembers = isPrev
                 ? redisTemplate.opsForZSet().reverseRangeByScore(redisKey, cursorScore - 1, Double.NEGATIVE_INFINITY, 0, PAGE_SIZE + 1)
                 : redisTemplate.opsForZSet().rangeByScore(redisKey, cursorScore + 1, Double.MAX_VALUE, 0, PAGE_SIZE + 1);
-                 */
 
         // 3) 캐시 메시지를 ID로 변환
         List<String> idList = cachedMembers.stream()
@@ -103,8 +101,9 @@ public class GetPastMessages {
                         ? cursorCriteria.lt(new ObjectId(cursorId))
                         : cursorCriteria.gt(new ObjectId(cursorId)));
             }
-            q.with(Sort.by(Sort.Direction.DESC, "_id")).limit(need + 1);
-            //q.with(Sort.by(isPrev ? Sort.Direction.DESC : Sort.Direction.ASC, "_id")).limit(need + 1);
+            Sort.Direction direction = isPrev ? Sort.Direction.DESC : Sort.Direction.ASC;
+            q.with(Sort.by(direction, "_id")).limit(need + 1);
+
             List<ChatMessageDocument> fetched = mongoTemplate.find(q, ChatMessageDocument.class);
             List<ChatMessageDocument> toCache = fetched.stream().limit(need).toList();
 
@@ -128,9 +127,15 @@ public class GetPastMessages {
                 .collect(Collectors.toList());
 
         // 6) 최종 정렬 및 조회
+        Sort.Direction finalDirection = isPrev ? Sort.Direction.DESC : Sort.Direction.ASC;
         Query finalQ = new Query(Criteria.where("_id").in(finalIds));
-        finalQ.with(Sort.by(Sort.Order.asc("_id")));
+        finalQ.with(Sort.by(finalDirection, "_id"));
         List<ChatMessageDocument> finalPage = mongoTemplate.find(finalQ, ChatMessageDocument.class);
+
+        // 6-1) 정방향 응답을 위해 정렬 (오름차순으로 보내기)
+        if (isPrev) {
+            Collections.reverse(finalPage);
+        }
 
         // 7) hasNext 계산
         boolean hasNext = finalPage.size() == PAGE_SIZE && (
@@ -152,7 +157,13 @@ public class GetPastMessages {
             );
         }).collect(Collectors.toList());
 
-        String beforeCursor = finalPage.isEmpty() ? null : finalPage.getLast().getId();
+        String beforeCursor = null;
+
+        if (!finalPage.isEmpty()) {
+            beforeCursor = isPrev
+                    ? finalPage.getFirst().getId()
+                    : finalPage.getLast().getId();
+        }
 
         return ChatMessagePageResponse.builder()
                 .chatMessageResponses(responses)
