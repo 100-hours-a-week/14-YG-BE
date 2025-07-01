@@ -31,47 +31,48 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint((request, response, authException) -> {
-                            response.setStatus(401);
-                            response.setContentType("application/json;charset=UTF-8");
-                            response.getWriter().write("{\"message\": \"로그인이 필요합니다.\", \"data\": null}");
-                        })
-                )
-                .authorizeHttpRequests(auth -> auth
-                        // 에러 핸들러 공개
-                        .requestMatchers("/error", "/error/**").permitAll()
-                        .requestMatchers(HttpMethod.GET,
-                                "/api/group-buys",                   // 메인
-                                "/api/group-buys/*"                            // 상세(한 단계 하위)
-                        ).permitAll()
-                        // 인증 필요
-                        .requestMatchers(HttpMethod.GET,
-                                "/api/group-buys/user/wishes",       // 위시 리스트 조회
-                                "/api/group-buys/user/hosts",                  // 주최 리스트 조회
-                                "/api/group-buys/user/participants",           // 참여 리스트 조회
-                                "/api/group-buys/*/participants"        // 공구 참여자 조회
-                        ).authenticated()
-                        .requestMatchers(
-                                "/api/users",
-                                "/api/users/token",
-                                "/api/users/check-nickname",
-                                "/api/users/check-email",
-                                "/uploads/**",
-                                "/api/group-buys/generation/description",
-                                "/api/users/check/account",
-                                "/kakao/callback",
-                                "/api/oauth/kakao/callback/complete"
-                        ).permitAll() // 해당 위치 외에는 토큰 적용
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(
-                        new JwtAuthenticationFilter(jwtUtil, userDetailsService),
-                        AnonymousAuthenticationFilter.class
-                );
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .exceptionHandling(exception -> exception
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(401);
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write("{\"message\": \"로그인이 필요합니다.\", \"data\": null}");
+                })
+            )
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                    "/error", "/error/**",
+                    "/api/users",                           // 회원가입
+                    "/api/users/token",                     // 로그인
+                    "/api/users/check-nickname",            // 닉네임 중복 확인
+                    "/api/users/check-email",               // 이메일 중복 확인
+                    "/uploads/**",                          // 이미지 업로드
+                    "/api/group-buys/generation/description", // AI 응답 생성
+                    "/api/users/check/account",             // 계좌 예금주 확인
+                    "/kakao/callback",                      // 카카오 OAuth Callback Redirect URI
+                    "/api/oauth/kakao/callback/complete",   // OAuth 연동
+                    "/ws/chat/**",                          // STOMP WebSocket 연결 허용
+                    "/test-chat.html",                      // WebSocket 테스트 HTML
+                    "/favicon.ico"                          // 브라우저 요청 아이콘
+                ).permitAll()
+                .requestMatchers(HttpMethod.GET,
+                    "/api/group-buys",                      // 공구글 목록 조회
+                    "/api/group-buys/*"                     // 공구글 상세 조회
+                ).permitAll()
+                .requestMatchers(HttpMethod.GET,
+                    "/api/group-buys/user/wishes",          // 위시 리스트 조회
+                    "/api/group-buys/user/hosts",           // 주최 리스트 조회
+                    "/api/group-buys/user/participants",    // 참여 리스트 조회
+                    "/api/group-buys/*/participants"        // 공구 참여자 조회
+                ).authenticated()
+                .anyRequest().authenticated()
+            )
+            .addFilterBefore(
+                new JwtAuthenticationFilter(jwtUtil, userDetailsService),
+                AnonymousAuthenticationFilter.class
+            );
 
         return http.build();
     }
