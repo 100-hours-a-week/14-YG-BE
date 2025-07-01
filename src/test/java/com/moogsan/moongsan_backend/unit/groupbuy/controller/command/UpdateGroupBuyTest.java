@@ -72,7 +72,7 @@ public class UpdateGroupBuyTest {
                 .dueDate(LocalDateTime.now().plusDays(3))
                 .pickupDate(LocalDateTime.now().plusDays(10))
                 .dateModificationReason("배송이 늦네요...")
-                .imageKeys(List.of("images/image1.jpg"))
+                .imageKeys(List.of("tmp/image1.jpg"))
                 .build();
 
         // ====== Facade 스텁 ====== 생략
@@ -436,7 +436,7 @@ public class UpdateGroupBuyTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(BAD_REQUEST))
-                .andExpect(jsonPath("$.data.imageKeys").value(INVALID_IMAGE));
+                .andExpect(jsonPath("$.data.imageKeys").value(INVALID_UPDATE_IMAGE));
     }
 
     @Test
@@ -457,7 +457,7 @@ public class UpdateGroupBuyTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(BAD_REQUEST))
-                .andExpect(jsonPath("$.data.imageKeys").value(INVALID_IMAGE));
+                .andExpect(jsonPath("$.data.imageKeys").value(INVALID_UPDATE_IMAGE));
     }
 
     @Test
@@ -475,7 +475,7 @@ public class UpdateGroupBuyTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(BAD_REQUEST))
-                .andExpect(jsonPath("$.data.*", hasItem(INVALID_IMAGE)));
+                .andExpect(jsonPath("$.data.*", hasItem(INVALID_UPDATE_IMAGE)));
     }
 
     @Test
@@ -493,7 +493,7 @@ public class UpdateGroupBuyTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(BAD_REQUEST))
-                .andExpect(jsonPath("$.data.*", hasItem(INVALID_IMAGE)));
+                .andExpect(jsonPath("$.data.*", hasItem(INVALID_UPDATE_IMAGE)));
     }
 
     @Test

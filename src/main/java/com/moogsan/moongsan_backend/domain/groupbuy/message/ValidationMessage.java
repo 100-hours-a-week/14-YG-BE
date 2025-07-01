@@ -19,5 +19,6 @@ public class ValidationMessage {
     public static final String LOCATION_SIZE = "거래 장소는 공백을 제외한 2자 이상, 85자 이하로 입력해주세요.";
     public static final String INVALID_PICKUPDATE = "픽업 일자는 현재 시간 이후여야 합니다.";
     public static final String INVALID_IMAGE = "tmp/로 시작하는 이미지를 1장 이상, 5장 이하로 등록해주세요.";
+    public static final String INVALID_UPDATE_IMAGE = "tmp/ 혹은 group-buys/로 시작하는 이미지를 1장 이상, 5장 이하로 등록해주세요.";
     public static final String BLANK_DATEMODIFICATION_REASON = "픽업 일자가 변경된 경우 사유를 2자 이상, 85자 이하로 작성해야 합니다.";
 }
