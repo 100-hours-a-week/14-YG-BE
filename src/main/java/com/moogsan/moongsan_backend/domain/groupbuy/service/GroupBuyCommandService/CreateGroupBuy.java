@@ -65,7 +65,7 @@ public class CreateGroupBuy {
         gb.decreaseLeftAmount(createGroupBuyRequest.getHostQuantity());
         gb.increaseParticipantCount();
 
-        if (gb.isAlmostSoldOut()) {
+        if (gb.getLeftAmount() == 0) {
             gb.changePostStatus("CLOSED");
         }
         groupBuyRepository.save(gb);

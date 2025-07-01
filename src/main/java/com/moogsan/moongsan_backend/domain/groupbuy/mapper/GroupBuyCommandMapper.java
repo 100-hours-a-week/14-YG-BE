@@ -17,7 +17,6 @@ public class GroupBuyCommandMapper {
     // 공구 게시글 생성 팩토리 메서드
     public GroupBuy create(CreateGroupBuyRequest req, User host) {
         int unitPrice = (int) Math.round((double) req.getPrice() / req.getTotalAmount());
-        int leftAmount = req.getTotalAmount() - req.getHostQuantity();
 
         GroupBuy gb = GroupBuy.builder()
                 .title(req.getTitle())
@@ -26,8 +25,8 @@ public class GroupBuyCommandMapper {
                 .price(req.getPrice())
                 .unitPrice(unitPrice)
                 .totalAmount(req.getTotalAmount())
+                .leftAmount(req.getTotalAmount())
                 .hostQuantity(req.getHostQuantity())
-                .leftAmount(leftAmount)
                 .unitAmount(req.getUnitAmount())
                 .description(req.getDescription())
                 .dueDate(req.getDueDate())
