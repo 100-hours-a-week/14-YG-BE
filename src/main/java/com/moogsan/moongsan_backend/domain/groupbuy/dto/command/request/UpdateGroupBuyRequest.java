@@ -25,13 +25,13 @@ public class UpdateGroupBuyRequest {
     @ProfanitySafe
     @XssSafe
     @NotBlankIfPresent(message = TITLE_SIZE)
-    @Size(min = 1, max = 30, message = TITLE_SIZE)
+    @Size(min = 1, max = 100, message = TITLE_SIZE)
     private String title;
 
     @ProfanitySafe
     @XssSafe
     @NotBlankIfPresent(message = NAME_SIZE)
-    @Size(min = 1, max = 30, message = NAME_SIZE)
+    @Size(min = 1, max = 100, message = NAME_SIZE)
     private String name;
 
     @ProfanitySafe
@@ -40,7 +40,7 @@ public class UpdateGroupBuyRequest {
     @Size(min = 2, max = 2000, message = DESCRIPTION_SIZE)
     private String description;
 
-    @Min(value = 0, message = BLANK_HOST_QUANTITY)  /// 이후 1로 수정 필요
+    @Min(value = 1, message = BLANK_HOST_QUANTITY)
     private Integer hostQuantity;
 
     @Future(message = INVALID_DUEDATE)
