@@ -33,8 +33,6 @@ public class CreateGroupBuyRequest {
     @Size(min = 1, max = 100, message = NAME_SIZE)
     private String name;
 
-    @ProfanitySafe
-    @XssSafe
     @Size(min = 1, max = 2000, message = URL_SIZE)
     @URL(message = INVALID_URL)
     private String url;
