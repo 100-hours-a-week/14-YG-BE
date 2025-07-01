@@ -57,11 +57,11 @@ public class UpdateGroupBuyRequest {
     @Size(min = 2, max = 85, message = BLANK_DATEMODIFICATION_REASON)
     private String dateModificationReason;
 
-    @Size(min=1, max = 5, message = INVALID_IMAGE)
+    @Size(min=1, max = 5, message = INVALID_UPDATE_IMAGE)
     private List<
-            @NotBlankIfPresent(message = INVALID_IMAGE)
+            @NotBlankIfPresent(message = INVALID_UPDATE_IMAGE)
             @Pattern(
-                    regexp = "^.*images/.*$",
-                    message = INVALID_IMAGE
+                    regexp = "^(?:tmp|group-buys)/\\S+$",
+                    message = INVALID_UPDATE_IMAGE
             ) String> imageKeys;
 }
