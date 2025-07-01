@@ -80,13 +80,13 @@ public class OrderCreateService {
         groupBuy.increaseParticipantCount();
         groupBuy.updateDueSoonStatus(dueSoonPolicy);
 
+        orderRepository.save(order);
+        chattingCommandFacade.joinChatRoom(user, groupBuy.getId());
+
         if (groupBuy.getLeftAmount() == 0) {
             groupBuy.changePostStatus("CLOSED");
         }
-
         groupBuyRepository.save(groupBuy);
-        orderRepository.save(order);
-        chattingCommandFacade.joinChatRoom(user, groupBuy.getId());
 
         return OrderCreateResponse.builder()
                 .orderId(order.getId())
