@@ -16,7 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.*;
 
@@ -52,21 +55,37 @@ public class UpdateGroupBuy {
         GroupBuy gb = groupBuy.updateForm(updateGroupBuyRequest);
 
         // 기존 S3 파일 삭제
-        gb.getImages().stream()
+        List<String> requested = Optional.ofNullable(updateGroupBuyRequest.getImageKeys())
+                .orElseGet(Collections::emptyList);
+        List<String> existing  = gb.getImages().stream()
                 .map(Image::getImageKey)
-                .forEach(s3Service::deleteImage);
+                .toList();
+
+        // 3-1. 삭제 대상: 기존에 있었지만 요청에 없는 키
+        existing.stream()
+                .filter(key -> !requested.contains(key))
+                .forEach(key -> {
+                    s3Service.deleteImage(key);
+                });
 
         // S3 파일 이동
         String destPrefix = "group-buys";
-        List<String> destKeys = updateGroupBuyRequest.getImageKeys().stream()
-                .map(imageKey -> {
-                    String fileName = imageKey.substring(imageKey.lastIndexOf('/') + 1);
-                    String destKey  = destPrefix + "/" + fileName;
-                    s3Service.moveImage(imageKey, destKey);
-                    return destKey;
-                }).toList();
+        List<String> finalKeys = new ArrayList<>();
+        for (String key : requested) {
+            if (key.startsWith("group-buys/")) {
+                // 이미 영구폴더에 있음 → 그대로
+                finalKeys.add(key);
+            } else if (key.startsWith("tmp/")) {
+                String fileName = key.substring(key.lastIndexOf('/') + 1);
+                String destKey  = "group-buys/" + fileName;
+                s3Service.moveImage(key, destKey);
+                finalKeys.add(destKey);
+            } else {
+                throw new IllegalArgumentException("Invalid image key: " + key);
+            }
+        }
 
-        imageMapper.mapImagesToGroupBuy(destKeys, gb);
+        imageMapper.mapImagesToGroupBuy(finalKeys, gb);
 
         groupBuyRepository.save(gb);
 
