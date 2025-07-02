@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.unit.order.service;
 
-import com.moogsan.moongsan_backend.domain.chatting.Facade.command.ChattingCommandFacade;
+import com.moogsan.moongsan_backend.domain.chatting.participant.Facade.command.ChattingCommandFacade;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.policy.DueSoonPolicy;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
