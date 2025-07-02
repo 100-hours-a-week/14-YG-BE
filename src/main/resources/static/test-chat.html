@@ -2,49 +2,61 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>STOMP 채팅 테스트</title>
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 </head>
 <body>
-<h2>STOMP 채팅 테스트</h2>
-<button onclick="connect()">연결</button>
-<button onclick="sendMessage()">메시지 전송</button>
-<input type="text" id="chatInput" placeholder="메시지를 입력하세요" />
+<button onclick="connect()">Connect</button>
+<button onclick="sendMessage()">Send Message</button>
 
 <script>
-    let stompClient;
+    // 사용자가 원하는 postId와 aliasId를 설정
+    const postId = 10;     // 필요 시 수정 가능
+    const aliasId = 10;    // 필요 시 수정 가능
 
+    let stompClient = null;
+
+    // STOMP 연결 함수
     function connect() {
-      const socket = new SockJS("/ws/chat");
-      stompClient = Stomp.over(socket);
+        // 웹소켓 연결 시작 (Spring WebSocket 엔드포인트에 연결)
+        const socket = new WebSocket("ws://localhost:8080/ws/chat");
 
-      stompClient.connect({}, () => {
-        console.log("✅ 연결됨");
+        // STOMP 클라이언트 초기화
+        stompClient = Stomp.over(socket);
 
-        // 메시지 구독
-        stompClient.subscribe("/topic/chat/1", (msg) => {
-          const payload = JSON.parse(msg.body);
-          console.log("📩 받은 메시지:", payload);
+        // STOMP 연결 시도
+        stompClient.connect({}, frame => {
+            console.log('✅ Connected to STOMP server. Frame:', frame);
+
+            // 서버로부터 메시지를 받을 경로 구독
+            stompClient.subscribe(`/sub/chat/${postId}`, message => {
+                console.log('📩 메시지 수신됨:', message.body);
+            });
+
+            console.log(`📡 구독 완료: /sub/chat/${postId}`);
+
+        }, error => {
+            console.error('❌ Connection error:', error);
         });
-      }, (error) => {
-        console.error("❌ 연결 실패:", error);
-      });
     }
 
+    // 메시지 전송 함수
     function sendMessage() {
-      if (!stompClient || !stompClient.connected) {
-        alert("먼저 연결해주세요!");
-        return;
-      }
+        if (!stompClient || !stompClient.connected) {
+            console.warn("⚠️ STOMP 연결이 되어있지 않습니다. 먼저 Connect 버튼을 누르세요.");
+            return;
+        }
 
-      const message = {
-        postId: 1,
-        aliasId: 7,
-        message: document.getElementById("chatInput").value || "테스트 메시지입니다."
-      };
+        // 전송할 메시지 내용 정의 (aliasId는 실제 앱에서는 서버에서 받은 값을 사용)
+        const payload = {
+            postId: postId,
+            aliasId: aliasId,
+            message: "테스트 메시지입니다."
+        };
 
-      stompClient.send("/pub/chat/1", {}, JSON.stringify(message));
+        // 서버로 메시지 전송
+        stompClient.send(`/pub/chat/${postId}`, {}, JSON.stringify(payload));
+        console.log('🚀 메시지 전송됨:', payload);
     }
 </script>
 </body>

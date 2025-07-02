@@ -1,14 +1,15 @@
 package com.moogsan.moongsan_backend.domain.chatting_anon.repository;
 
+import com.moogsan.moongsan_backend.domain.chatting_anon.entity.ChatAnon;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-public class ChatAnonRepository {
+public interface ChatAnonRepository extends MongoRepository<ChatAnon, String> {
 
-    public List<Integer> findDistinctAliasByPostId(Long postId) {
-        // TODO: implement actual MongoDB query to find distinct aliasIds for a post
-        return List.of(); // placeholder
-    }
+    @Query(value = "{ 'postId': ?0 }", fields = "{ 'aliasId': 1 }")
+    List<ChatAnon> findByPostId(Long postId);
 }

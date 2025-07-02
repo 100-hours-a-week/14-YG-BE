@@ -43,6 +43,8 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
+                        "/",
+                        "/static/**",
                     "/error", "/error/**",
                     "/api/users",                           // 회원가입
                     "/api/users/token",                     // 로그인
@@ -53,6 +55,7 @@ public class SecurityConfig {
                     "/api/users/check/account",             // 계좌 예금주 확인
                     "/kakao/callback",                      // 카카오 OAuth Callback Redirect URI
                     "/api/oauth/kakao/callback/complete",   // OAuth 연동
+                    "/ws/chat",                            // WebSocket 핸드셰이크 직접 허용
                     "/ws/chat/**",                          // STOMP WebSocket 연결 허용
                     "/test-chat.html",                      // WebSocket 테스트 HTML
                     "/favicon.ico"                          // 브라우저 요청 아이콘
@@ -95,6 +98,8 @@ public class SecurityConfig {
                 "https://dev.moongsan.com",
                 "http://localhost:3000",
                 "http://localhost:5173",
+                "http://localhost:8080",
+                "http://localhost:63342",
                 "https://moongsan.com"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
