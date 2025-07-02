@@ -1,9 +1,7 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.service.query;
 
-import com.google.common.reflect.TypeToken;
-import com.moogsan.moongsan_backend.domain.chatting.entity.ChatRoom;
-import com.moogsan.moongsan_backend.domain.chatting.repository.ChatRoomRepository;
-import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyDetail.UserAccountResponse;
+import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatRoom;
+import com.moogsan.moongsan_backend.domain.chatting.participant.repository.ChatRoomRepository;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.HostedList.HostedListResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.PagedResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
