@@ -12,4 +12,6 @@ public interface ChatAnonRepository extends MongoRepository<ChatAnon, String> {
 
     @Query(value = "{ 'postId': ?0 }", fields = "{ 'aliasId': 1 }")
     List<ChatAnon> findByPostId(Long postId);
+
+    List<ChatAnon> findByPostIdOrderByCreatedAtAsc(Long postId);
 }

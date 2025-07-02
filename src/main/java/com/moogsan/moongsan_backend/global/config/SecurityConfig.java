@@ -45,20 +45,22 @@ public class SecurityConfig {
                 .requestMatchers(
                         "/",
                         "/static/**",
-                    "/error", "/error/**",
-                    "/api/users",                           // 회원가입
-                    "/api/users/token",                     // 로그인
-                    "/api/users/check-nickname",            // 닉네임 중복 확인
-                    "/api/users/check-email",               // 이메일 중복 확인
-                    "/uploads/**",                          // 이미지 업로드
-                    "/api/group-buys/generation/description", // AI 응답 생성
-                    "/api/users/check/account",             // 계좌 예금주 확인
-                    "/kakao/callback",                      // 카카오 OAuth Callback Redirect URI
-                    "/api/oauth/kakao/callback/complete",   // OAuth 연동
-                    "/ws/chat",                            // WebSocket 핸드셰이크 직접 허용
-                    "/ws/chat/**",                          // STOMP WebSocket 연결 허용
-                    "/test-chat.html",                      // WebSocket 테스트 HTML
-                    "/favicon.ico"                          // 브라우저 요청 아이콘
+                        "/error", "/error/**",
+                        "/api/users",                           // 회원가입
+                        "/api/users/token",                     // 로그인
+                        "/api/users/check-nickname",            // 닉네임 중복 확인
+                        "/api/users/check-email",               // 이메일 중복 확인
+                        "/uploads/**",                          // 이미지 업로드
+                        "/api/group-buys/generation/description", // AI 응답 생성
+                        "/api/users/check/account",             // 계좌 예금주 확인
+                        "/kakao/callback",                      // 카카오 OAuth Callback Redirect URI
+                        "/api/oauth/kakao/callback/complete",   // OAuth 연동
+                        "/ws/chat",                             // WebSocket 핸드셰이크 직접 허용
+                        "/ws/chat/**",                          // STOMP WebSocket 연결 허용
+                        "/test-chat.html",                      // WebSocket 테스트 HTML
+                        "/favicon.ico",                         // 브라우저 요청 아이콘
+                        "/api/chat-anon/**"                     // 익명 채팅 내역 첫 조회
+
                 ).permitAll()
                 .requestMatchers(HttpMethod.GET,
                     "/api/group-buys",                      // 공구글 목록 조회
