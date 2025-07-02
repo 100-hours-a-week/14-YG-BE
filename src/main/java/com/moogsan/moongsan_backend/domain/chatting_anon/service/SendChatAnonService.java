@@ -33,13 +33,10 @@ public class SendChatAnonService {
 
     // 수신된 메시지를 처리하고 저장 및 브로드캐스트하는 메서드
     public void processMessage(Long postId, Integer aliasId, ChatAnonDto message) {
-        System.out.println("🟡 [DEBUG] processMessage 호출됨");
-
         // createdAt이 비어있으면 현재 시간으로 설정
         if (message.getCreatedAt() == null) {
             LocalDateTime now = LocalDateTime.now();
             message.setCreatedAt(now);
-            System.out.println("⏰ [DEBUG] createdAt이 null이어서 현재 시간으로 설정됨: " + now);
         }
 
         // 수신된 메시지 로그 출력
@@ -53,8 +50,7 @@ public class SendChatAnonService {
                 .createdAt(message.getCreatedAt())
                 .build();
 
-        // MongoDB 저장 시도 로그
-        System.out.println("💾 [DEBUG] MongoDB 저장 시도 - entity: " + entity);
+        // MongoDB 저장
         chatAnonRepository.save(entity);
 
         // 전체 메시지 개수 디버그 출력
@@ -73,7 +69,6 @@ public class SendChatAnonService {
                     .map(ChatAnon::getId)
                     .toList();
 
-            System.out.println("🗑️ [DEBUG] 삭제할 메시지 ID 목록: " + idsToDelete);
             chatAnonRepository.deleteAllById(idsToDelete);
         }
 
