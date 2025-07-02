@@ -17,14 +17,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws/chat")
-                .setAllowedOriginPatterns("*")
-                .withSockJS(); // STOMP fallback 지원
+                .setAllowedOriginPatterns("*");
     }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/topic"); // 구독 채널 prefix
-        registry.setApplicationDestinationPrefixes("/pub"); // 발행 요청 prefix
+        // /topic/roomId 형식으로 메시지 브로드캐스트
+        registry.enableSimpleBroker("/topic");
+        registry.setApplicationDestinationPrefixes("/pub");
     }
 
     @Override
@@ -32,7 +32,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registration.interceptors(new ChannelInterceptor() {
             @Override
             public Message<?> preSend(Message<?> message, MessageChannel channel) {
-                // 인증 없이 메시지를 통과시키는 테스트용 설정
+                // 익명 채팅이므로 인증은 생략
                 return message;
             }
         });

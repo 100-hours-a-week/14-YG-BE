@@ -4,10 +4,12 @@ import com.moogsan.moongsan_backend.domain.chatting_anon.entity.ChatAnon;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class ChatAnonDto {

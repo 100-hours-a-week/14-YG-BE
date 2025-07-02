@@ -1,24 +1,23 @@
 package com.moogsan.moongsan_backend.domain.chatting_anon.controller;
 
 import com.moogsan.moongsan_backend.domain.chatting_anon.dto.ChatAnonDto;
+import com.moogsan.moongsan_backend.domain.chatting_anon.service.SendChatAnonService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
 
 @Slf4j
 @Controller
 @RequiredArgsConstructor
 public class ChatAnonStompController {
-    private final SimpMessagingTemplate messagingTemplate;
+
+    private final SendChatAnonService sendChatAnonService;
 
     @MessageMapping("/chat/{postId}")
-    public void handleMessage(@DestinationVariable Long postId, ChatAnonDto message) {
-        log.info("📨 메시지 수신: postId={}, aliasId={}, message={}",
-                postId, message.getAliasId(), message.getMessage());
-
-        messagingTemplate.convertAndSend("/topic/chat/" + postId, message);
+    public void handleMessage(@DestinationVariable Long postId, @Payload ChatAnonDto message) {
+        sendChatAnonService.processMessage(postId, message.getAliasId(), message);
     }
 }
