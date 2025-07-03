@@ -1,6 +1,7 @@
 package com.moogsan.moongsan_backend.domain.chatting.anonymous.repository;
 
 import com.moogsan.moongsan_backend.domain.chatting.anonymous.entity.ChatAnon;
+import jakarta.validation.constraints.Size;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -14,4 +15,6 @@ public interface ChatAnonRepository extends MongoRepository<ChatAnon, String> {
     List<ChatAnon> findByPostId(Long postId);
 
     List<ChatAnon> findByPostIdOrderByCreatedAtAsc(Long postId);
+
+    boolean existsByPostIdAndAliasIdAndMessage(Long postId, int aliasId, @Size(max = 150) String message);
 }
