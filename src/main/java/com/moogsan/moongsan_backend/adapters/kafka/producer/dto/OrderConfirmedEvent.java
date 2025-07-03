@@ -1,9 +1,9 @@
 package com.moogsan.moongsan_backend.adapters.kafka.producer.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 /**
  * 토픽: order.status.confirmed
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 public class OrderConfirmedEvent extends BaseEvent{
     private Long orderId;  // 주문 아이디
 }

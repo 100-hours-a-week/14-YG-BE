@@ -1,11 +1,9 @@
 package com.moogsan.moongsan_backend.adapters.kafka.producer.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
+import lombok.experimental.SuperBuilder;
 
 /**
  * 토픽: groupbuy.pickup.approaching
@@ -14,7 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 public class GroupBuyPickupApproachingEvent extends BaseEvent{
     private Long groupBuyId;  // 공구 게시글 아이디
 }
