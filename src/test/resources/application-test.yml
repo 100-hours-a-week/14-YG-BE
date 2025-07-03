@@ -21,6 +21,9 @@ spring:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
+  kafka:
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP}
 
 ai:
   service:
@@ -49,3 +52,4 @@ oauth:
     client-secret: dummy-client-secret
     redirect-uri: http://localhost:18080/oauth2/callback/kakao
     complete-redirect: http://localhost:18080/dummy
+

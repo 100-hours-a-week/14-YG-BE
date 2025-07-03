@@ -38,14 +38,14 @@ public class GroupBuyScheduler {
     }
 
     // 공구 마감 예정 알림 (dueDate 하루 전, 매일 오전 10시 50분)
-    @Scheduled(cron = "0 0 10 50 * *")
+    @Scheduled(cron = "0 50 10 * * *")
     public void notifyDueApproachingGroupBuys() {
         LocalDateTime tomorrow = LocalDateTime.now().plusDays(1).toLocalDate().atStartOfDay();
         scheduleDueApproachingGroupBuys.publishDueApproachingEvents(tomorrow);
     }
 
     // 픽업 예정 알림 (pickupDate 하루 전, 매일 오전 11시 10분)
-    @Scheduled(cron = "0 0 11 10 * *")
+    @Scheduled(cron = "0 10 11 * * *")
     public void notifyPickupApproachingGroupBuys() {
         LocalDateTime tomorrow = LocalDateTime.now().plusDays(1).toLocalDate().atStartOfDay();
         schedulePickupApproachingGroupBuys.publishPickupApproachingEvents(tomorrow);

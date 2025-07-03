@@ -1,5 +1,7 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.service.command;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEventMapper;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.CreateGroupBuyRequest;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.UpdateGroupBuyRequest;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
@@ -19,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.kafka.core.KafkaTemplate;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -42,6 +45,15 @@ class UpdateGroupBuyTest {
 
     @Mock
     private S3Service s3Service;
+
+    @Mock
+    private KafkaTemplate<String, String> kafkaTemplate;
+
+    @Mock
+    private GroupBuyEventMapper eventMapper;
+
+    @Mock
+    private ObjectMapper objectMapper;
 
     @Mock
     private Clock clock;
@@ -100,6 +112,9 @@ class UpdateGroupBuyTest {
                 groupBuyRepository,
                 imageMapper,
                 s3Service,
+                kafkaTemplate,
+                eventMapper,
+                objectMapper,
                 fixedClock
         );
 
