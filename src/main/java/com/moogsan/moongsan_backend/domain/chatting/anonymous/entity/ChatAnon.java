@@ -25,5 +25,6 @@ public class ChatAnon {
     private String message;
 
     @Field("created_at")
-    private LocalDateTime createdAt;
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
 }
