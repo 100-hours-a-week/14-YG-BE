@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.global.dto;
+package com.moogsan.moongsan_backend.global.exception.dto;
 
 import lombok.Builder;
 
