@@ -31,6 +31,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+<<<<<<< HEAD
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -72,6 +73,55 @@ public class SecurityConfig {
                         new JwtAuthenticationFilter(jwtUtil, userDetailsService),
                         AnonymousAuthenticationFilter.class
                 );
+=======
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .exceptionHandling(exception -> exception
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(401);
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write("{\"message\": \"로그인이 필요합니다.\", \"data\": null}");
+                })
+            )
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                        "/",
+                        "/static/**",
+                        "/error", "/error/**",
+                        "/api/users",                           // 회원가입
+                        "/api/users/token",                     // 로그인
+                        "/api/users/check-nickname",            // 닉네임 중복 확인
+                        "/api/users/check-email",               // 이메일 중복 확인
+                        "/uploads/**",                          // 이미지 업로드
+                        "/api/group-buys/generation/description", // AI 응답 생성
+                        "/api/users/check/account",             // 계좌 예금주 확인
+                        "/kakao/callback",                      // 카카오 OAuth Callback Redirect URI
+                        "/api/oauth/kakao/callback/complete",   // OAuth 연동
+                        "/ws/chat",                             // WebSocket 핸드셰이크 직접 허용
+                        "/ws/chat/**",                          // STOMP WebSocket 연결 허용
+                        "/test-chat.html",                      // WebSocket 테스트 HTML
+                        "/favicon.ico",                         // 브라우저 요청 아이콘
+                        "/api/chat-anon/**",                     // 익명 채팅 내역 첫 조회
+                        "/pub/chat/message"                     // STOMP 메시지 발신 허용
+                ).permitAll()
+                .requestMatchers(HttpMethod.GET,
+                    "/api/group-buys",                      // 공구글 목록 조회
+                    "/api/group-buys/*"                     // 공구글 상세 조회
+                ).permitAll()
+                .requestMatchers(HttpMethod.GET,
+                    "/api/group-buys/user/wishes",          // 위시 리스트 조회
+                    "/api/group-buys/user/hosts",           // 주최 리스트 조회
+                    "/api/group-buys/user/participants",    // 참여 리스트 조회
+                    "/api/group-buys/*/participants"        // 공구 참여자 조회
+                ).authenticated()
+                .anyRequest().authenticated()
+            )
+            .addFilterBefore(
+                new JwtAuthenticationFilter(jwtUtil, userDetailsService),
+                AnonymousAuthenticationFilter.class
+            );
+>>>>>>> 0ee547e (feat(chatting-anon): kafka+stomp+websocket을 통한 message pub/sub 구현)
 
         return http.build();
     }
