@@ -4,8 +4,8 @@ resource "kafka_topic" "chat_part_message_created" {
   replication_factor = 3
 
   config = {
-    "cleanup.policy" = "delete"
-    "retention.ms"   = "172800000"
+    cleanup.policy = "delete"
+    retention.ms   = "172800000"
   }
 }
 
@@ -15,8 +15,8 @@ resource "kafka_topic" "chat_anon_message_created" {
   replication_factor = 3
 
   config = {
-    "cleanup.policy" = "delete"
-    "retention.ms"   = "172800000"
+    cleanup.policy = "delete"
+    retention.ms   = "172800000"
   }
 }
 
