@@ -2,7 +2,6 @@ package com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandServ
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuyDueApproachingEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuyPickupApproachingEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEventMapper;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
@@ -23,14 +22,14 @@ import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SERIAL
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class SchedulePickupApproachingGroupBuys {
+public class PublishPickupApproachingEvents {
     private final GroupBuyRepository groupBuyRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final GroupBuyEventMapper eventMapper;
     private final ObjectMapper objectMapper;
 
     /// 공구 종료 하루 전 (백그라운드 API)
-    public void schedulePickupApproachingGroupBuys(LocalDateTime tomorrow) {
+    public void publishPickupApproachingEvents(LocalDateTime tomorrow) {
         List<GroupBuy> toEnd = groupBuyRepository
                 .findByPostStatusAndPickupDateLessThanEqual("OPEN", tomorrow);
 

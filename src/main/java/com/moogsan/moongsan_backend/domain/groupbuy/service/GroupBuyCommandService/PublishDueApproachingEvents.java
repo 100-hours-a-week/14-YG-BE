@@ -3,7 +3,6 @@ package com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandServ
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuyDueApproachingEvent;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuyStatusEndedEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEventMapper;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
@@ -23,14 +22,14 @@ import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SERIAL
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class ScheduleDueApproachingGroupBuys {
+public class PublishDueApproachingEvents {
     private final GroupBuyRepository groupBuyRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final GroupBuyEventMapper eventMapper;
     private final ObjectMapper objectMapper;
 
     /// 공구 모집 종료 하루 전 (백그라운드 API)
-    public void scheduleDueApproachingGroupBuys(LocalDateTime tomorrow) {
+    public void publishDueApproachingEvents(LocalDateTime tomorrow) {
         List<GroupBuy> toEnd = groupBuyRepository
                 .findByPostStatusAndPickupDateLessThanEqual("OPEN", tomorrow);
 

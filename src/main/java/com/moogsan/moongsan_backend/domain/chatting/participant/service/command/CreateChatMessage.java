@@ -2,6 +2,10 @@ package com.moogsan.moongsan_backend.domain.chatting.participant.service.command
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuyStatusEndedEvent;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.ParticipantChatMessageCreatedEvent;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.ChatEventMapper;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEventMapper;
 import com.moogsan.moongsan_backend.domain.chatting.participant.dto.command.request.CreateChatMessageRequest;
 import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatMessageDocument;
 import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatParticipant;
@@ -20,6 +24,7 @@ import com.moogsan.moongsan_backend.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -28,8 +33,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.time.Duration;
 
+import static com.moogsan.moongsan_backend.adapters.kafka.producer.KafkaTopics.CHAT_PART_MESSAGE_CREATED;
+import static com.moogsan.moongsan_backend.adapters.kafka.producer.KafkaTopics.GROUPBUY_STATUS_ENDED;
 import static com.moogsan.moongsan_backend.domain.chatting.participant.message.ResponseMessage.DELETED_CHAT_ROOM;
 import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.NOT_PARTICIPANT;
+import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SERIALIZATION_FAIL;
 import static com.moogsan.moongsan_backend.global.util.ObjectIdScoreUtil.toScore;
 
 @Slf4j
@@ -46,6 +54,8 @@ public class CreateChatMessage {
     private final GetLatestMessages getLatestMessages;
     private final GetLatestMessageSse getLatestMessageSse;
     private final RedisTemplate<String, String> redisTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final ChatEventMapper eventMapper;
     private final ObjectMapper objectMapper;
     private final Clock clock;
 
@@ -100,6 +110,16 @@ public class CreateChatMessage {
             }
         } catch (JsonProcessingException e) {
             log.warn("❌ Redis 캐싱 실패 [chatRoomId={}]: {}", chatRoomId, e.getMessage());
+        }
+
+        try {
+            ParticipantChatMessageCreatedEvent eventDto =
+                    eventMapper.toParticipantChatMessageCreatedEvent(chatRoom, document);
+            String payload = objectMapper.writeValueAsString(eventDto);
+            kafkaTemplate.send(CHAT_PART_MESSAGE_CREATED, String.valueOf(document.getId()), payload);
+        } catch (JsonProcessingException e) {
+            log.error("❌ Failed to serialize ParticipantChatMessageCreatedEvent: documentId={}", document.getId(), e);
+            throw new RuntimeException(SERIALIZATION_FAIL, e);
         }
     }
 }

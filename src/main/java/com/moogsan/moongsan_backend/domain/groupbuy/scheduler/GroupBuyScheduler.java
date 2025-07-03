@@ -1,8 +1,6 @@
 package com.moogsan.moongsan_backend.domain.groupbuy.scheduler;
 
-import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.CancelGroupBuyParticipant;
-import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.ClosePastDueGroupBuys;
-import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.EndPastPickupGroupBuys;
+import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -16,6 +14,8 @@ public class GroupBuyScheduler {
     private final ClosePastDueGroupBuys closePastDueGroupBuys;
     private final EndPastPickupGroupBuys endPastPickupGroupBuys;
     private final CancelGroupBuyParticipant cancelGroupBuyParticipant;
+    private final PublishDueApproachingEvents scheduleDueApproachingGroupBuys;
+    private final PublishPickupApproachingEvents schedulePickupApproachingGroupBuys;
 
     // 공구 게시글 dueDate 기반 자동 공구 마감 스케줄러(매 정각(0분)과 30분에 작동)
     @Scheduled(cron = "0 0/30 * * * *")
@@ -35,6 +35,20 @@ public class GroupBuyScheduler {
     @Scheduled(cron = "0 10/40 * * * *")
     public void runAutoCancellation() {
         cancelGroupBuyParticipant.cancelUnconfirmedOrders();
+    }
+
+    // 공구 마감 예정 알림 (dueDate 하루 전, 매일 오전 10시 50분)
+    @Scheduled(cron = "0 0 10 50 * *")
+    public void notifyDueApproachingGroupBuys() {
+        LocalDateTime tomorrow = LocalDateTime.now().plusDays(1).toLocalDate().atStartOfDay();
+        scheduleDueApproachingGroupBuys.publishDueApproachingEvents(tomorrow);
+    }
+
+    // 픽업 예정 알림 (pickupDate 하루 전, 매일 오전 11시 10분)
+    @Scheduled(cron = "0 0 11 10 * *")
+    public void notifyPickupApproachingGroupBuys() {
+        LocalDateTime tomorrow = LocalDateTime.now().plusDays(1).toLocalDate().atStartOfDay();
+        schedulePickupApproachingGroupBuys.publishPickupApproachingEvents(tomorrow);
     }
 
 }

@@ -1,5 +1,10 @@
 package com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuyPickupUpdatedEvent;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuyStatusEndedEvent;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEventMapper;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.UpdateGroupBuyRequest;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyInvalidStateException;
@@ -11,6 +16,8 @@ import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepositor
 import com.moogsan.moongsan_backend.domain.image.service.S3Service;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,8 +28,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.moogsan.moongsan_backend.adapters.kafka.producer.KafkaTopics.GROUPBUY_PICKUP_UPDATED;
+import static com.moogsan.moongsan_backend.adapters.kafka.producer.KafkaTopics.GROUPBUY_STATUS_ENDED;
 import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.*;
+import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SERIALIZATION_FAIL;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -30,10 +41,12 @@ public class UpdateGroupBuy {
     private final GroupBuyRepository groupBuyRepository;
     private final ImageMapper imageMapper;
     private final S3Service s3Service;
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final GroupBuyEventMapper eventMapper;
+    private final ObjectMapper objectMapper;
     private final Clock clock;
 
     /// 공구 게시글 수정
-    // TODO V2
     public Long updateGroupBuy(User currentUser, UpdateGroupBuyRequest updateGroupBuyRequest, Long postId) {
 
         // 해당 공구가 존재하는지 조회 -> 아니면 404
@@ -88,6 +101,18 @@ public class UpdateGroupBuy {
         imageMapper.mapImagesToGroupBuy(finalKeys, gb);
 
         groupBuyRepository.save(gb);
+
+        if (updateGroupBuyRequest.getDateModificationReason() != null) {
+            try {
+                GroupBuyPickupUpdatedEvent eventDto =
+                        eventMapper.toGroupBuyPickupUpdatedEvent(gb);
+                String payload = objectMapper.writeValueAsString(eventDto);
+                kafkaTemplate.send(GROUPBUY_PICKUP_UPDATED, String.valueOf(gb.getId()), payload);
+            } catch (JsonProcessingException e) {
+                log.error("❌ Failed to serialize GroupBuyPickupUpdatedEvent: groupBuyId={}", gb.getId(), e);
+                throw new RuntimeException(SERIALIZATION_FAIL, e);
+            }
+        }
 
         return gb.getId();
     }
