@@ -15,4 +15,5 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class GroupBuyStatusClosedEvent extends BaseEvent{
     private Long groupBuyId;  // 공구 게시글 아이디
+    private String newStatus; // 공구 게시글 상태
 }

@@ -10,17 +10,19 @@ import java.time.Instant;
 public class GroupBuyEventMapper {
 
     // 공동구매 모집 종료 이벤트
-    public GroupBuyStatusClosedEvent toGroupBuyClosedEvent(GroupBuy groupBuy) {
+    public GroupBuyStatusClosedEvent toGroupBuyClosedEvent(GroupBuy groupBuy, String newStatus) {
         return GroupBuyStatusClosedEvent.builder()
                 .groupBuyId(groupBuy.getId())
+                .newStatus(newStatus)
                 .occurredAt(Instant.now().toString())
                 .build();
     }
 
     // 공동구매 마감 이벤트
-    public GroupBuyStatusEndedEvent toGroupBuyEndedEvent(GroupBuy groupBuy) {
+    public GroupBuyStatusEndedEvent toGroupBuyEndedEvent(GroupBuy groupBuy, String newStatus) {
         return GroupBuyStatusEndedEvent.builder()
                 .groupBuyId(groupBuy.getId())
+                .newStatus(newStatus)
                 .occurredAt(Instant.now().toString())
                 .build();
     }
