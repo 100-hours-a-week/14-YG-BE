@@ -1,5 +1,10 @@
 package com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuyStatusEndedEvent;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEventMapper;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotFoundException;
@@ -7,14 +12,19 @@ import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyN
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
 
+import static com.moogsan.moongsan_backend.adapters.kafka.producer.KafkaTopics.GROUPBUY_STATUS_ENDED;
 import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.*;
+import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SERIALIZATION_FAIL;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -22,6 +32,9 @@ public class EndGroupBuy {
 
     private final GroupBuyRepository groupBuyRepository;
     private final Clock clock;
+    private final KafkaEventPublisher kafkaEventPublisher;
+    private final GroupBuyEventMapper eventMapper;
+    private final ObjectMapper objectMapper;
 
     /// 공구 게시글 공구 종료
     public void endGroupBuy(User currentUser, Long postId) {
@@ -64,7 +77,17 @@ public class EndGroupBuy {
 
         groupBuyRepository.save(groupBuy);
 
-        // TODO V2, V3에서는 참여자 채팅방 해제 카운트 시작(2주- CS 고려), 익명 채팅방 즉시 해제
+        // TODO V3에서는 참여자 채팅방 해제 카운트 시작(2주- CS 고려), 익명 채팅방 즉시 해제
+
+        try {
+            GroupBuyStatusEndedEvent eventDto =
+                    eventMapper.toGroupBuyEndedEvent(groupBuy, "ENDED");
+            String payload = objectMapper.writeValueAsString(eventDto);
+            kafkaEventPublisher.publish(GROUPBUY_STATUS_ENDED, String.valueOf(groupBuy.getId()), payload);
+        } catch (JsonProcessingException e) {
+            log.error("❌ Failed to serialize GroupBuyStatusEndedEvent: groupBuyId={}", groupBuy.getId(), e);
+            throw new RuntimeException(SERIALIZATION_FAIL, e);
+        }
 
     }
 }

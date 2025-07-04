@@ -1,4 +1,5 @@
 # src/test/resources/application-test.yml
+
 spring:
   datasource:
     url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
@@ -21,6 +22,13 @@ spring:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
+  kafka:
+    bootstrap-servers: dummy:9092
+    listener:
+      auto-startup: false
+    consumer:
+      group-id: test.test.test
+
 
 ai:
   service:
@@ -49,3 +57,4 @@ oauth:
     client-secret: dummy-client-secret
     redirect-uri: http://localhost:18080/oauth2/callback/kakao
     complete-redirect: http://localhost:18080/dummy
+
