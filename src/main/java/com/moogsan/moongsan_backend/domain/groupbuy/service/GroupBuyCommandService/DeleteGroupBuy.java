@@ -26,7 +26,6 @@ public class DeleteGroupBuy {
     private final Clock clock;
 
     /// 공구 게시글 삭제: 참여자가 아무도 없는, 주문 레코드가 없는 경우이므로 하드 삭제
-    // TODO V2
     public void deleteGroupBuy(User currentUser, Long postId) {
 
         // 해당 공구가 존재하는지 조회 -> 아니면 404
