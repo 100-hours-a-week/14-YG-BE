@@ -31,15 +31,24 @@ public class OAuthController {
         log.debug("카카오 로그인 redirectUri: {}", redirectUri);
         log.debug("카카오 로그인 성공: {}", code);
 
-        LoginResponse loginResponse = kakaoOAuthService.kakaoLogin(code, redirectUri, response);
+        Object result = kakaoOAuthService.kakaoLogin(code, redirectUri, response);
 
         log.debug("서비스 로그인 성공: {}", code);
 
-        return ResponseEntity.ok(
-                WrapperResponse.builder()
-                        .message("로그인에 성공했습니다.")
-                        .data(loginResponse)
-                        .build()
-        );
+        if (result instanceof LoginResponse loginResponse) {
+            return ResponseEntity.ok(
+                    WrapperResponse.builder()
+                            .message("로그인에 성공했습니다.")
+                            .data(loginResponse)
+                            .build()
+            );
+        } else {
+            return ResponseEntity.ok(
+                    WrapperResponse.builder()
+                            .message("회원가입이 필요합니다.")
+                            .data(result)
+                            .build()
+            );
+        }
     }
 }

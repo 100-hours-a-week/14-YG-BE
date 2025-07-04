@@ -35,7 +35,7 @@ public class KakaoOAuthService {
     private final TokenRepository refreshTokenRepository;
 
     @Transactional
-    public LoginResponse kakaoLogin(String code, String redirectUri, HttpServletResponse response) {
+    public Object kakaoLogin(String code, String redirectUri, HttpServletResponse response) {
         // 카카오 토큰, 정보 요청
         KakaoTokenResponse tokenResponse;
         KakaoUserInfoResponse kakaoUser;
@@ -59,11 +59,7 @@ public class KakaoOAuthService {
 
         if (optionalUser.isEmpty()) {
             String dummyPassword = "{oauth}-" + java.util.UUID.randomUUID();
-            throw new UserException(
-                UserErrorCode.SIGNUP_REQUIRED,
-                "회원가입이 필요합니다.",
-                new OAuthSignUpInfoResponse(email, dummyPassword)
-            );
+            return new OAuthSignUpInfoResponse(email, dummyPassword);
         }
         User user = optionalUser.get();
 
