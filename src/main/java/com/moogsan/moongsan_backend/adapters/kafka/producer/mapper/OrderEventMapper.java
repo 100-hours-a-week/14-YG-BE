@@ -4,6 +4,7 @@ import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderCanceledEve
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderConfirmedEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderPendingEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderRefundedEvent;
+import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +14,7 @@ import java.time.Instant;
 public class OrderEventMapper {
 
     // 주문 생성 이벤트
-    public OrderPendingEvent toPendingEvent(Order order) {
+    public OrderPendingEvent toPendingEvent(Order order, GroupBuy groupBuy) {
         return OrderPendingEvent.builder()
                 .orderId(order.getId())
                 .occurredAt(Instant.now().toString())

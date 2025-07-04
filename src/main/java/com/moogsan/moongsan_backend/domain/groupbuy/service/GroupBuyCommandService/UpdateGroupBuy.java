@@ -106,8 +106,6 @@ public class UpdateGroupBuy {
 
         groupBuyRepository.save(gb);
 
-        log.info("▶ 전체 Request DTO = {}", updateGroupBuyRequest);
-        log.info("▶ dateModificationReason = '{}'", updateGroupBuyRequest.getDateModificationReason());
         if (updateGroupBuyRequest.getDateModificationReason() != null) {
             try {
                 GroupBuyPickupUpdatedEvent eventDto =
