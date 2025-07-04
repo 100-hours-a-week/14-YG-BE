@@ -80,6 +80,7 @@ public class OrderCreateService {
         groupBuy.increaseParticipantCount();
         groupBuy.updateDueSoonStatus(dueSoonPolicy);
 
+        groupBuyRepository.save(groupBuy);
         orderRepository.save(order);
         chattingCommandFacade.joinChatRoom(user, groupBuy.getId());
 
