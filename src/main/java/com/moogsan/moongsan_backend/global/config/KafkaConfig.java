@@ -3,6 +3,7 @@ package com.moogsan.moongsan_backend.global.config;
 import com.moogsan.moongsan_backend.domain.notification.dto.SimpleMessage;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
@@ -10,6 +11,7 @@ import org.springframework.kafka.listener.ContainerProperties;
 
 @Configuration
 @EnableKafka
+@Profile("!test")
 public class KafkaConfig {
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, SimpleMessage> kafkaListenerContainerFactory(

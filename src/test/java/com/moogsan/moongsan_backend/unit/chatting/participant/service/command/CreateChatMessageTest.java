@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.ChatEventMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEventMapper;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.domain.chatting.participant.dto.command.request.CreateChatMessageRequest;
 import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatMessageDocument;
 import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatParticipant;
@@ -67,7 +68,7 @@ public class CreateChatMessageTest {
     private RedisTemplate<String, String> redisTemplate;
 
     @Mock
-    private KafkaTemplate<String, String> kafkaTemplate;
+    private KafkaEventPublisher kafkaEventPublisher;
 
     @Mock
     private ChatEventMapper eventMapper;
@@ -115,7 +116,7 @@ public class CreateChatMessageTest {
                 getLatestMessages,
                 getLatestMessageSse,
                 redisTemplate,
-                kafkaTemplate,
+                kafkaEventPublisher,
                 eventMapper,
                 objectMapper,
                 fixedClock

@@ -19,6 +19,7 @@ public class OutboxWorker {
     private final KafkaTemplate<String, String> kafka;
 
     @Scheduled(fixedDelayString = "${outbox.poll-interval-ms:5000}")
+    @Transactional
     public void pollAndPublish() {
         publishBatch();
     }

@@ -6,6 +6,7 @@ import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuyStatusEn
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.ParticipantChatMessageCreatedEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.ChatEventMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEventMapper;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.domain.chatting.participant.dto.command.request.CreateChatMessageRequest;
 import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatMessageDocument;
 import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatParticipant;
@@ -54,7 +55,7 @@ public class CreateChatMessage {
     private final GetLatestMessages getLatestMessages;
     private final GetLatestMessageSse getLatestMessageSse;
     private final RedisTemplate<String, String> redisTemplate;
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaEventPublisher kafkaEventPublisher;
     private final ChatEventMapper eventMapper;
     private final ObjectMapper objectMapper;
     private final Clock clock;
@@ -116,7 +117,7 @@ public class CreateChatMessage {
             ParticipantChatMessageCreatedEvent eventDto =
                     eventMapper.toParticipantChatMessageCreatedEvent(chatRoom, document);
             String payload = objectMapper.writeValueAsString(eventDto);
-            kafkaTemplate.send(CHAT_PART_MESSAGE_CREATED, String.valueOf(document.getId()), payload);
+            kafkaEventPublisher.publish(CHAT_PART_MESSAGE_CREATED, String.valueOf(document.getId()), payload);
         } catch (JsonProcessingException e) {
             log.error("❌ Failed to serialize ParticipantChatMessageCreatedEvent: documentId={}", document.getId(), e);
             throw new RuntimeException(SERIALIZATION_FAIL, e);

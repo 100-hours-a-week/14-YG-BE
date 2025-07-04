@@ -15,7 +15,7 @@ public interface OutboxEventRepository extends JpaRepository<OutboxEventEntity, 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT e FROM OutboxEventEntity e " +
             "WHERE e.status = 'PENDING' " +
-            " AND e.nextRetryAt <= : now "+
+            " AND e.nextRetryAt <= :now "+
             "ORDER BY e.createdAt ASC")
     List<OutboxEventEntity> findNextBatch(
             @Param("now") LocalDateTime now,

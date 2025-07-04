@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuyPickupUpdatedEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuyStatusEndedEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEventMapper;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.UpdateGroupBuyRequest;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyInvalidStateException;
@@ -41,13 +42,16 @@ public class UpdateGroupBuy {
     private final GroupBuyRepository groupBuyRepository;
     private final ImageMapper imageMapper;
     private final S3Service s3Service;
-    private final KafkaTemplate<String, String> kafkaTemplate;
     private final GroupBuyEventMapper eventMapper;
     private final ObjectMapper objectMapper;
+    private final KafkaEventPublisher kafkaEventPublisher;
     private final Clock clock;
 
     /// 공구 게시글 수정
     public Long updateGroupBuy(User currentUser, UpdateGroupBuyRequest updateGroupBuyRequest, Long postId) {
+
+        log.info("▶ 전체 Request DTO = {}", updateGroupBuyRequest);
+        log.info("▶ dateModificationReason = '{}'", updateGroupBuyRequest.getDateModificationReason());
 
         // 해당 공구가 존재하는지 조회 -> 아니면 404
         GroupBuy groupBuy = groupBuyRepository.findById(postId)
@@ -102,12 +106,14 @@ public class UpdateGroupBuy {
 
         groupBuyRepository.save(gb);
 
+        log.info("▶ 전체 Request DTO = {}", updateGroupBuyRequest);
+        log.info("▶ dateModificationReason = '{}'", updateGroupBuyRequest.getDateModificationReason());
         if (updateGroupBuyRequest.getDateModificationReason() != null) {
             try {
                 GroupBuyPickupUpdatedEvent eventDto =
                         eventMapper.toGroupBuyPickupUpdatedEvent(gb);
                 String payload = objectMapper.writeValueAsString(eventDto);
-                kafkaTemplate.send(GROUPBUY_PICKUP_UPDATED, String.valueOf(gb.getId()), payload);
+                kafkaEventPublisher.publish(GROUPBUY_PICKUP_UPDATED, String.valueOf(gb.getId()), payload);
             } catch (JsonProcessingException e) {
                 log.error("❌ Failed to serialize GroupBuyPickupUpdatedEvent: groupBuyId={}", gb.getId(), e);
                 throw new RuntimeException(SERIALIZATION_FAIL, e);

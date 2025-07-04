@@ -2,6 +2,7 @@ package com.moogsan.moongsan_backend.unit.groupbuy.service.command;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEventMapper;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.CreateGroupBuyRequest;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.UpdateGroupBuyRequest;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
@@ -47,7 +48,7 @@ class UpdateGroupBuyTest {
     private S3Service s3Service;
 
     @Mock
-    private KafkaTemplate<String, String> kafkaTemplate;
+    private KafkaEventPublisher kafkaEventPublisher;
 
     @Mock
     private GroupBuyEventMapper eventMapper;
@@ -112,9 +113,9 @@ class UpdateGroupBuyTest {
                 groupBuyRepository,
                 imageMapper,
                 s3Service,
-                kafkaTemplate,
                 eventMapper,
                 objectMapper,
+                kafkaEventPublisher,
                 fixedClock
         );
 

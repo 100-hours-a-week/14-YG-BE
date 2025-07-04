@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuyStatusClosedEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEventMapper;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SERIAL
 public class ClosePastDueGroupBuys {
 
     private final GroupBuyRepository groupBuyRepository;
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaEventPublisher kafkaEventPublisher;
     private final GroupBuyEventMapper eventMapper;
     private final ObjectMapper objectMapper;
 
@@ -41,7 +42,7 @@ public class ClosePastDueGroupBuys {
                 GroupBuyStatusClosedEvent eventDto =
                         eventMapper.toGroupBuyClosedEvent(gb, "CLOSED");
                 String payload = objectMapper.writeValueAsString(eventDto);
-                kafkaTemplate.send(GROUPBUY_STATUS_CLOSED, String.valueOf(gb.getId()), payload);
+                kafkaEventPublisher.publish(GROUPBUY_STATUS_CLOSED, String.valueOf(gb.getId()), payload);
             } catch (JsonProcessingException e) {
                 log.error("❌ Failed to serialize GroupBuyStatusClosedEvent: groupBuyId={}", gb.getId(), e);
                 throw new RuntimeException(SERIALIZATION_FAIL, e);
