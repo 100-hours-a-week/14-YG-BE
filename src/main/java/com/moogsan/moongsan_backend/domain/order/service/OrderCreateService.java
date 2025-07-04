@@ -1,5 +1,14 @@
 package com.moogsan.moongsan_backend.domain.order.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuyPickupUpdatedEvent;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuyStatusClosedEvent;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuyStatusEndedEvent;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderPendingEvent;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEventMapper;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.OrderEventMapper;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.domain.chatting.participant.Facade.command.ChattingCommandFacade;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.policy.DueSoonPolicy;
@@ -11,12 +20,17 @@ import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import com.moogsan.moongsan_backend.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.moogsan.moongsan_backend.global.exception.base.BusinessException;
 import com.moogsan.moongsan_backend.global.exception.code.ErrorCode;
 import java.util.List;
 
+import static com.moogsan.moongsan_backend.adapters.kafka.producer.KafkaTopics.*;
+import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SERIALIZATION_FAIL;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderCreateService {
@@ -26,6 +40,10 @@ public class OrderCreateService {
     private final OrderRepository orderRepository;
     private final DueSoonPolicy dueSoonPolicy;
     private final ChattingCommandFacade chattingCommandFacade;
+    private final KafkaEventPublisher kafkaEventPublisher;
+    private final OrderEventMapper eventMapper;
+    private final GroupBuyEventMapper groupBuyEventMapper;
+    private final ObjectMapper objectMapper;
 
     // 주문 생성 서비스
     @Transactional
@@ -85,8 +103,29 @@ public class OrderCreateService {
 
         if (groupBuy.getLeftAmount() == 0) {
             groupBuy.changePostStatus("CLOSED");
+            try {
+                GroupBuyStatusClosedEvent eventDto =
+                        groupBuyEventMapper.toGroupBuyClosedEvent(groupBuy, "CLOSED");
+                String payload = objectMapper.writeValueAsString(eventDto);
+                kafkaEventPublisher.publish(GROUPBUY_STATUS_CLOSED, String.valueOf(groupBuy.getId()), payload);
+            } catch (JsonProcessingException e) {
+                log.error("❌ Failed to serialize GroupBuyStatusClosedEvent: groupBuyId={}", groupBuy.getId(), e);
+                throw new RuntimeException(SERIALIZATION_FAIL, e);
+            }
         }
         groupBuyRepository.save(groupBuy);
+        groupBuyRepository.flush();
+
+        try {
+            OrderPendingEvent eventDto =
+                    eventMapper.toPendingEvent(order, groupBuy);
+            log.info("▶ orderPendingEvent DTO = {}", eventDto);
+            String payload = objectMapper.writeValueAsString(eventDto);
+            kafkaEventPublisher.publish(ORDER_STATUS_PENDING, String.valueOf(order.getId()), payload);
+        } catch (JsonProcessingException e) {
+            log.error("❌ Failed to serialize OrderPendingEvent: orderId={}", order.getId(), e);
+            throw new RuntimeException(SERIALIZATION_FAIL, e);
+        }
 
         return OrderCreateResponse.builder()
                 .orderId(order.getId())
