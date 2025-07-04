@@ -31,23 +31,13 @@ public class EndGroupBuy {
                 .orElseThrow(GroupBuyNotFoundException::new);
 
         // 해당 공구가 OPEN인지 조회 -> 아니면 409
-        if (groupBuy.getPostStatus().equals("OPEN")) {
+        if (groupBuy.getPostStatus().equals("CLOSED")) {
             throw new GroupBuyInvalidStateException(BEFORE_CLOSED);
         }
 
         // 해당 공구가 ENDED인지 조회 -> 맞으면 409
         if (groupBuy.getPostStatus().equals("ENDED")) {
             throw new GroupBuyInvalidStateException(AFTER_ENDED);
-        }
-
-        // dueDate 이후인지 조회 -> 아니면 409
-        if (groupBuy.getDueDate().isAfter(LocalDateTime.now(clock))) {
-            throw new GroupBuyInvalidStateException(BEFORE_CLOSED);
-        }
-
-        // pickupDate 이후인지 조회 -> 아니면 409
-        if (groupBuy.getPickupDate().isAfter(LocalDateTime.now(clock))) {
-            throw new GroupBuyInvalidStateException(BEFORE_PICKUP_DATE);
         }
 
         if (!groupBuy.isFixed()) {
