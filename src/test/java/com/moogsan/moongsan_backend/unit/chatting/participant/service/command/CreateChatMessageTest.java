@@ -2,6 +2,9 @@ package com.moogsan.moongsan_backend.unit.chatting.participant.service.command;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.ChatEventMapper;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEventMapper;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.domain.chatting.participant.dto.command.request.CreateChatMessageRequest;
 import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatMessageDocument;
 import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatParticipant;
@@ -26,6 +29,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.kafka.core.KafkaTemplate;
 
 import java.time.*;
 import java.util.Optional;
@@ -62,6 +66,12 @@ public class CreateChatMessageTest {
 
     @Mock
     private RedisTemplate<String, String> redisTemplate;
+
+    @Mock
+    private KafkaEventPublisher kafkaEventPublisher;
+
+    @Mock
+    private ChatEventMapper eventMapper;
 
     @Mock
     private ObjectMapper objectMapper;
@@ -106,6 +116,8 @@ public class CreateChatMessageTest {
                 getLatestMessages,
                 getLatestMessageSse,
                 redisTemplate,
+                kafkaEventPublisher,
+                eventMapper,
                 objectMapper,
                 fixedClock
         );

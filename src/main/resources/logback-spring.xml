@@ -8,6 +8,8 @@
         <appender-ref ref="CONSOLE"/>
     </root>
 
+    <logger name="com.moogsan.moongsan_backend" level="DEBUG"/>
+
     <!-- 스프링·하이버네이트·데이터모듈 등 잡다한 INFO도 ERROR 이상만 -->
     <logger name="org.springframework" level="ERROR"/>
     <logger name="org.hibernate"         level="ERROR"/>
@@ -15,7 +17,7 @@
     <logger name="org.mongodb.driver"    level="ERROR"/>
 
     <!-- 카프카 클라이언트/컨슈머 내부 로그 완전 OFF -->
-    <logger name="org.apache.kafka"      level="ERROR"/>
-    <logger name="org.springframework.kafka" level="ERROR"/>
+    <logger name="org.apache.kafka"      level="INFO"/>
+    <logger name="org.springframework.kafka" level="INFO"/>
 
 </configuration>

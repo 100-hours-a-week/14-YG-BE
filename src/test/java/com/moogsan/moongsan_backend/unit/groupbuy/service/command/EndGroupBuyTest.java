@@ -1,5 +1,8 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.service.command;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEventMapper;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotFoundException;
@@ -15,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.kafka.core.KafkaTemplate;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -32,6 +36,15 @@ import static org.mockito.Mockito.when;
 public class EndGroupBuyTest {
     @Mock
     private GroupBuyRepository groupBuyRepository;
+
+    @Mock
+    private KafkaEventPublisher kafkaEventPublisher;
+
+    @Mock
+    private GroupBuyEventMapper eventMapper;
+
+    @Mock
+    private ObjectMapper objectMapper;
 
     private EndGroupBuy endGroupBuy;
     private User hostUser;
@@ -55,7 +68,10 @@ public class EndGroupBuyTest {
 
         endGroupBuy = new EndGroupBuy(
                 groupBuyRepository,
-                fixedClock
+                fixedClock,
+                kafkaEventPublisher,
+                eventMapper,
+                objectMapper
         );
     }
 

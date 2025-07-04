@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.global.outbox;
+package com.moogsan.moongsan_backend.adapters.kafka.producer.outbox;
 
 public enum OutboxEventStatus {
     PENDING,
