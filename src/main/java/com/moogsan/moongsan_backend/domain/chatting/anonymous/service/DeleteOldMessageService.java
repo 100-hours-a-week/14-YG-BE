@@ -19,8 +19,6 @@ public class DeleteOldMessageService {
     public void deleteOldMessages(Long postId) {
         List<ChatAnon> allMessages = chatAnonRepository.findByPostId(postId);
 
-        System.out.println("🟡 [DEBUG] 전체 메시지 개수: " + allMessages.size());
-
         if (allMessages.size() > 10) {
             List<ChatAnon> messagesToDelete = allMessages.stream()
                 .sorted(Comparator.comparing(
@@ -35,5 +33,7 @@ public class DeleteOldMessageService {
 
             chatAnonRepository.deleteAllById(idsToDelete);
         }
+
+        System.out.println("🟡 [DeleteOldMessage] 현재 메시지 개수: " + chatAnonRepository.countByPostId(postId));
     }
 }

@@ -16,7 +16,7 @@ public class ChatAnonStompController {
 
     private final SendChatAnonService sendChatAnonService;
 
-    @MessageMapping("/chat/message")
+    @MessageMapping("/api/chat-anon/message")
     public void handleMessage(@Payload ChatAnonDto message) {
         sendChatAnonService.processMessage(message);
     }

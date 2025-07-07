@@ -33,6 +33,6 @@ public class SendChatAnonService {
         // 웹소켓 브로드캐스트
         String destination = "/topic/chat/" + message.getPostId();
         messagingTemplate.convertAndSend(destination, message);
-        System.out.println("🟡 [DEBUG] 메시지 브로드캐스트 - destination: " + destination);
+        System.out.println("🟡 [SendChatAnon] 메시지 브로드캐스트 - destination: " + destination);
     }
 }
