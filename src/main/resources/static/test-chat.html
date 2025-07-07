@@ -60,7 +60,7 @@
             message: message
         };
 
-        stompClient.send("/pub/chat/message", {}, JSON.stringify(payload));
+        stompClient.send("/pub/api/chat-anon/message", {}, JSON.stringify(payload));
         console.log('🚀 전송됨:', payload);
     }
 </script>

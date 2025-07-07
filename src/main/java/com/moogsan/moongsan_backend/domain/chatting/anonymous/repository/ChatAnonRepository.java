@@ -16,5 +16,5 @@ public interface ChatAnonRepository extends MongoRepository<ChatAnon, String> {
 
     List<ChatAnon> findByPostIdOrderByCreatedAtAsc(Long postId);
 
-    boolean existsByPostIdAndAliasIdAndMessage(Long postId, int aliasId, @Size(max = 150) String message);
+    long countByPostId(Long postId);
 }
