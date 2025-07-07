@@ -14,33 +14,39 @@ import java.time.Instant;
 public class OrderEventMapper {
 
     // 주문 생성 이벤트
-    public OrderPendingEvent toPendingEvent(Order order, GroupBuy groupBuy) {
+    public OrderPendingEvent toPendingEvent(
+            Long orderId, Long groupBuyId, Long hostId, String buyerName, int quantity
+    ) {
         return OrderPendingEvent.builder()
-                .orderId(order.getId())
+                .orderId(orderId)
+                .groupBuyId(groupBuyId)
+                .hostId(hostId)
+                .buyerName(buyerName)
+                .quantity(quantity)
                 .occurredAt(Instant.now().toString())
                 .build();
     }
 
     // 주문 확인 이벤트
-    public OrderConfirmedEvent toConfirmedEvent(Order order) {
+    public OrderConfirmedEvent toConfirmedEvent(Long orderId) {
         return OrderConfirmedEvent.builder()
-                .orderId(order.getId())
+                .orderId(orderId)
                 .occurredAt(Instant.now().toString())
                 .build();
     }
 
     // 주문 취소 이벤트
-    public OrderCanceledEvent toCanceledEvent(Order order) {
+    public OrderCanceledEvent toCanceledEvent(Long orderId) {
         return OrderCanceledEvent.builder()
-                .orderId(order.getId())
+                .orderId(orderId)
                 .occurredAt(Instant.now().toString())
                 .build();
     }
 
     // 주문 환불 이벤트
-    public OrderRefundedEvent toRefundedEvent(Order order) {
+    public OrderRefundedEvent toRefundedEvent(Long orderId) {
         return OrderRefundedEvent.builder()
-                .orderId(order.getId())
+                .orderId(orderId)
                 .occurredAt(Instant.now().toString())
                 .build();
     }

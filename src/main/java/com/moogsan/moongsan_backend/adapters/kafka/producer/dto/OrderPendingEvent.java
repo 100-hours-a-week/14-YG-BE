@@ -14,5 +14,9 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 public class OrderPendingEvent extends BaseEvent{
-    private Long orderId;  // 주문 아이디
+    private Long orderId;      // 주문 아이디
+    private Long groupBuyId;   // 공동구매 게시글 아이디
+    private Long hostId;       // 공동구매 호스트 아이디
+    private String buyerName;  // 구매자 성명
+    private int quantity;      // 구매 수량
 }
