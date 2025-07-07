@@ -14,5 +14,9 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 public class OrderConfirmedEvent extends BaseEvent{
-    private Long orderId;  // 주문 아이디
+    private Long orderId;          // 주문 아이디
+    private Long groupBuyId;       // 공동구매 게시글 아이디
+    private Long participantId;    // 구매자 아이디
+    private String buyerName;      // 구매자 성명
+    private String groupBuyName;   // 공동구매 게시글 제목
 }

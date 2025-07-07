@@ -2,7 +2,9 @@ package com.moogsan.moongsan_backend.adapters.kafka.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.KafkaTopics;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderConfirmedEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderPendingEvent;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderRefundedEvent;
 import com.moogsan.moongsan_backend.domain.notification.service.SendOrderNotificationUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +17,7 @@ import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SERIAL
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class KafkaNotificationListener {
+public class OrderNotificationListener {
 
     private final SendOrderNotificationUseCase useCase;
     private final ObjectMapper objectMapper;
@@ -33,6 +35,42 @@ public class KafkaNotificationListener {
             ack.acknowledge();
         } catch (Exception e) {
             log.error("❌ OrderPendingEvent 역직렬화 실패. raw", e);
+            throw new RuntimeException(SERIALIZATION_FAIL, e);
+        }
+    }
+
+    @KafkaListener(
+            topics = KafkaTopics.ORDER_STATUS_CONFIRMED,
+            groupId = ConsumerGroups.NOTIFICATION
+    )
+    public void onOrderConfirmed(OrderConfirmedEvent event,
+                                 Acknowledgment ack) {
+        try {
+
+            log.debug("order.status.confirmed 수신: {}", event);
+            useCase.handleOrderConfirmed(event);
+            ack.acknowledge();
+        } catch (Exception e) {
+            log.error("❌ OrderConfirmedEvent 역직렬화 실패. raw", e);
+            throw new RuntimeException(SERIALIZATION_FAIL, e);
+        }
+    }
+
+
+
+    @KafkaListener(
+            topics = KafkaTopics.ORDER_STATUS_REFUNDED,
+            groupId = ConsumerGroups.NOTIFICATION
+    )
+    public void onOrderRefunded(OrderRefundedEvent event,
+                                 Acknowledgment ack) {
+        try {
+
+            log.debug("order.status.refunded 수신: {}", event);
+            useCase.handleOrderRefunded(event);
+            ack.acknowledge();
+        } catch (Exception e) {
+            log.error("❌ OrderRefundedEvent 역직렬화 실패. raw", e);
             throw new RuntimeException(SERIALIZATION_FAIL, e);
         }
     }

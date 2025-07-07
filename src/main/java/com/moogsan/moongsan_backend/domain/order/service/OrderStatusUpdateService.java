@@ -7,6 +7,8 @@ import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderConfirmedEv
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderPendingEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.OrderEventMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
+import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
+import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.order.dto.request.OrderStatusUpdateRequest;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
@@ -26,6 +28,7 @@ import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SERIAL
 @RequiredArgsConstructor
 public class OrderStatusUpdateService {
     private final OrderRepository orderRepository;
+    private final GroupBuyRepository groupBuyRepository;
     private final KafkaEventPublisher kafkaEventPublisher;
     private final OrderEventMapper eventMapper;
     private final ObjectMapper objectMapper;
@@ -43,17 +46,42 @@ public class OrderStatusUpdateService {
             Object eventDto;
             String topic;
 
+            GroupBuy groupBuy = order.getGroupBuy();
+
             switch (currentStatus) {
                 case "CONFIRMED":
-                    eventDto = eventMapper.toConfirmedEvent(order.getId());
+                    eventDto = eventMapper.toConfirmedEvent(
+                            order.getId(),
+                            groupBuy.getId(),
+                            order.getUser().getId(),
+                            order.getUser().getNickname(),
+                            groupBuy.getTitle()
+                    );
                     topic = ORDER_STATUS_CONFIRMED;
                     break;
                 case "CANCELED":
-                    eventDto = eventMapper.toCanceledEvent(order.getId());
+                    int price = order.getPrice();
+                    int quantity = order.getQuantity();
+                    int totalPrice = price * quantity;
+                    eventDto = eventMapper.toCanceledEvent(
+                            order.getId(),
+                            groupBuy.getId(),
+                            groupBuy.getUser().getId(),
+                            order.getUser().getNickname(),
+                            order.getUser().getAccountBank(),
+                            order.getUser().getAccountNumber(),
+                            totalPrice
+                    );
                     topic = ORDER_STATUS_CANCELED;
                     break;
                 case "REFUNDED":
-                    eventDto = eventMapper.toRefundedEvent(order.getId());
+                    eventDto = eventMapper.toRefundedEvent(
+                            order.getId(),
+                            groupBuy.getId(),
+                            order.getUser().getId(),
+                            order.getUser().getNickname(),
+                            groupBuy.getTitle()
+                    );
                     topic = ORDER_STATUS_REFUNDED;
                     break;
                 default:
