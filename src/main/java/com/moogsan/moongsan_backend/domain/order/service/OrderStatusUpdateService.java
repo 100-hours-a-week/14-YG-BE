@@ -28,7 +28,6 @@ import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SERIAL
 @RequiredArgsConstructor
 public class OrderStatusUpdateService {
     private final OrderRepository orderRepository;
-    private final GroupBuyRepository groupBuyRepository;
     private final KafkaEventPublisher kafkaEventPublisher;
     private final OrderEventMapper eventMapper;
     private final ObjectMapper objectMapper;
@@ -58,21 +57,6 @@ public class OrderStatusUpdateService {
                             groupBuy.getTitle()
                     );
                     topic = ORDER_STATUS_CONFIRMED;
-                    break;
-                case "CANCELED":
-                    int price = order.getPrice();
-                    int quantity = order.getQuantity();
-                    int totalPrice = price * quantity;
-                    eventDto = eventMapper.toCanceledEvent(
-                            order.getId(),
-                            groupBuy.getId(),
-                            groupBuy.getUser().getId(),
-                            order.getUser().getNickname(),
-                            order.getUser().getAccountBank(),
-                            order.getUser().getAccountNumber(),
-                            totalPrice
-                    );
-                    topic = ORDER_STATUS_CANCELED;
                     break;
                 case "REFUNDED":
                     eventDto = eventMapper.toRefundedEvent(

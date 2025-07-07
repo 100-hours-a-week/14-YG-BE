@@ -2,6 +2,7 @@ package com.moogsan.moongsan_backend.adapters.kafka.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.KafkaTopics;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderCanceledEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderConfirmedEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderPendingEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderRefundedEvent;
@@ -52,6 +53,23 @@ public class OrderNotificationListener {
             ack.acknowledge();
         } catch (Exception e) {
             log.error("❌ OrderConfirmedEvent 역직렬화 실패. raw", e);
+            throw new RuntimeException(SERIALIZATION_FAIL, e);
+        }
+    }
+
+    @KafkaListener(
+            topics = KafkaTopics.ORDER_STATUS_CANCELED,
+            groupId = ConsumerGroups.NOTIFICATION
+    )
+    public void onOrderCanceled(OrderCanceledEvent event,
+                                Acknowledgment ack) {
+        try {
+
+            log.debug("order.status.canceled 수신: {}", event);
+            useCase.handleOrderCanceled(event);
+            ack.acknowledge();
+        } catch (Exception e) {
+            log.error("❌ OrderCanceledEvent 역직렬화 실패. raw", e);
             throw new RuntimeException(SERIALIZATION_FAIL, e);
         }
     }
