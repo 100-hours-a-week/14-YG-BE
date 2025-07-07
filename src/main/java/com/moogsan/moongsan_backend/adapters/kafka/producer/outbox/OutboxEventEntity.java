@@ -46,15 +46,18 @@ public class OutboxEventEntity {
     @Column(name = "retry_count")
     private Integer retryCount = 0;
 
+    @Builder.Default
     @Column(name = "next_retry_at")
     private LocalDateTime nextRetryAt = LocalDateTime.now();
 
+    @Builder.Default
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "published_at")
     private LocalDateTime publishedAt;
 
+    @Builder.Default
     @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
 }

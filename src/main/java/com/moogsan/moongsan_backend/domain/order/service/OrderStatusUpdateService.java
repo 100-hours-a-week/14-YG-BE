@@ -45,15 +45,15 @@ public class OrderStatusUpdateService {
 
             switch (currentStatus) {
                 case "CONFIRMED":
-                    eventDto = eventMapper.toConfirmedEvent(order);
+                    eventDto = eventMapper.toConfirmedEvent(order.getId());
                     topic = ORDER_STATUS_CONFIRMED;
                     break;
                 case "CANCELED":
-                    eventDto = eventMapper.toCanceledEvent(order);
+                    eventDto = eventMapper.toCanceledEvent(order.getId());
                     topic = ORDER_STATUS_CANCELED;
                     break;
                 case "REFUNDED":
-                    eventDto = eventMapper.toRefundedEvent(order);
+                    eventDto = eventMapper.toRefundedEvent(order.getId());
                     topic = ORDER_STATUS_REFUNDED;
                     break;
                 default:

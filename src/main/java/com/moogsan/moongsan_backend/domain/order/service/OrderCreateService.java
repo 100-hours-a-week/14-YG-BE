@@ -119,7 +119,13 @@ public class OrderCreateService {
 
         try {
             OrderPendingEvent eventDto =
-                    eventMapper.toPendingEvent(order, groupBuy);
+                    eventMapper.toPendingEvent(
+                            order.getId(),
+                            groupBuy.getId(),
+                            groupBuy.getUser().getId(),
+                            order.getUser().getNickname(),
+                            order.getQuantity()
+                    );
             log.info("▶ orderPendingEvent DTO = {}", eventDto);
             String payload = objectMapper.writeValueAsString(eventDto);
             kafkaEventPublisher.publish(ORDER_STATUS_PENDING, String.valueOf(order.getId()), payload);
