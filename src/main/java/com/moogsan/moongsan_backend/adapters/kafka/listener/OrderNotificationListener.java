@@ -2,7 +2,6 @@ package com.moogsan.moongsan_backend.adapters.kafka.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.KafkaTopics;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderCanceledEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderConfirmedEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderPendingEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderRefundedEvent;
