@@ -28,25 +28,46 @@ public class OrderEventMapper {
     }
 
     // 주문 확인 이벤트
-    public OrderConfirmedEvent toConfirmedEvent(Long orderId) {
+    public OrderConfirmedEvent toConfirmedEvent(
+            Long orderId, Long groupBuyId, Long participantId, String buyerName, String groupBuyName
+    ) {
         return OrderConfirmedEvent.builder()
                 .orderId(orderId)
+                .groupBuyId(groupBuyId)
+                .participantId(participantId)
+                .buyerName(buyerName)
+                .groupBuyName(groupBuyName)
                 .occurredAt(Instant.now().toString())
                 .build();
     }
 
     // 주문 취소 이벤트
-    public OrderCanceledEvent toCanceledEvent(Long orderId) {
+    public OrderCanceledEvent toCanceledEvent(
+            Long orderId, Long groupBuyId, Long hostId, String buyerName, String buyerBank, String buyerAccount, int price
+
+    ) {
         return OrderCanceledEvent.builder()
                 .orderId(orderId)
+                .groupBuyId(groupBuyId)
+                .hostId(hostId)
+                .buyerName(buyerName)
+                .buyerBank(buyerBank)
+                .buyerAccount(buyerAccount)
+                .price(price)
                 .occurredAt(Instant.now().toString())
                 .build();
     }
 
     // 주문 환불 이벤트
-    public OrderRefundedEvent toRefundedEvent(Long orderId) {
+    public OrderRefundedEvent toRefundedEvent(
+            Long orderId, Long groupBuyId, Long participantId, String buyerName, String groupBuyName
+    ) {
         return OrderRefundedEvent.builder()
                 .orderId(orderId)
+                .groupBuyId(groupBuyId)
+                .participantId(participantId)
+                .buyerName(buyerName)
+                .groupBuyName(groupBuyName)
                 .occurredAt(Instant.now().toString())
                 .build();
     }

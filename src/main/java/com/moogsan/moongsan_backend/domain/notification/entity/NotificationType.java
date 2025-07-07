@@ -16,14 +16,29 @@ public enum NotificationType {
     ORDER_CONFIRMED(
             KafkaTopics.ORDER_STATUS_CONFIRMED,
             "주문이 확정됐어요!",
-            "{buyerName}님의 주문이 확정됐습니다."
+            "{groupBuyTitle}: {buyerName}님의 주문이 확정됐습니다."
+    ),
+
+    ORDER_CANCELED(
+            KafkaTopics.ORDER_STATUS_CANCELED,
+            "주문이 취소됐어요!",
+            "{buyerName}님의 주문이 취소되었습니다.\n" +
+                    "■ 환불 계좌  : {buyerBank} {buyerAccount}\n" +
+                    "■ 환불 금액  : {price}원\n\n" +
+                    "영업일 1일 이내로 환불을 진행해 주세요."
+    ),
+
+    ORDER_REFUNDED(
+            KafkaTopics.ORDER_STATUS_REFUNDED,
+            "환불이 완료됐어요!",
+            "{groupBuyTitle}: {buyerName}님의 주문에 대한 환불이 완료됐습니다."
     ),
 
     // ──────── 공동구매 상태 ────────
     GROUPBUY_PICKUP_UPDATED(
             KafkaTopics.GROUPBUY_PICKUP_UPDATED,
             "픽업 일정 변경",
-            "새 픽업일: {pickupDate}"
+            "새 픽업일: {pickupDate}, 변경 사유: {dateModificationReason}"
     );
 
     // ───────── 필드 ─────────
