@@ -1,5 +1,6 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.service.query;
 
+import com.moogsan.moongsan_backend.domain.chatting.anonymous.service.GenerateAliasIdService;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyDetail.DetailResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.mapper.GroupBuyQueryMapper;
@@ -41,6 +42,9 @@ public class GetGroupBuyDetailInfoTest {
     @Mock
     private WishRepository wishRepository;
 
+    @Mock
+    private GenerateAliasIdService generateAliasIdService;
+
     private GetGroupBuyDetailInfo getGroupBuyDetailInfo;
     private User hostUser;
     private User participantUser;
@@ -68,7 +72,8 @@ public class GetGroupBuyDetailInfoTest {
                 orderRepository,
                 groupBuyQueryMapper,
                 wishRepository,
-                fixedClock
+                fixedClock,
+                generateAliasIdService
         );
 
         image = Image.builder()
@@ -105,7 +110,7 @@ public class GetGroupBuyDetailInfoTest {
         when(groupBuyRepository.findWithImagesById(20L)).thenReturn(Optional.ofNullable(groupBuy));
         when(orderRepository.existsParticipant(hostUser.getId(), groupBuy.getId(), "CANCELED")).thenReturn(false);
         when(wishRepository.existsByUserIdAndGroupBuyId(hostUser.getId(), groupBuy.getId())).thenReturn(false);
-        when(groupBuyQueryMapper.toDetailResponse(groupBuy, true, false, false))
+        when(groupBuyQueryMapper.toDetailResponse(groupBuy, true, false, false, 0))
                 .thenReturn(detailResponse);
 
         DetailResponse result = getGroupBuyDetailInfo.getGroupBuyDetailInfo(hostUser.getId(), 20L);
@@ -114,7 +119,7 @@ public class GetGroupBuyDetailInfoTest {
         verify(orderRepository, times(1)).existsParticipant(hostUser.getId(), groupBuy.getId(), "CANCELED");
         verify(wishRepository, times(1)).existsByUserIdAndGroupBuyId(hostUser.getId(), groupBuy.getId());
         verify(groupBuyQueryMapper, times(1))
-                .toDetailResponse(groupBuy, true, false, false);
+                .toDetailResponse(groupBuy, true, false, false, 0);
         assertThat(result).isInstanceOf(DetailResponse.class);
     }
 
@@ -126,7 +131,7 @@ public class GetGroupBuyDetailInfoTest {
         when(groupBuyRepository.findWithImagesById(20L)).thenReturn(Optional.ofNullable(groupBuy));
         when(orderRepository.existsParticipant(participantUser.getId(), groupBuy.getId(), "CANCELED")).thenReturn(true);
         when(wishRepository.existsByUserIdAndGroupBuyId(participantUser.getId(), groupBuy.getId())).thenReturn(true);
-        when(groupBuyQueryMapper.toDetailResponse(groupBuy, false, true, true))
+        when(groupBuyQueryMapper.toDetailResponse(groupBuy, false, true, true, 0))
                 .thenReturn(detailResponse);
 
         DetailResponse result = getGroupBuyDetailInfo.getGroupBuyDetailInfo(participantUser.getId(), 20L);
@@ -135,7 +140,7 @@ public class GetGroupBuyDetailInfoTest {
         verify(orderRepository, times(1)).existsParticipant(participantUser.getId(), groupBuy.getId(), "CANCELED");
         verify(wishRepository, times(1)).existsByUserIdAndGroupBuyId(participantUser.getId(), groupBuy.getId());
         verify(groupBuyQueryMapper, times(1))
-                .toDetailResponse(groupBuy, false, true, true);
+                .toDetailResponse(groupBuy, false, true, true, 0);
         assertThat(result).isInstanceOf(DetailResponse.class);
     }
 
@@ -147,7 +152,7 @@ public class GetGroupBuyDetailInfoTest {
         when(groupBuyRepository.findWithImagesById(20L)).thenReturn(Optional.ofNullable(groupBuy));
         when(orderRepository.existsParticipant(normalUser.getId(), groupBuy.getId(), "CANCELED")).thenReturn(false);
         when(wishRepository.existsByUserIdAndGroupBuyId(normalUser.getId(), groupBuy.getId())).thenReturn(false);
-        when(groupBuyQueryMapper.toDetailResponse(groupBuy, false, false, false))
+        when(groupBuyQueryMapper.toDetailResponse(groupBuy, false, false, false, 0))
                 .thenReturn(detailResponse);
 
         DetailResponse result = getGroupBuyDetailInfo.getGroupBuyDetailInfo(normalUser.getId(), 20L);
@@ -156,7 +161,7 @@ public class GetGroupBuyDetailInfoTest {
         verify(orderRepository, times(1)).existsParticipant(normalUser.getId(), groupBuy.getId(), "CANCELED");
         verify(wishRepository, times(1)).existsByUserIdAndGroupBuyId(normalUser.getId(), groupBuy.getId());
         verify(groupBuyQueryMapper, times(1))
-                .toDetailResponse(groupBuy, false, false, false);
+                .toDetailResponse(groupBuy, false, false, false, 0);
         assertThat(result).isInstanceOf(DetailResponse.class);
     }
 }
