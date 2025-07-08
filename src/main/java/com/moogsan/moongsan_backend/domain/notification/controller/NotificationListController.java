@@ -20,7 +20,7 @@ import static com.moogsan.moongsan_backend.domain.notification.message.ResponseM
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/sse")
+@RequestMapping("/api/notifications")
 public class NotificationListController {
 
     private final GetPastNotifications getPastNotifications;

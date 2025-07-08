@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/sse")
+@RequestMapping("/api/notifications")
 public class NotificationCommandController {
 
     private final NotificationMarkAsRead notificationMarkAsRead;
