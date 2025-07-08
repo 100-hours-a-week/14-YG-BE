@@ -31,7 +31,7 @@
         stompClient.connect({}, frame => {
             console.log('✅ 연결됨:', frame);
 
-            stompClient.subscribe(`/sub/chat/${postId}`, message => {
+            stompClient.subscribe(`/topic/chat-anon/${postId}`, message => {
                 console.log('📩 수신됨:', message.body);
                 const msg = JSON.parse(message.body);
                 const item = document.createElement("li");
@@ -39,7 +39,7 @@
                 document.getElementById("messageLog").appendChild(item);
             });
 
-            console.log(`📡 구독 완료: /sub/chat/${postId}`);
+            console.log(`📡 구독 완료: /topic/chat-anon/${postId}`);
         }, error => {
             console.error('❌ 연결 실패:', error);
         });
