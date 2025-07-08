@@ -6,7 +6,11 @@ import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderConfirmedEv
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderPendingEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderRefundedEvent;
 import com.moogsan.moongsan_backend.adapters.sse.SseEmitterRepository;
+import com.moogsan.moongsan_backend.domain.notification.entity.Notification;
 import com.moogsan.moongsan_backend.domain.notification.entity.NotificationType;
+import com.moogsan.moongsan_backend.domain.notification.factory.NotificationFactory;
+import com.moogsan.moongsan_backend.domain.notification.mapper.NotificationMapper;
+import com.moogsan.moongsan_backend.domain.notification.repository.NotificationRepository;
 import com.moogsan.moongsan_backend.domain.notification.template.NotificationPayload;
 import com.moogsan.moongsan_backend.domain.notification.template.NotificationTemplateRegistry;
 import lombok.RequiredArgsConstructor;
@@ -14,14 +18,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
+
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class SendOrderNotificationUseCase {
 
     private final SseEmitterRepository emitterRepository;
     private final NotificationTemplateRegistry templateRegistry;
+    private final NotificationFactory notificationFactory;
+    private final NotificationRepository notificationRepository;
     private final ObjectMapper objectMapper;
 
     public void handleOrderPending(OrderPendingEvent event) {
@@ -38,6 +46,18 @@ public class SendOrderNotificationUseCase {
                         .replace("{qty}", String.valueOf(event.getQuantity()));
 
         NotificationPayload payload = new NotificationPayload(title, body, event);
+
+        Notification notification = notificationFactory.create(
+                NotificationType.ORDER_PENDING,
+                hostId,
+                event,
+                Map.of(
+                    "buyerName", event.getBuyerName(),
+                    "qty", String.valueOf(event.getQuantity())
+                )
+        );
+
+        notificationRepository.save(notification);
 
         emitterRepository.send(hostId.toString(),
                 NotificationType.ORDER_PENDING.name(),
@@ -60,6 +80,18 @@ public class SendOrderNotificationUseCase {
                 .replace("{buyerName}", event.getBuyerName());
 
         NotificationPayload payload = new NotificationPayload(title, body, event);
+
+        Notification notification = notificationFactory.create(
+                NotificationType.ORDER_CONFIRMED,
+                participantId,
+                event,
+                Map.of(
+                        "groupBuyTitle", event.getGroupBuyName(),
+                        "buyerName", event.getBuyerName()
+                )
+        );
+
+        notificationRepository.save(notification);
 
         emitterRepository.send(participantId.toString(),
                 NotificationType.ORDER_CONFIRMED.name(),
@@ -85,6 +117,20 @@ public class SendOrderNotificationUseCase {
 
         NotificationPayload payload = new NotificationPayload(title, body, event);
 
+        Notification notification = notificationFactory.create(
+                NotificationType.ORDER_CANCELED,
+                hostId,
+                event,
+                Map.of(
+                        "buyerName", event.getBuyerName(),
+                        "buyerBank", event.getBuyerBank(),
+                        "buyerAccount", event.getBuyerAccount(),
+                        "price", String.valueOf(event.getPrice())
+                )
+        );
+
+        notificationRepository.save(notification);
+
         emitterRepository.send(hostId.toString(),
                 NotificationType.ORDER_CANCELED.name(),
                 payload);
@@ -106,6 +152,18 @@ public class SendOrderNotificationUseCase {
                 .replace("{buyerName}", event.getBuyerName());
 
         NotificationPayload payload = new NotificationPayload(title, body, event);
+
+        Notification notification = notificationFactory.create(
+                NotificationType.ORDER_REFUNDED,
+                participantId,
+                event,
+                Map.of(
+                        "groupBuyTitle", event.getGroupBuyName(),
+                        "buyerName", event.getBuyerName()
+                )
+        );
+
+        notificationRepository.save(notification);
 
         emitterRepository.send(participantId.toString(),
                 NotificationType.ORDER_REFUNDED.name(),
