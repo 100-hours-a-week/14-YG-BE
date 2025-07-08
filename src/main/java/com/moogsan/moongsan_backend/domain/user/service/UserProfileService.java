@@ -14,12 +14,13 @@ public class UserProfileService {
 
     private final UserRepository userRepository;
 
+    // 유저 프로필 조회 정보 반환
     public UserProfileResponse getUserProfile(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException(UserErrorCode.NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
         return UserProfileResponse.builder()
-                .imageUrl(user.getImageKey())
+                .profileImageUrl(user.getImageKey())
                 .nickname(user.getNickname())
                 .name(user.getName())
                 .email(user.getEmail())

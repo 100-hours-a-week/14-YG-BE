@@ -5,6 +5,9 @@ import com.moogsan.moongsan_backend.domain.user.dto.request.SignUpRequest;
 import com.moogsan.moongsan_backend.domain.user.dto.response.LoginResponse;
 import com.moogsan.moongsan_backend.domain.user.dto.response.CheckDuplicationResponse;
 import com.moogsan.moongsan_backend.domain.user.dto.response.UserProfileResponse;
+import com.moogsan.moongsan_backend.domain.user.exception.base.UserException;
+import com.moogsan.moongsan_backend.domain.user.exception.code.UserErrorCode;
+import com.moogsan.moongsan_backend.domain.user.mapper.BankCodeMapper;
 import com.moogsan.moongsan_backend.domain.user.service.CheckDuplicationService;
 import com.moogsan.moongsan_backend.domain.user.service.LoginService;
 import com.moogsan.moongsan_backend.domain.user.service.LogoutService;
@@ -13,6 +16,7 @@ import com.moogsan.moongsan_backend.domain.user.service.UserProfileService;
 import com.moogsan.moongsan_backend.domain.user.service.WithdrawService;
 import com.moogsan.moongsan_backend.domain.user.service.TokenRefreshService;
 import com.moogsan.moongsan_backend.domain.user.service.WishService;
+import com.moogsan.moongsan_backend.domain.user.service.CheckAccountService;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
 import com.moogsan.moongsan_backend.domain.WrapperResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,6 +42,7 @@ public class UserController {
     private final WithdrawService withdrawService;
     private final TokenRefreshService tokenRefreshService;
     private final WishService wishService;
+    private final CheckAccountService checkAccountService;
 
     // 회원가입 API
     @PostMapping("/users")
@@ -115,6 +120,10 @@ public class UserController {
         @AuthenticationPrincipal CustomUserDetails userDetails,
         HttpServletResponse response) {
 
+        if (userDetails == null) {
+            throw new UserException(UserErrorCode.UNAUTHORIZED);
+        }
+
         response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
         response.setHeader("Pragma", "no-cache");
 
@@ -130,6 +139,11 @@ public class UserController {
     @DeleteMapping("/users/token")
     public ResponseEntity<WrapperResponse<Void>> logout(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                         HttpServletResponse response) {
+
+        if (userDetails == null) {
+            throw new UserException(UserErrorCode.UNAUTHORIZED);
+        }
+
         logoutService.logout(userDetails.getUser().getId(), response);
         return ResponseEntity.ok(
             WrapperResponse.<Void>builder()
@@ -143,6 +157,11 @@ public class UserController {
     @DeleteMapping("/users")
     public ResponseEntity<WrapperResponse<Void>> withdraw(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                           HttpServletResponse response) {
+
+        if (userDetails == null) {
+            throw new UserException(UserErrorCode.UNAUTHORIZED);
+        }
+
         withdrawService.withdraw(userDetails.getUser().getId(), response);
         return ResponseEntity.ok(
                 WrapperResponse.<Void>builder()
@@ -168,6 +187,11 @@ public class UserController {
     @PostMapping("/users/wish/{postId}")
     public ResponseEntity<WrapperResponse<Void>> addWish(@PathVariable Long postId,
                                                          @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        if (userDetails == null) {
+            throw new UserException(UserErrorCode.UNAUTHORIZED);
+        }
+
         wishService.addWish(userDetails.getUser().getId(), postId);
 
         return ResponseEntity.ok(
@@ -182,6 +206,11 @@ public class UserController {
     @DeleteMapping("/users/wish/{postId}")
     public ResponseEntity<WrapperResponse<Void>> removeWish(@PathVariable Long postId,
                                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        if (userDetails == null) {
+            throw new UserException(UserErrorCode.UNAUTHORIZED);
+        }
+
         wishService.removeWish(userDetails.getUser().getId(), postId);
 
         return ResponseEntity.ok(
@@ -192,4 +221,29 @@ public class UserController {
         );
     }
 
+    // 계좌 정보 실명 인증
+    @GetMapping("/users/check/account")
+    public ResponseEntity<WrapperResponse<Void>> checkAccount(
+            @RequestParam String name,
+            @RequestParam String accountBank,
+            @RequestParam String accountNumber) {
+
+        String bankCode = BankCodeMapper.getBankCode(accountBank);
+        if (bankCode == null) {
+            return ResponseEntity.badRequest().body(
+                    WrapperResponse.<Void>builder()
+                            .message("지원하지 않는 은행입니다.")
+                            .data(null)
+                            .build()
+            );
+        }
+
+        checkAccountService.checkBankAccountHolder(bankCode, accountNumber, name); // matched 확인, 예외 발생 시 자동 처리
+        return ResponseEntity.ok(
+                WrapperResponse.<Void>builder()
+                        .message("본인인증이 성공하였습니다.")
+                        .data(null)
+                        .build()
+        );
+    }
 }

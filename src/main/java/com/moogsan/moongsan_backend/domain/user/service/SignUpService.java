@@ -29,61 +29,67 @@ public class SignUpService {
 
     @Transactional
     public LoginResponse signUp(SignUpRequest request, HttpServletResponse response) {
-        validateInput(request);
-        validateDuplicateUser(request);
+        try {
+            validateInput(request);
+            validateDuplicateUser(request);
 
-        // 회원정보 DB에 저장
-        User user = User.builder()
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .nickname(request.getNickname())
-                .name(request.getName())
-                .phoneNumber(request.getPhoneNumber())
-                .accountBank(request.getAccountBank())
-                .accountNumber(request.getAccountNumber())
-                .imageKey(request.getImageUrl())
-                .type("USER")
-                .status("ACTIVE")
-                .joinedAt(java.time.LocalDateTime.now())
-                .build();
+            // 회원정보 DB에 저장
+            User user = User.builder()
+                    .email(request.getEmail())
+                    .password(passwordEncoder.encode(request.getPassword()))
+                    .nickname(request.getNickname())
+                    .name(request.getName())
+                    .phoneNumber(request.getPhoneNumber())
+                    .accountBank(request.getAccountBank())
+                    .accountNumber(request.getAccountNumber())
+                    .imageKey(request.getImageUrl())
+                    .type("USER")
+                    .status("ACTIVE")
+                    .joinedAt(java.time.LocalDateTime.now())
+                    .build();
 
-        User savedUser = userRepository.save(user);
-        userRepository.flush();
-        String accessToken = jwtUtil.generateAccessToken(savedUser);
-        String refreshToken = jwtUtil.generateRefreshToken(savedUser);
-        Long accessTokenExpireAt = jwtUtil.getAccessTokenExpireAt();
+            User savedUser = userRepository.save(user);
+            userRepository.flush();
+            String accessToken = jwtUtil.generateAccessToken(savedUser);
+            String refreshToken = jwtUtil.generateRefreshToken(savedUser);
+            Long accessTokenExpireAt = jwtUtil.getAccessTokenExpireAt();
 
-        // AccessToken 쿠키로 설정
-        Cookie accessTokenCookie = new Cookie("AccessToken", accessToken);
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(true);
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge((int) (accessTokenExpireAt / 1000));
-        response.addHeader("Set-Cookie", "AccessToken=" + accessToken + "; HttpOnly; Secure; Path=/; SameSite=None");
+            // 액세스 토큰 쿠키로 설정
+            Cookie accessTokenCookie = new Cookie("AccessToken", accessToken);
+            accessTokenCookie.setHttpOnly(true);
+            accessTokenCookie.setSecure(true);
+            accessTokenCookie.setPath("/");
+            accessTokenCookie.setMaxAge((int) (accessTokenExpireAt / 1000));
+            response.addHeader("Set-Cookie", "AccessToken=" + accessToken + "; HttpOnly; Secure; Path=/; SameSite=None");
 
-        // RefreshToken 쿠키로 설정
-        Cookie refreshTokenCookie = new Cookie("RefreshToken", refreshToken);
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(true);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge((int) (jwtUtil.getRefreshTokenExpireMillis() / 1000));
-        response.addHeader("Set-Cookie", "RefreshToken=" + refreshToken + "; HttpOnly; Secure; Path=/; SameSite=None");
+            // 리프레시 토큰 쿠키로 설정
+            Cookie refreshTokenCookie = new Cookie("RefreshToken", refreshToken);
+            refreshTokenCookie.setHttpOnly(true);
+            refreshTokenCookie.setSecure(true);
+            refreshTokenCookie.setPath("/");
+            refreshTokenCookie.setMaxAge((int) (jwtUtil.getRefreshTokenExpireMillis() / 1000));
+            response.addHeader("Set-Cookie", "RefreshToken=" + refreshToken + "; HttpOnly; Secure; Path=/; SameSite=None");
 
-        // Token DB에 저장
-        Token newToken = new Token(
-            null,
-            savedUser.getId(),
-            refreshToken,
-            LocalDateTime.now().plusSeconds(jwtUtil.getRefreshTokenExpireMillis() / 1000)
-        );
-        tokenRepository.save(newToken);
+            // 리프레시 토큰을 DB에 저장
+            Token newToken = new Token(
+                null,
+                savedUser.getId(),
+                refreshToken,
+                LocalDateTime.now().plusSeconds(jwtUtil.getRefreshTokenExpireMillis() / 1000)
+            );
+            tokenRepository.save(newToken);
 
-        return new LoginResponse(
-                user.getNickname(),
-                user.getName(),
-                user.getImageKey(),
-                user.getType()
-        );
+            return new LoginResponse(
+                    user.getNickname(),
+                    user.getName(),
+                    user.getImageKey(),
+                    user.getType()
+            );
+        } catch (UserException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new UserException(UserErrorCode.INTERNAL_SERVER_ERROR);
+        }
     }
 
     private void validateInput(SignUpRequest request) {
@@ -91,8 +97,11 @@ public class SignUpService {
             throw new UserException(UserErrorCode.INVALID_INPUT, "이메일의 형식이 올바르지 않습니다.");
         }
 
-        if (request.getPassword() == null || !request.getPassword().matches("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^*+=-])[A-Za-z\\d!@#$%^*+=-]{8,30}$")) {
-            throw new UserException(UserErrorCode.INVALID_INPUT, "비밀번호가 올바르지 않습니다.\n(숫자와 영어, 특수문자로 이루어진 8자 이상, 30자 이하의 문자열,\n특수 문자(!@#$%^*+=-) 한개 이상 입력)");
+        if (request.getPassword() == null || (
+                !request.getPassword().matches("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^*+=-])[A-Za-z\\d!@#$%^*+=-]{8,30}$")
+                && !request.getPassword().startsWith("{oauth}-")
+        )) {
+            throw new UserException(UserErrorCode.INVALID_INPUT, "비밀번호가 올바르지 않습니다.\n(숫자와 영어, 특수문자로 이루어진 8자 이상, 30자 이하의 문자열,\n또는 OAuth 인증 시 자동 생성된 비밀번호)");
         }
 
         if (request.getNickname() == null || request.getNickname().length() < 2 || request.getNickname().length() > 12) {
@@ -123,8 +132,9 @@ public class SignUpService {
         if (userRepository.existsByNickname(request.getNickname())) {
             throw new UserException(UserErrorCode.DUPLICATE_VALUE, "이미 등록된 닉네임입니다.");
         }
-        if (userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
-            throw new UserException(UserErrorCode.DUPLICATE_VALUE, "이미 등록된 전화번호입니다.");
-        }
+        // 전화번호 중복 검사 안함
+//        if (userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
+//            throw new UserException(UserErrorCode.DUPLICATE_VALUE, "이미 등록된 전화번호입니다.");
+//        }
     }
 }

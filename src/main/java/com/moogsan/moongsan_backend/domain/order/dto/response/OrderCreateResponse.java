@@ -9,6 +9,7 @@ import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 @Builder
 @AllArgsConstructor
 public class OrderCreateResponse {
+    private Long orderId;
     private String productName;
     private Integer quantity;
     private Integer price;

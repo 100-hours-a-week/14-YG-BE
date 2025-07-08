@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+  # 1) Redis 서비스
+  my-redis:
+    image: redis:6-alpine
+    container_name: my-redis
+    restart: unless-stopped
+    networks:
+      - moongsan-net
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+
+  # 2) Backend 서비스
+  be-moongsan:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: be-moongsan
+    restart: unless-stopped
+    depends_on:
+      - my-redis
+    env_file:
+      - ./backend.env.prod
+    networks:
+      - moongsan-net
+    ports:
+      - "8080:8080"
+    volumes:
+      - /var/moongsan/log:/var/moongsan/log
+      - ./config:/config
+    environment:
+      SPRING_CONFIG_ADDITIONAL_LOCATION: file:/config/
+      SPRING_PROFILES_ACTIVE: docker
+
+volumes:
+  redis-data:
+
+networks:
+  moongsan-net:
+    driver: bridge

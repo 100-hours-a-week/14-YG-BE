@@ -1,5 +1,6 @@
 package com.moogsan.moongsan_backend.domain.user.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -20,10 +21,11 @@ public class SignUpRequest {
     @Email(message = "이메일의 형식이 올바르지 않습니다.")
     private String email; // 이메일
 
-    @Size(min = 8, max = 30, message = "비밀번호는 8자 이상 30자 이하여야 합니다.")
+    @Size(min = 8, max = 60, message = "비밀번호는 8자 이상 30자 이하여야 합니다.")
     @Pattern(
-            regexp = "^(?=.*[!@#$%^*+=-])[A-Za-z\\d!@#$%^*+=-]{8,30}$",
-            message = "비밀번호는 8~30자이며, 반드시 하나 이상의 특수문자(!@#$%^*+=-)를 포함해야 합니다."
+            regexp = "^\\{oauth\\}-[a-f0-9\\-]{36}$|^(?=.*[!@#$%^*+=-])[A-Za-z\\d!@#$%^*+=-]{8,60}$",
+            message = "비밀번호는 8~30자이며, 반드시 하나 이상의 특수문자(!@#$%^*+=-)를 포함해야 합니다. " +
+                    "OAuth 비밀번호는 '{oauth}-UUID' 형식이어야 합니다."
     )
     private String password; // 비밀번호
 
@@ -46,17 +48,6 @@ public class SignUpRequest {
     @Pattern(regexp = "^\\d+$", message = "계좌번호는 숫자만 입력해야 합니다.")
     private String accountNumber; // 계좌 번호
 
-    private String imageUrl; // 프로필 이미지 URL (회원가입 시에는 null)
-
-
-    public SignUpRequest(String email, String password, String nickname, String name, String phoneNumber, String accountBank, String accountNumber) {
-        this.email = email;
-        this.password = password;
-        this.nickname = nickname;
-        this.name = name;
-        this.phoneNumber = phoneNumber;
-        this.accountBank = accountBank;
-        this.accountNumber = accountNumber;
-        this.imageUrl = null;
-    }
+    @JsonProperty("imageUrl")
+    private String imageUrl; // 프로필 이미지 URL
 }

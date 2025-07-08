@@ -1,7 +1,9 @@
 package com.moogsan.moongsan_backend.domain.groupbuy.mapper;
 
+import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatRoom;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.ImageResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyDetail.DetailResponse;
+import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyDetail.UserAccountResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyDetail.UserProfileResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.BasicList.BasicListResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.HostedList.HostedListResponse;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
@@ -38,6 +41,8 @@ public class GroupBuyQueryMapper {
                 .description(gb.getDescription())
                 .url(gb.getUrl())
                 .imageKeys(imageUrls)
+                .hostQuantity(gb.getHostQuantity())
+                .leftAmount(gb.getLeftAmount() + gb.getHostQuantity())
                 .dueDate(gb.getDueDate())
                 .location(gb.getLocation())
                 .pickupDate(gb.getPickupDate())
@@ -45,6 +50,19 @@ public class GroupBuyQueryMapper {
                 .unitAmount(gb.getUnitAmount())
                 .totalAmount(gb.getTotalAmount())
                 .build();
+    }
+
+    // 공구 리스트 관심 조회
+    public List<BasicListResponse> toBasicListWishResponses(
+            List<GroupBuy> groupBuys,
+            Map<Long, Boolean> wishMap
+    ) {
+        return groupBuys.stream()
+                .map(gb -> {
+                    boolean isWished = wishMap.getOrDefault(gb.getId(), false);
+                    return toBasicListResponse(gb, isWished);
+                })
+                .collect(Collectors.toList());
     }
 
     // 공구 리스트 조회용 DTO 변환
@@ -75,7 +93,7 @@ public class GroupBuyQueryMapper {
     }
 
     // 상세 페이지 조회용 DTO
-    public DetailResponse toDetailResponse(GroupBuy gb, Boolean isParticipant, Boolean isWish) {
+    public DetailResponse toDetailResponse(GroupBuy gb, Boolean isHost, Boolean isParticipant, Boolean isWish) {
         List<ImageResponse> imageUrls = gb.getImages().stream()
                 .map(img -> ImageResponse.builder()
                         .imageKey(img.getImageKey())
@@ -84,8 +102,13 @@ public class GroupBuyQueryMapper {
                         .build())
                 .toList();
 
+        Long chatRoomId = gb.getParticipantChatRoom() != null
+                          ? gb.getParticipantChatRoom().getId()
+                          : null;
+
         return DetailResponse.builder()
                 .postId(gb.getId())
+                .chatRoomId(chatRoomId)
                 .title(gb.getTitle())
                 .name(gb.getName())
                 .postStatus(gb.getPostStatus())
@@ -102,6 +125,7 @@ public class GroupBuyQueryMapper {
                 .dueSoon(gb.isAlmostSoldOut())
                 .pickupDate(gb.getPickupDate())
                 .location(gb.getLocation())
+                .isHost(isHost)
                 .isParticipant(isParticipant)
                 .isWish(isWish)
                 .createdAt(gb.getCreatedAt())
@@ -112,12 +136,18 @@ public class GroupBuyQueryMapper {
     // 공동구매 유저 프로필 조회용 DTO
     private UserProfileResponse toUserProfile(User u) {
         return UserProfileResponse.builder()
-                .authorId(u.getId())
+                .userId(u.getId())
                 .nickname(u.getNickname())
-                .name(u.getName())
-                .accountNumber(u.getAccountNumber())
-                .accountBank(u.getAccountBank())
                 .profileImageUrl(u.getImageKey())
+                .build();
+    }
+
+    // 공동구매 유저 계좌 정보 조회용 DTO
+    public UserAccountResponse toHostAccount(GroupBuy gb) {
+        return UserAccountResponse.builder()
+                .name(gb.getUser().getName())
+                .accountBank(gb.getUser().getAccountBank())
+                .accountNumber(gb.getUser().getAccountNumber())
                 .build();
     }
 
@@ -147,8 +177,31 @@ public class GroupBuyQueryMapper {
                 .build();
     }
 
+    // 주최 공구 관심 조회
+    public List<HostedListResponse> toHostedListWishResponses(
+            List<GroupBuy> groupBuys,
+            Map<Long, Boolean> wishMap,
+            List<ChatRoom> chatRooms
+    ) {
+        Map<Long, Long> chatRoomIdMap = chatRooms.stream()
+                .collect(Collectors.toMap(
+                        cr -> cr.getGroupBuy().getId(),  // key: 해당 ChatRoom이 연결된 GroupBuy ID
+                        ChatRoom::getId                            // value: ChatRoom ID
+                ));
+        return groupBuys.stream()
+                .map(gb -> {
+                    Long groupBuyId = gb.getId();
+                    boolean isWished = wishMap.getOrDefault(gb.getId(), false);
+                    Long chatRoomId = chatRoomIdMap.get(groupBuyId);
+                    return toHostedListResponse(gb, isWished, chatRoomId);
+                })
+                .collect(Collectors.toList());
+    }
+
     // 주최 공구 리스트 조회
-    public HostedListResponse toHostedListResponse(GroupBuy gb, Boolean isWish) {
+    public HostedListResponse toHostedListResponse(
+            GroupBuy gb, Boolean isWish, Long chatRoomId
+    ) {
         String img = gb.getImages().stream()
                 .findFirst()
                 .map(Image::getImageKey)
@@ -160,6 +213,7 @@ public class GroupBuyQueryMapper {
 
         return HostedListResponse.builder()
                 .postId(gb.getId())
+                .chatRoomId(chatRoomId)
                 .title(gb.getTitle())
                 .postStatus(gb.getPostStatus())
                 .location(gb.getLocation())
@@ -174,9 +228,27 @@ public class GroupBuyQueryMapper {
                 .build();
     }
 
+    // 참여 공구 관심 조회
+    public List<ParticipatedListResponse> toParticipatedListWishResponse(List<Order> orders, Map<Long, Boolean> wishMap, List<ChatRoom> chatRooms) {
+        Map<Long, Long> chatRoomIdMap = chatRooms.stream()
+                .collect(Collectors.toMap(
+                        cr -> cr.getGroupBuy().getId(),  // key: 해당 ChatRoom이 연결된 GroupBuy ID
+                        ChatRoom::getId                            // value: ChatRoom ID
+                ));
+        return orders.stream()
+                .map(order -> {
+                    Long groupBuyId = order.getGroupBuy().getId();
+                    boolean isWish = wishMap.getOrDefault(order.getGroupBuy().getId(), false);
+                    Long chatRoomId = chatRoomIdMap.get(groupBuyId);
+                    return toParticipatedListResponse(order, isWish, chatRoomId);
+                })
+                .toList();
+    }
 
     // 참여 공구 리스트 조회
-    public ParticipatedListResponse toParticipatedListResponse(Order o, boolean isWish) {
+    public ParticipatedListResponse toParticipatedListResponse(
+            Order o, boolean isWish, Long chatRoomId
+    ) {
         GroupBuy post = o.getGroupBuy();
 
         String img = post.getImages().stream()
@@ -190,11 +262,12 @@ public class GroupBuyQueryMapper {
 
         return ParticipatedListResponse.builder()
                 .postId(post.getId())
+                .chatRoomId(chatRoomId)
                 .title(post.getTitle())
                 .postStatus(post.getPostStatus())
                 .location(post.getLocation())
                 .imageKey(img)
-                .unitPrice(post.getUnitPrice())
+                .orderPrice(post.getUnitPrice()*o.getQuantity())
                 .orderQuantity(o.getQuantity())
                 .orderStatus(o.getStatus())
                 .soldAmount(post.getTotalAmount() - post.getLeftAmount())

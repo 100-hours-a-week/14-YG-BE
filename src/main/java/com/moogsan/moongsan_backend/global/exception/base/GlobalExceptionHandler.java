@@ -36,57 +36,58 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    // 1) DTO 검증 오류 (400)
+    // 400
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex,
             HttpHeaders headers,
             HttpStatusCode status,
-            WebRequest request) {
-
-        // Field 별 메시지 수집
-        Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
+            WebRequest request
+    ) {
+        // FieldError 리스트를 {필드명 → 메시지} 맵으로 변환
+        Map<String, String> errors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
                 .collect(Collectors.toMap(
                         FieldError::getField,
                         FieldError::getDefaultMessage,
-                        (msg1, msg2) -> msg1  // 같은 필드 중복 시 첫 번째 메시지 사용
+                        (existing, replacement) -> existing  // 동일 필드 중복 시 첫 메시지 유지
                 ));
 
-        ErrorResponse body = ErrorResponse.builder()
-                .errorCode("INVALID_INPUT")
-                .message("입력값이 올바르지 않습니다.")
-                .errors(errors)
-                .timestamp(ZonedDateTime.from(LocalDateTime.now()))
-                .build();
-
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
-    }
-
-    // 2) 도메인 예외
-    @ExceptionHandler(BusinessException.class)
-    protected ResponseEntity<ErrorResponse> handleBusinessException(BusinessException ex) {
-        ErrorResponse body = ErrorResponse.builder()
-                .errorCode(ex.getErrorCode())                    // ErrorCodeType.getCode() 값
-                .message(ex.getMessage())                  // 기본 메시지 또는 커스텀 메시지
-                .timestamp(ZonedDateTime.now())            // 현재 시각
-                .build();
-
         return ResponseEntity
-                .status(ex.getHttpStatus())                // ErrorCodeType.getStatus()
-                .body(body);
+                .badRequest()
+                .body(WrapperResponse.<Map<String, String>>builder()
+                        .message("입력 형식이 올바르지 않습니다.")
+                        .data(errors)
+                        .build());
     }
 
-    // 3) 그 외 모든 예외 (500)
+    // 도메인 예외 처리
+    @ExceptionHandler(BusinessException.class)
+    protected ResponseEntity<Object> handleBusinessException(BusinessException ex) {
+        return ResponseEntity
+                .status(ex.getHttpStatus())
+                .body(WrapperResponse.<Object>builder()
+                        .message(ex.getMessage())
+                        .data(null)
+                        .build());
+    }
+
+    // 500
     @ExceptionHandler(Exception.class)
-    protected ResponseEntity<ErrorResponse> handleAllExceptions(Exception ex) {
-        // 로그에 스택트레이스 남기기
+    protected ResponseEntity<Object> handleAllExceptions(Exception ex) {
         log.error("Unhandled exception caught:", ex);
 
-        ErrorResponse body = ErrorResponse.builder()
-                .errorCode("INTERNAL_ERROR")
-                .message("서버에서 알 수 없는 오류가 발생했습니다.")
-                .timestamp(ZonedDateTime.from(LocalDateTime.now()))
-                .build();
-        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+        String message = ex.getMessage();
+        if (message == null || message.isBlank()) {
+            message = "내부 서버 오류 발생";
+        }
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(WrapperResponse.<Object>builder()
+                        .message(message)
+                        .data(null)
+                        .build());
     }
 }

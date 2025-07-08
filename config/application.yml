@@ -1,0 +1,35 @@
+# application-secrets.yml
+
+# DB
+spring:
+  config:
+    activate:
+      on-profile: '!test'
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    mongodb:
+      database: ${MONGO_DB}
+      uri: ${MONGO_DB_URI}
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+
+# S3
+cloud:
+  aws:
+    s3:
+      bucket: ${S3_BUCKET}
+    region:
+      static: ${S3_REGION}
+    credentials:
+      accessKey: ${AWS_ACCESS_KEY}
+      secretKey: ${AWS_SECRET_KEY}
+
+# AI
+ai:
+  service:
+    base-url: ${AI_SERVICE_BASE_URL}

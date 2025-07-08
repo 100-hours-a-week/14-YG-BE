@@ -16,6 +16,7 @@ public class PagedResponse<T> {
     private Integer nextCursor;           // 다음 페이지용 postId
     private Integer nextCursorPrice;      // 다음 페이지용 unitPrice
     private LocalDateTime nextCreatedAt;  // 다음 페이지용 createdAt
+    private Integer nextSoldRatio;        // 다음 페이지용 soldRatio
 
     private boolean hasMore;              // 다음 페이지 존재 여부
 

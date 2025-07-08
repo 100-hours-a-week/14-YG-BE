@@ -1,6 +1,8 @@
 package com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.moogsan.moongsan_backend.global.profanity.ProfanitySafe;
+import com.moogsan.moongsan_backend.global.xss.XssSafe;
 import jakarta.persistence.Lob;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -9,60 +11,76 @@ import org.hibernate.validator.constraints.URL;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.moogsan.moongsan_backend.domain.groupbuy.message.ValidationMessage.*;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class CreateGroupBuyRequest {
 
-    @NotBlank(message = "제목은 필수 입력 항목입니다.")
-    @Size(min = 1, max = 100, message = "제목은 1자 이상, 100자 이하로 입력해주세요.")
+    @ProfanitySafe
+    @XssSafe
+    @NotNull(message = TITLE_SIZE)
+    @NotBlank(message = TITLE_SIZE)
+    @Size(min = 1, max = 100, message = TITLE_SIZE)
     private String title;
 
-    @NotBlank(message = "상품명은 필수 입력 항목입니다.")
-    @Size(min = 1, max = 100, message = "상품명은 1자 이상, 100자 이하로 입력해주세요.")
+    @ProfanitySafe
+    @XssSafe
+    @NotNull(message = NAME_SIZE)
+    @NotBlank(message = NAME_SIZE)
+    @Size(min = 1, max = 100, message = NAME_SIZE)
     private String name;
 
-    @Size(min = 1, max = 2000, message = "URL은 1자 이상, 2000자 이하로 입력해주세요.")
-    @URL(message = "URL 형식이 올바르지 않습니다.")
+    @Size(min = 1, max = 2000, message = URL_SIZE)
+    @URL(message = INVALID_URL)
     private String url;
 
-    @NotNull(message = "상품 가격은 필수 입력 항목입니다.")
-    @Min(value = 1, message = "상품 가격은 1 이상이어야 합니다.")
+    @NotNull(message = BLANK_PRICE)
+    @Min(value = 1, message = PRICE_SIZE)
     private Integer price;
 
-    @NotNull(message = "상품 전체 수량은 필수 입력 항목입니다.")
-    @Min(value = 1, message = "상품 전체 수량은 1 이상이어야 합니다.")
+    @NotNull(message = BLANK_TOTAL_AMOUNT)
+    @Min(value = 1, message = TOTAL_AMOUNT_SIZE)
     private Integer totalAmount;
 
-    @NotNull(message = "상품 주문 단위는 필수 입력 항목입니다.")
-    @Min(value = 1, message = "상품 주문 단위는 1 이상이어야 합니다.")
+    @NotNull(message = BLANK_UNIT_AMOUNT)
+    @Min(value = 1, message = UNIT_AMOUNT_SIZE)
     private Integer unitAmount;
 
-    @NotNull(message = "주최자 주문 수량은 필수 입력 항목입니다.")
-    @Min(value = 0, message = "주최자 주문 수량은 0 이상이어야 합니다.")  /// 이후 1로 수정 필요
+    @NotNull(message = BLANK_HOST_QUANTITY)
+    @Min(value = 1, message = HOST_QUANTITY_SIZE)
     private Integer hostQuantity;
 
-    @NotBlank(message = "상품 상세 설명은 필수 입력 항목입니다.")
-    @Size(min = 2, max = 2000, message = "상품 설명은 2자 이상, 2000자 이하로 입력해주세요.")
+    @ProfanitySafe
+    @XssSafe
+    @NotNull(message = DESCRIPTION_SIZE)
+    @NotBlank(message = DESCRIPTION_SIZE)
+    @Size(min = 2, max = 2000, message = DESCRIPTION_SIZE)
     private String description;
 
-    @NotNull(message = "마감 일자는 필수 입력 항목입니다.")
-    @Future(message = "마감일자는 현재 시간 이후여야 합니다.")
+    @NotNull(message = INVALID_DUEDATE)
+    @Future(message = INVALID_DUEDATE)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime dueDate;
 
-    @NotBlank(message = "거래 장소는 필수 입력 항목입니다.")
+    @NotNull(message = LOCATION_SIZE)
+    @NotBlank(message = LOCATION_SIZE)
+    @Size(min = 2, max = 85, message = LOCATION_SIZE)
     private String location;
 
-    @NotNull(message = "픽업 일자는 필수 입력 항목입니다.")
-    @Future(message = "픽업 일자는 현재 시간 이후여야 합니다.")
+    @NotNull(message = INVALID_PICKUPDATE)
+    @Future(message = INVALID_PICKUPDATE)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime pickupDate;
 
-    @NotNull(message = "이미지 리스트는 필수입니다.")
-    @Size(min=1, max = 5, message = "이미지는 1장 이상, 5장 이하까지 등록할 수 있습니다.")
+    @NotNull(message = INVALID_IMAGE)
+    @Size(min=1, max = 5, message = INVALID_IMAGE)
     private List<
-            @NotBlank(message = "이미지 파일은 공백이 될 수 없습니다."
+            @NotBlank(message = INVALID_IMAGE)
+            @Pattern(
+                    regexp = "^.*tmp/.*$",
+                    message = INVALID_IMAGE
             ) String> imageKeys;
 }

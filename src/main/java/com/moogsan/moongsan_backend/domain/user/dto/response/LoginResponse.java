@@ -1,9 +1,11 @@
 package com.moogsan.moongsan_backend.domain.user.dto.response;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
+@Builder
 @AllArgsConstructor
 public class LoginResponse {
     private String nickname;    // 닉네임

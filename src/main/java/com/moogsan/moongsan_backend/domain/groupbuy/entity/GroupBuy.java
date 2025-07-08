@@ -1,6 +1,7 @@
 package com.moogsan.moongsan_backend.domain.groupbuy.entity;
 
 import com.moogsan.moongsan_backend.domain.BaseEntity;
+import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatRoom;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.UpdateGroupBuyRequest;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.domain.groupbuy.policy.DueSoonPolicy;
@@ -57,6 +58,9 @@ public class GroupBuy extends BaseEntity {
     @Column(nullable = false)
     private boolean dueSoon = false;
 
+    @org.hibernate.annotations.Formula("(total_amount -  left_amount) * 100 / total_amount ")
+    private int soldRatio;
+
     @Column(length = 20)
     private String badge;
 
@@ -85,7 +89,10 @@ public class GroupBuy extends BaseEntity {
     @Column(nullable = false, length = 10)
     private String postStatus = "OPEN";
 
-    private String pickupChangeReason;
+    private String dateModificationReason;
+
+    @Builder.Default
+    private boolean isFinalized = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id", nullable = false)
@@ -102,15 +109,17 @@ public class GroupBuy extends BaseEntity {
     @OrderBy("imageSeqNo ASC")
     private List<Image> images = new ArrayList<>();
 
-    @Transient
-    public double getSoldRatio() {
-        if (totalAmount == 0) return 0.0;
-        return (double)(totalAmount - leftAmount) / totalAmount;
+    @OneToOne(mappedBy = "groupBuy")
+    private ChatRoom participantChatRoom;
+
+    public void setParticipantChatRoom(ChatRoom room) {
+        if (room == null) return;
+        this.participantChatRoom = room;
     }
 
     @Transient
     public boolean isAlmostSoldOut() {
-        return getSoldRatio() >= 0.8;
+        return soldRatio >= 80;
     }
 
     public void increaseLeftAmount(int quantity) {
@@ -141,8 +150,11 @@ public class GroupBuy extends BaseEntity {
             case "ENDED":
                 this.postStatus = "ENDED";
                 break;
+            case "DELETED":
+                this.postStatus = "DELETED";
+                break;
             default:
-                throw new GroupBuyInvalidStateException("공구 진행 상태는 CLOSED 또는 ENDED로만 전환할 수 있습니다.");
+                throw new GroupBuyInvalidStateException("공구 진행 상태는 CLOSED, ENDED, DELETED로만 전환할 수 있습니다.");
         }
     }
 
@@ -160,8 +172,16 @@ public class GroupBuy extends BaseEntity {
         if (req.getName() != null) {
             this.name = req.getName();
         }
-        if (req.getUrl() != null) {
-            this.url = req.getUrl();
+        if (req.getHostQuantity() != null) {
+            int originalHostQuantity = this.hostQuantity;
+            int newHostQuantity = req.getHostQuantity();
+
+            if (originalHostQuantity < newHostQuantity) {
+                decreaseLeftAmount(newHostQuantity - originalHostQuantity);
+            } else if (originalHostQuantity > newHostQuantity){
+                increaseLeftAmount(originalHostQuantity - newHostQuantity);
+            }
+            this.hostQuantity = newHostQuantity;
         }
         if (req.getDescription() != null) {
             this.description = req.getDescription();
@@ -171,9 +191,18 @@ public class GroupBuy extends BaseEntity {
         }
         if (req.getPickupDate() != null) {
             this.pickupDate = req.getPickupDate();
-            this.pickupChangeReason = req.getDateModificationReason();
+            this.dateModificationReason = req.getDateModificationReason();
         }
 
         return this;
     }
+
+    public boolean isFixed() {
+        return isFinalized;
+    }
+
+    public void setFixed(boolean fixed) {
+        this.isFinalized = fixed;
+    }
+
 }

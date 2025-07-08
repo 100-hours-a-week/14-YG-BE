@@ -9,7 +9,8 @@ import lombok.Getter;
 public class ParticipatedListResponse {
 
     // 식별/메타
-    private Long postId;         // 공구 게시글 아이디
+    private Long postId;           // 공구 게시글 아이디
+    private Long chatRoomId;       // 참여자 채팅방 아이디
     private String title;          // 공구 게시글 제목
     private String postStatus;     // 공구 진행 상태(OPEN, CLOSED, ENDED)
 
@@ -18,7 +19,7 @@ public class ParticipatedListResponse {
     private String imageKey;       // thumbnail 이미지
 
     // 숫자 데이터
-    private int unitPrice;         // 상품 단위 가격
+    private int orderPrice;         // 상품 단위 가격
     private int orderQuantity;     // 주문 개수(참여자)
     private int soldAmount;        // 판매 수량(totalAmount - leftAmount)
     private int totalAmount;       // 상품 전체 수량
