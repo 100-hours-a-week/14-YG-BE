@@ -2,6 +2,7 @@ package com.moogsan.moongsan_backend.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.message.SimpleMessage;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -29,6 +30,17 @@ public class KafkaConfig {
         // Jackson 역직렬화
         factory.setRecordMessageConverter(new StringJsonMessageConverter(objectMapper));
 
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
+        factory.getContainerProperties().setSyncCommits(true);
+        return factory;
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, SimpleMessage> simpleMessageListenerFactory(
+            ConsumerFactory<String, SimpleMessage> cf
+    ) {
+        var factory = new ConcurrentKafkaListenerContainerFactory<String, SimpleMessage>();
+        factory.setConsumerFactory(cf);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
         factory.getContainerProperties().setSyncCommits(true);
         return factory;
