@@ -46,6 +46,7 @@ public class DetailResponse {
 
     // 연관 객체
     private UserProfileResponse userProfileResponse;    // 주최자 정보
+    private int aliasId;                   // 익명 아이디
 
     @JsonProperty("isWish")
     public boolean isWish() {

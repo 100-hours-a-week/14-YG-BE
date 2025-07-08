@@ -3,7 +3,9 @@ package com.moogsan.moongsan_backend.domain.chatting.anonymous.service;
 import java.util.List;
 import com.moogsan.moongsan_backend.domain.chatting.anonymous.repository.ChatAnonRepository;
 import com.moogsan.moongsan_backend.domain.chatting.anonymous.entity.ChatAnon;
+import org.springframework.stereotype.Service;
 
+@Service
 public class GenerateAliasIdService {
     private final ChatAnonRepository chatAnonRepository;
 
