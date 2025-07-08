@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 public class SendChatAnonService {
 
     private final KafkaProducerService kafkaProducerService;
-    private final SimpMessagingTemplate messagingTemplate;
 
     // 수신된 메시지를 처리하고 Kafka 전송 및 브로드캐스트하는 메서드
     public void processMessage(ChatAnonDto message) {
@@ -29,10 +28,5 @@ public class SendChatAnonService {
 
         // Kafka로 메시지 발행
         kafkaProducerService.send(message);
-
-        // 웹소켓 브로드캐스트
-        String destination = "/topic/chat/" + message.getPostId();
-        messagingTemplate.convertAndSend(destination, message);
-        System.out.println("🟡 [SendChatAnon] 메시지 브로드캐스트 - destination: " + destination);
     }
 }

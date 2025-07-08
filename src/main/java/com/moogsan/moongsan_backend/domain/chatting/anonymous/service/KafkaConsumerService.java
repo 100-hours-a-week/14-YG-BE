@@ -8,6 +8,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 public class KafkaConsumerService {
     private final ChatAnonRepository chatAnonRepository;
     private final DeleteOldMessageService deleteOldMessages;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     @KafkaListener(topics = "chatting.anonymous.message", groupId = "${KAFKA_CONSUMER_GROUP}", containerFactory = "kafkaListenerContainerFactory")
     public void consume(ChatAnonDto message, @Header(KafkaHeaders.RECEIVED_KEY) String postId, Acknowledgment ack) {
@@ -27,8 +29,9 @@ public class KafkaConsumerService {
 
         chatAnonRepository.save(entity);
         deleteOldMessages.deleteOldMessages(Long.parseLong(postId));
+        simpMessagingTemplate.convertAndSend("/topic/chat-anon/" + postId, message);
 
-        System.out.println("🟡 [KafkaConsumer] MongoDB 저장 완료 - aliasId: " + message.getAliasId() + ", message: " + message.getMessage());
-        ack.acknowledge();;
+        System.out.println("🟡 [KafkaConsumer] MongoDB 저장 및 WebSocket 토픽 발행 완료 - aliasId: " + message.getAliasId() + ", message: " + message.getMessage());
+        ack.acknowledge();
     }
 }
