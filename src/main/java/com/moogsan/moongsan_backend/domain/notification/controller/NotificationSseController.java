@@ -12,12 +12,12 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/sse")
+@RequestMapping("/api/notifications")
 public class NotificationSseController {
 
     private final SseEmitterRepository sseEmitterRepository;
 
-    @GetMapping(path = "/notifications", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(path = "/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribe(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
