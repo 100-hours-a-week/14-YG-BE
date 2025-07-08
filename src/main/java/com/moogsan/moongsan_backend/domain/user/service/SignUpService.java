@@ -132,8 +132,9 @@ public class SignUpService {
         if (userRepository.existsByNickname(request.getNickname())) {
             throw new UserException(UserErrorCode.DUPLICATE_VALUE, "이미 등록된 닉네임입니다.");
         }
-        if (userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
-            throw new UserException(UserErrorCode.DUPLICATE_VALUE, "이미 등록된 전화번호입니다.");
-        }
+        // 전화번호 중복 검사 안함
+//        if (userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
+//            throw new UserException(UserErrorCode.DUPLICATE_VALUE, "이미 등록된 전화번호입니다.");
+//        }
     }
 }

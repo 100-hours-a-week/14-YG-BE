@@ -276,26 +276,26 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.message").value("이미 등록된 닉네임입니다."));
     }
 
-    @Test
-    @DisplayName("회원가입 실패 - 이미 존재하는 전화번호")
-    void signUp_fail_duplicate_phone_number() throws Exception {
-        Mockito.doThrow(new com.moogsan.moongsan_backend.domain.user.exception.base.UserException(
-                        com.moogsan.moongsan_backend.domain.user.exception.code.UserErrorCode.DUPLICATE_VALUE,
-                        "이미 등록된 전화번호입니다."))
-                .when(signUpService).signUp(any(), any());
-
-        SignUpRequest request = new SignUpRequest(
-                "email@email.com", "password123!",
-                "nickname", "realName", "01000000000",
-                "bankName", "12345679012", null
-        );
-
-        mockMvc.perform(post("/api/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.message").value("이미 등록된 전화번호입니다."));
-    }
+//    @Test
+//    @DisplayName("회원가입 실패 - 이미 존재하는 전화번호")
+//    void signUp_fail_duplicate_phone_number() throws Exception {
+//        Mockito.doThrow(new com.moogsan.moongsan_backend.domain.user.exception.base.UserException(
+//                        com.moogsan.moongsan_backend.domain.user.exception.code.UserErrorCode.DUPLICATE_VALUE,
+//                        "이미 등록된 전화번호입니다."))
+//                .when(signUpService).signUp(any(), any());
+//
+//        SignUpRequest request = new SignUpRequest(
+//                "email@email.com", "password123!",
+//                "nickname", "realName", "01000000000",
+//                "bankName", "12345679012", null
+//        );
+//
+//        mockMvc.perform(post("/api/users")
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(request)))
+//                .andExpect(status().isConflict())
+//                .andExpect(jsonPath("$.message").value("이미 등록된 전화번호입니다."));
+//    }
 
     @Test
     @DisplayName("로그인 성공")
