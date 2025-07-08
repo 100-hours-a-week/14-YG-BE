@@ -103,7 +103,7 @@ public class GetGroupBuyDetailInfoTest {
         DetailResponse detailResponse = mock(DetailResponse.class);
 
         when(groupBuyRepository.findWithImagesById(20L)).thenReturn(Optional.ofNullable(groupBuy));
-        when(orderRepository.existsParticipant(hostUser.getId(), groupBuy.getId(), "CANCELED")).thenReturn(false);
+        when(orderRepository.existsByUserIdAndGroupBuyIdAndStatusNotIn(hostUser.getId(), groupBuy.getId(), List.of("CANCELED", "REFUNDED"))).thenReturn(false);
         when(wishRepository.existsByUserIdAndGroupBuyId(hostUser.getId(), groupBuy.getId())).thenReturn(false);
         when(groupBuyQueryMapper.toDetailResponse(groupBuy, true, false, false))
                 .thenReturn(detailResponse);
@@ -111,7 +111,7 @@ public class GetGroupBuyDetailInfoTest {
         DetailResponse result = getGroupBuyDetailInfo.getGroupBuyDetailInfo(hostUser.getId(), 20L);
 
         verify(groupBuyRepository, times(1)).findWithImagesById(20L);
-        verify(orderRepository, times(1)).existsParticipant(hostUser.getId(), groupBuy.getId(), "CANCELED");
+        verify(orderRepository, times(1)).existsByUserIdAndGroupBuyIdAndStatusNotIn(hostUser.getId(), groupBuy.getId(), List.of("CANCELED", "REFUNDED"));
         verify(wishRepository, times(1)).existsByUserIdAndGroupBuyId(hostUser.getId(), groupBuy.getId());
         verify(groupBuyQueryMapper, times(1))
                 .toDetailResponse(groupBuy, true, false, false);
@@ -124,7 +124,7 @@ public class GetGroupBuyDetailInfoTest {
         DetailResponse detailResponse = mock(DetailResponse.class);
 
         when(groupBuyRepository.findWithImagesById(20L)).thenReturn(Optional.ofNullable(groupBuy));
-        when(orderRepository.existsParticipant(participantUser.getId(), groupBuy.getId(), "CANCELED")).thenReturn(true);
+        when(orderRepository.existsByUserIdAndGroupBuyIdAndStatusNotIn(participantUser.getId(), groupBuy.getId(), List.of("CANCELED", "REFUNDED"))).thenReturn(true);
         when(wishRepository.existsByUserIdAndGroupBuyId(participantUser.getId(), groupBuy.getId())).thenReturn(true);
         when(groupBuyQueryMapper.toDetailResponse(groupBuy, false, true, true))
                 .thenReturn(detailResponse);
@@ -132,7 +132,7 @@ public class GetGroupBuyDetailInfoTest {
         DetailResponse result = getGroupBuyDetailInfo.getGroupBuyDetailInfo(participantUser.getId(), 20L);
 
         verify(groupBuyRepository, times(1)).findWithImagesById(20L);
-        verify(orderRepository, times(1)).existsParticipant(participantUser.getId(), groupBuy.getId(), "CANCELED");
+        verify(orderRepository, times(1)).existsByUserIdAndGroupBuyIdAndStatusNotIn(participantUser.getId(), groupBuy.getId(), List.of("CANCELED", "REFUNDED"));
         verify(wishRepository, times(1)).existsByUserIdAndGroupBuyId(participantUser.getId(), groupBuy.getId());
         verify(groupBuyQueryMapper, times(1))
                 .toDetailResponse(groupBuy, false, true, true);
@@ -145,7 +145,7 @@ public class GetGroupBuyDetailInfoTest {
         DetailResponse detailResponse = mock(DetailResponse.class);
 
         when(groupBuyRepository.findWithImagesById(20L)).thenReturn(Optional.ofNullable(groupBuy));
-        when(orderRepository.existsParticipant(normalUser.getId(), groupBuy.getId(), "CANCELED")).thenReturn(false);
+        when(orderRepository.existsByUserIdAndGroupBuyIdAndStatusNotIn(normalUser.getId(), groupBuy.getId(), List.of("CANCELED", "REFUNDED"))).thenReturn(false);
         when(wishRepository.existsByUserIdAndGroupBuyId(normalUser.getId(), groupBuy.getId())).thenReturn(false);
         when(groupBuyQueryMapper.toDetailResponse(groupBuy, false, false, false))
                 .thenReturn(detailResponse);
@@ -153,7 +153,7 @@ public class GetGroupBuyDetailInfoTest {
         DetailResponse result = getGroupBuyDetailInfo.getGroupBuyDetailInfo(normalUser.getId(), 20L);
 
         verify(groupBuyRepository, times(1)).findWithImagesById(20L);
-        verify(orderRepository, times(1)).existsParticipant(normalUser.getId(), groupBuy.getId(), "CANCELED");
+        verify(orderRepository, times(1)).existsByUserIdAndGroupBuyIdAndStatusNotIn(normalUser.getId(), groupBuy.getId(), List.of("CANCELED", "REFUNDED"));
         verify(wishRepository, times(1)).existsByUserIdAndGroupBuyId(normalUser.getId(), groupBuy.getId());
         verify(groupBuyQueryMapper, times(1))
                 .toDetailResponse(groupBuy, false, false, false);

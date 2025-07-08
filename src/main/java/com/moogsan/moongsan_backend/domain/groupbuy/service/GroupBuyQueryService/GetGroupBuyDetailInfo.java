@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.AFTER_DELETED;
@@ -43,7 +44,8 @@ public class GetGroupBuyDetailInfo {
 
         //log.info("Checking participant: userId={}, postId={}", userId, postId);
         boolean isHost = Objects.equals(userId, groupBuy.getUser().getId());
-        boolean isParticipant = orderRepository.existsParticipant(userId, postId, "CANCELED");
+        boolean isParticipant = orderRepository.existsByUserIdAndGroupBuyIdAndStatusNotIn(
+                userId, groupBuy.getId(), List.of("CANCELED", "REFUNDED"));
         boolean isWish = wishRepository.existsByUserIdAndGroupBuyId(userId, postId);
 
         return groupBuyQueryMapper.toDetailResponse(groupBuy, isHost, isParticipant, isWish);
