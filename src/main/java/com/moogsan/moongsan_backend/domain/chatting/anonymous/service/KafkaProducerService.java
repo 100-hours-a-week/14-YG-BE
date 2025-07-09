@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class KafkaProducerService {
     private final KafkaTemplate<String, ChatAnonDto> kafkaTemplate;
-    private static final String TOPIC = "chatting.anonymous.message";
+    private static final String TOPIC = "chat.anon.message.created";
 
     public void send(ChatAnonDto message){
         kafkaTemplate.send(TOPIC, String.valueOf(message.getPostId()), message);

@@ -18,7 +18,7 @@ public class KafkaConsumerService {
     private final DeleteOldMessageService deleteOldMessages;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
-    @KafkaListener(topics = "chatting.anonymous.message", groupId = "chat-anon-message", containerFactory = "simpleMessageListenerFactory")
+    @KafkaListener(topics = "chat.anon.message.created", groupId = "chat-anon-message", containerFactory = "simpleMessageListenerFactory")
     public void consume(ChatAnonDto message, @Header(KafkaHeaders.RECEIVED_KEY) String postId, Acknowledgment ack) {
         if (postId == null) {
             System.out.println("🟡 [KafkaConsumer] Kafka 메시지 키(postId)가 null입니다.");
