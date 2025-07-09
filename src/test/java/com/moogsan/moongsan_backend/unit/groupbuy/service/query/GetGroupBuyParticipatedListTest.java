@@ -102,7 +102,7 @@ public class GetGroupBuyParticipatedListTest {
                         .and(Sort.by("id").descending())
         );
 
-        when(orderRepository.findByUserAndPostStatusAndNotCanceledBeforeCursor(loginedUser.getId(), postStatus, cursorCreatedAt, cursorId, expectedPageable))
+        when(orderRepository.findByUserAndPostStatusAndNotRefundedBeforeCursor(loginedUser.getId(), postStatus, cursorCreatedAt, cursorId, expectedPageable))
                 .thenReturn(orders);
         when(fetchWishUtil.fetchWishMap(loginedUser.getId(), groupBuys)).thenReturn(wishMap);
         when(chatRoomRepository.findByGroupBuy_IdInAndType(groupBuyIds, "PARTICIPANT")).thenReturn(chatRooms);
@@ -110,7 +110,7 @@ public class GetGroupBuyParticipatedListTest {
 
         PagedResponse<ParticipatedListResponse> result = getGroupBuyParticipatedList.getGroupBuyParticipatedList(loginedUser.getId(), postStatus, cursorCreatedAt, cursorId, limit);
 
-        verify(orderRepository, times(1)).findByUserAndPostStatusAndNotCanceledBeforeCursor(loginedUser.getId(), postStatus, cursorCreatedAt, cursorId, expectedPageable);
+        verify(orderRepository, times(1)).findByUserAndPostStatusAndNotRefundedBeforeCursor(loginedUser.getId(), postStatus, cursorCreatedAt, cursorId, expectedPageable);
         verify(fetchWishUtil, times(1)).fetchWishMap(loginedUser.getId(), groupBuys);
         verify(chatRoomRepository, times(1)).findByGroupBuy_IdInAndType(groupBuyIds, "PARTICIPANT");
         verify(groupBuyQueryMapper, times(1)).toParticipatedListWishResponse(orders, wishMap, chatRooms);
@@ -132,7 +132,7 @@ public class GetGroupBuyParticipatedListTest {
                         .and(Sort.by("id").descending())
         );
 
-        when(orderRepository.findByUserAndPostStatusAndNotCanceledBeforeCursor(loginedUser.getId(), postStatus, cursorCreatedAt, cursorId, expectedPageable))
+        when(orderRepository.findByUserAndPostStatusAndNotRefundedBeforeCursor(loginedUser.getId(), postStatus, cursorCreatedAt, cursorId, expectedPageable))
                 .thenReturn(orders);
         when(fetchWishUtil.fetchWishMap(loginedUser.getId(), groupBuys)).thenReturn(wishMap);
         when(chatRoomRepository.findByGroupBuy_IdInAndType(groupBuyIds, "PARTICIPANT")).thenReturn(chatRooms);
@@ -140,7 +140,7 @@ public class GetGroupBuyParticipatedListTest {
 
         PagedResponse<ParticipatedListResponse> result = getGroupBuyParticipatedList.getGroupBuyParticipatedList(loginedUser.getId(), postStatus, cursorCreatedAt, cursorId, limit);
 
-        verify(orderRepository, times(1)).findByUserAndPostStatusAndNotCanceledBeforeCursor(loginedUser.getId(), postStatus, cursorCreatedAt, cursorId, expectedPageable);
+        verify(orderRepository, times(1)).findByUserAndPostStatusAndNotRefundedBeforeCursor(loginedUser.getId(), postStatus, cursorCreatedAt, cursorId, expectedPageable);
         verify(fetchWishUtil, times(1)).fetchWishMap(loginedUser.getId(), groupBuys);
         verify(chatRoomRepository, times(1)).findByGroupBuy_IdInAndType(groupBuyIds, "PARTICIPANT");
         verify(groupBuyQueryMapper, times(1)).toParticipatedListWishResponse(orders, wishMap, chatRooms);
@@ -162,7 +162,7 @@ public class GetGroupBuyParticipatedListTest {
                         .and(Sort.by("id").descending())
         );
 
-        when(orderRepository.findByUserAndPostStatusAndNotCanceled(loginedUser.getId(), postStatus, expectedPageable))
+        when(orderRepository.findByUserAndPostStatusAndNotRefunded(loginedUser.getId(), postStatus, expectedPageable))
                 .thenReturn(orders);
         when(fetchWishUtil.fetchWishMap(loginedUser.getId(), groupBuys)).thenReturn(wishMap);
         when(chatRoomRepository.findByGroupBuy_IdInAndType(groupBuyIds, "PARTICIPANT")).thenReturn(chatRooms);
@@ -170,7 +170,7 @@ public class GetGroupBuyParticipatedListTest {
 
         PagedResponse<ParticipatedListResponse> result = getGroupBuyParticipatedList.getGroupBuyParticipatedList(loginedUser.getId(), postStatus, cursorCreatedAt, cursorId, limit);
 
-        verify(orderRepository, times(1)).findByUserAndPostStatusAndNotCanceled(loginedUser.getId(), postStatus, expectedPageable);
+        verify(orderRepository, times(1)).findByUserAndPostStatusAndNotRefunded(loginedUser.getId(), postStatus, expectedPageable);
         verify(fetchWishUtil, times(1)).fetchWishMap(loginedUser.getId(), groupBuys);
         verify(chatRoomRepository, times(1)).findByGroupBuy_IdInAndType(groupBuyIds, "PARTICIPANT");
         verify(groupBuyQueryMapper, times(1)).toParticipatedListWishResponse(orders, wishMap, chatRooms);
@@ -192,7 +192,7 @@ public class GetGroupBuyParticipatedListTest {
                         .and(Sort.by("id").descending())
         );
 
-        when(orderRepository.findByUserAndPostStatusAndNotCanceled(loginedUser.getId(), postStatus, expectedPageable))
+        when(orderRepository.findByUserAndPostStatusAndNotRefunded(loginedUser.getId(), postStatus, expectedPageable))
                 .thenReturn(orders);
         when(fetchWishUtil.fetchWishMap(loginedUser.getId(), groupBuys)).thenReturn(wishMap);
         when(chatRoomRepository.findByGroupBuy_IdInAndType(groupBuyIds, "PARTICIPANT")).thenReturn(chatRooms);
@@ -200,7 +200,7 @@ public class GetGroupBuyParticipatedListTest {
 
         PagedResponse<ParticipatedListResponse> result = getGroupBuyParticipatedList.getGroupBuyParticipatedList(loginedUser.getId(), postStatus, cursorCreatedAt, cursorId, limit);
 
-        verify(orderRepository, times(1)).findByUserAndPostStatusAndNotCanceled(loginedUser.getId(), postStatus, expectedPageable);
+        verify(orderRepository, times(1)).findByUserAndPostStatusAndNotRefunded(loginedUser.getId(), postStatus, expectedPageable);
         verify(fetchWishUtil, times(1)).fetchWishMap(loginedUser.getId(), groupBuys);
         verify(chatRoomRepository, times(1)).findByGroupBuy_IdInAndType(groupBuyIds, "PARTICIPANT");
         verify(groupBuyQueryMapper, times(1)).toParticipatedListWishResponse(orders, wishMap, chatRooms);

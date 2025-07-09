@@ -63,10 +63,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
           FROM Order o
          WHERE o.user.id = :userId
            AND o.groupBuy.postStatus = :status
-           AND o.status           <> 'CANCELED'
+           AND o.status           <> 'Refunded'
         ORDER BY o.createdAt DESC, o.id DESC
     """)
-    List<Order> findByUserAndPostStatusAndNotCanceled(
+    List<Order> findByUserAndPostStatusAndNotRefunded(
             @Param("userId") Long userId,
             @Param("status") String status,
             Pageable pageable
@@ -78,14 +78,14 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
           FROM Order o
          WHERE o.user.id = :userId
            AND o.groupBuy.postStatus = :status
-           AND o.status           <> 'CANCELED'
+           AND o.status           <> 'Refunded'
            AND (
                 o.createdAt < :cursorCreatedAt
              OR (o.createdAt = :cursorCreatedAt AND o.id < :cursorOrderId)
            )
         ORDER BY o.createdAt DESC, o.id DESC
     """)
-    List<Order> findByUserAndPostStatusAndNotCanceledBeforeCursor(
+    List<Order> findByUserAndPostStatusAndNotRefundedBeforeCursor(
             @Param("userId")          Long userId,
             @Param("status")          String status,
             @Param("cursorCreatedAt") LocalDateTime cursorCreatedAt,
