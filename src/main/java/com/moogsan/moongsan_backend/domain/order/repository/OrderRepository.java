@@ -107,4 +107,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
              END
     """)
     List<Order> findAllByGroupBuyIdOrderByStatusCustom(@Param("postId") Long postId);
+
+    boolean existsByUserIdAndGroupBuyIdAndStatusIn(Long id, Long id1, List<String> canceled);
 }
