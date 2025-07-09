@@ -43,17 +43,33 @@ public class GroupBuyEventMapper {
     }
 
     // 공동구매 마감일자 임박 이벤트
-    public GroupBuyDueApproachingEvent toGroupBuyDueApproachingEvent(GroupBuy groupBuy) {
+    public GroupBuyDueApproachingEvent toGroupBuyDueApproachingEvent(
+            Long groupBuyId, Long hostId, String groupBuyTitle,
+            List<Long> participantIds, String participantCount, String leftQty
+    ) {
         return GroupBuyDueApproachingEvent.builder()
-                .groupBuyId(groupBuy.getId())
+                .groupBuyId(groupBuyId)
+                .hostId(hostId)
+                .participantIds(participantIds)
+                .groupBuyTitle(groupBuyTitle)
+                .participantCount(participantCount)
+                .leftQty(leftQty)
                 .occurredAt(Instant.now().toString())
                 .build();
     }
 
     // 공동구매 픽업일자 임박 이벤트
-    public GroupBuyPickupApproachingEvent toGroupBuyPickupApproachingEvent(GroupBuy groupBuy) {
+    public GroupBuyPickupApproachingEvent toGroupBuyPickupApproachingEvent(
+            Long groupBuyId, Long hostId, String groupBuyTitle,
+            List<Long> participantIds, String participantCount, String totalQty
+    ) {
         return GroupBuyPickupApproachingEvent.builder()
-                .groupBuyId(groupBuy.getId())
+                .groupBuyId(groupBuyId)
+                .hostId(hostId)
+                .participantIds(participantIds)
+                .groupBuyTitle(groupBuyTitle)
+                .participantCount(participantCount)
+                .totalQty(totalQty)
                 .occurredAt(Instant.now().toString())
                 .build();
     }
