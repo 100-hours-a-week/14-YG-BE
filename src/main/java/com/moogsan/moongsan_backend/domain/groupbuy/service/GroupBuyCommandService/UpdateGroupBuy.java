@@ -15,6 +15,8 @@ import com.moogsan.moongsan_backend.domain.image.entity.Image;
 import com.moogsan.moongsan_backend.domain.image.mapper.ImageMapper;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.image.service.S3Service;
+import com.moogsan.moongsan_backend.domain.order.entity.Order;
+import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +42,7 @@ import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SERIAL
 @RequiredArgsConstructor
 public class UpdateGroupBuy {
     private final GroupBuyRepository groupBuyRepository;
+    private final OrderRepository orderRepository;
     private final ImageMapper imageMapper;
     private final S3Service s3Service;
     private final GroupBuyEventMapper eventMapper;
@@ -107,9 +110,22 @@ public class UpdateGroupBuy {
         groupBuyRepository.save(gb);
 
         if (updateGroupBuyRequest.getDateModificationReason() != null) {
+            List<Order> orders = orderRepository.findAllByGroupBuyIdOrderByStatusCustom(groupBuy.getId());
+
+            List<Long> participantIds = orders.stream()
+                    .map(order -> order.getUser().getId())
+                    .distinct()
+                    .toList();
+
             try {
                 GroupBuyPickupUpdatedEvent eventDto =
-                        eventMapper.toGroupBuyPickupUpdatedEvent(gb);
+                        eventMapper.toGroupBuyPickupUpdatedEvent(
+                                groupBuy.getId(),
+                                participantIds,
+                                groupBuy.getTitle(),
+                                String.valueOf(groupBuy.getPickupDate()),
+                                groupBuy.getDateModificationReason()
+                        );
                 String payload = objectMapper.writeValueAsString(eventDto);
                 kafkaEventPublisher.publish(GROUPBUY_PICKUP_UPDATED, String.valueOf(gb.getId()), payload);
             } catch (JsonProcessingException e) {
