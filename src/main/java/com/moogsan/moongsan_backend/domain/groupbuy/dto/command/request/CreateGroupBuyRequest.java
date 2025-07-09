@@ -33,8 +33,6 @@ public class CreateGroupBuyRequest {
     @Size(min = 1, max = 100, message = NAME_SIZE)
     private String name;
 
-    @ProfanitySafe
-    @XssSafe
     @Size(min = 1, max = 2000, message = URL_SIZE)
     @URL(message = INVALID_URL)
     private String url;
@@ -52,7 +50,7 @@ public class CreateGroupBuyRequest {
     private Integer unitAmount;
 
     @NotNull(message = BLANK_HOST_QUANTITY)
-    @Min(value = 0, message = HOST_QUANTITY_SIZE)  /// 이후 1로 수정 필요
+    @Min(value = 1, message = HOST_QUANTITY_SIZE)
     private Integer hostQuantity;
 
     @ProfanitySafe

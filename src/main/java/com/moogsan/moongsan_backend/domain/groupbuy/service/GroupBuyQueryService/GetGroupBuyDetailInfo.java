@@ -1,5 +1,6 @@
 package com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyQueryService;
 
+import com.moogsan.moongsan_backend.domain.chatting.anonymous.service.GenerateAliasIdService;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyDetail.DetailResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyInvalidStateException;
@@ -30,6 +31,7 @@ public class GetGroupBuyDetailInfo {
     private final GroupBuyQueryMapper groupBuyQueryMapper;
     private final WishRepository wishRepository;
     private final Clock now;
+    private final GenerateAliasIdService generateAliasIdService;
 
     /// 공구 게시글 상세 조회
     public DetailResponse getGroupBuyDetailInfo(Long userId, Long postId) {
@@ -41,11 +43,13 @@ public class GetGroupBuyDetailInfo {
             throw new GroupBuyInvalidStateException(AFTER_DELETED);
         }
 
+        int aliasId = generateAliasIdService.generateAliasId(groupBuy.getId());
+
         //log.info("Checking participant: userId={}, postId={}", userId, postId);
         boolean isHost = Objects.equals(userId, groupBuy.getUser().getId());
         boolean isParticipant = orderRepository.existsParticipant(userId, postId, "CANCELED");
         boolean isWish = wishRepository.existsByUserIdAndGroupBuyId(userId, postId);
 
-        return groupBuyQueryMapper.toDetailResponse(groupBuy, isHost, isParticipant, isWish);
+        return groupBuyQueryMapper.toDetailResponse(groupBuy, isHost, isParticipant, isWish, aliasId);
     }
 }

@@ -1,6 +1,9 @@
 package com.moogsan.moongsan_backend.unit.order.service;
 
-import com.moogsan.moongsan_backend.domain.chatting.Facade.command.ChattingCommandFacade;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEventMapper;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
+import com.moogsan.moongsan_backend.domain.chatting.participant.Facade.command.ChattingCommandFacade;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.policy.DueSoonPolicy;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
@@ -34,6 +37,9 @@ class OrderCreateServiceTest {
     @Mock private OrderRepository orderRepository;
     @Mock private DueSoonPolicy dueSoonPolicy;
     @Mock private ChattingCommandFacade chattingCommandFacade;
+    @Mock private KafkaEventPublisher kafkaEventPublisher;
+    @Mock private GroupBuyEventMapper eventMapper;
+    @Mock private ObjectMapper objectMapper;
 
     private final Long userId = 1L;
     private final Long postId = 10L;
