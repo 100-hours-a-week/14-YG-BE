@@ -41,7 +41,7 @@ public class DeleteGroupBuy {
 
         // 해당 공구의 참여자가 1명 이상인지 조회 -> 아니면 409
         int participantCount = orderRepository.countByGroupBuyIdAndStatusNotIn(postId, List.of("CANCELED", "REFUNDED"));
-        if(participantCount > 1) {
+        if(participantCount >= 1) {
             throw new GroupBuyInvalidStateException(EXIST_PARTICIPANT);
         }
 
