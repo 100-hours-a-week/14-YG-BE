@@ -7,6 +7,8 @@ import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEvent
 import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
+import com.moogsan.moongsan_backend.domain.order.entity.Order;
+import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -29,6 +31,7 @@ public class ClosePastDueGroupBuys {
     private final KafkaEventPublisher kafkaEventPublisher;
     private final GroupBuyEventMapper eventMapper;
     private final ObjectMapper objectMapper;
+    private final OrderRepository orderRepository;
 
     ///  공구 모집 마감(백그라운드 API)
     public void closePastDueGroupBuys(LocalDateTime now) {
@@ -38,9 +41,23 @@ public class ClosePastDueGroupBuys {
         for (GroupBuy gb : expired) {
             gb.changePostStatus("CLOSED");
 
+            List<Order> orders = orderRepository.findAllByGroupBuyIdOrderByStatusCustom(gb.getId());
+
+            List<Long> participantIds = orders.stream()
+                    .map(order -> order.getUser().getId())
+                    .distinct()
+                    .toList();
+
             try {
                 GroupBuyStatusClosedEvent eventDto =
-                        eventMapper.toGroupBuyClosedEvent(gb, "CLOSED");
+                        eventMapper.toGroupBuyClosedEvent(
+                                gb.getId(),
+                                gb.getUser().getId(),
+                                participantIds,
+                                gb.getTitle(),
+                                String.valueOf(gb.getParticipantCount()),
+                                String.valueOf(gb.getTotalAmount())
+                        );
                 String payload = objectMapper.writeValueAsString(eventDto);
                 kafkaEventPublisher.publish(GROUPBUY_STATUS_CLOSED, String.valueOf(gb.getId()), payload);
             } catch (JsonProcessingException e) {

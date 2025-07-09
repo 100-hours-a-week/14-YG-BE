@@ -47,7 +47,7 @@ public class OrderCreateService {
     private final DueSoonPolicy dueSoonPolicy;
     private final ChattingCommandFacade chattingCommandFacade;
     private final KafkaEventPublisher kafkaEventPublisher;
-    private final OrderEventMapper eventMapper;
+    private final OrderEventMapper orderEventMapper;
     private final GroupBuyEventMapper groupBuyEventMapper;
     private final ObjectMapper objectMapper;
     private final RedisTemplate<String, String> redisTemplate;
@@ -160,6 +160,31 @@ public class OrderCreateService {
             orderRepository.save(order);
             chattingCommandFacade.joinChatRoom(user, groupBuy.getId());
 
+        if (groupBuy.getLeftAmount() == 0) {
+            groupBuy.changePostStatus("CLOSED");
+
+            List<Order> orders = orderRepository.findAllByGroupBuyIdOrderByStatusCustom(groupBuy.getId());
+
+            List<Long> participantIds = orders.stream()
+                    .map(o -> o.getUser().getId())
+                    .distinct()
+                    .toList();
+
+            try {
+                GroupBuyStatusClosedEvent eventDto =
+                        groupBuyEventMapper.toGroupBuyClosedEvent(
+                                groupBuy.getId(),
+                                groupBuy.getUser().getId(),
+                                participantIds,
+                                groupBuy.getTitle(),
+                                String.valueOf(groupBuy.getParticipantCount()),
+                                String.valueOf(groupBuy.getTotalAmount())
+                        );
+                String payload = objectMapper.writeValueAsString(eventDto);
+                kafkaEventPublisher.publish(GROUPBUY_STATUS_CLOSED, String.valueOf(groupBuy.getId()), payload);
+            } catch (JsonProcessingException e) {
+                log.error("❌ Failed to serialize GroupBuyStatusClosedEvent: groupBuyId={}", groupBuy.getId(), e);
+                throw new RuntimeException(SERIALIZATION_FAIL, e);
             if (groupBuy.getLeftAmount() == 0) {
                 groupBuy.changePostStatus("CLOSED");
                 try {
@@ -186,7 +211,7 @@ public class OrderCreateService {
 
         try {
             OrderPendingEvent eventDto =
-                    eventMapper.toPendingEvent(
+                    orderEventMapper.toPendingEvent(
                             order.getId(),
                             groupBuy.getId(),
                             groupBuy.getUser().getId(),
