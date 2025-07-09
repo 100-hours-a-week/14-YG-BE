@@ -52,6 +52,26 @@ public enum NotificationType {
                     "공구는 만족스러우셨나요? 다음 공구에도 힘을 보태 주세요!"
     ),
 
+    GROUPBUY_DUE_APPROACHING(
+            KafkaTopics.GROUPBUY_DUE_APPROACHING,
+            "마감 D-1! 내일 자정에 종료됩니다 🕛",
+            "{groupBuyTitle}: 모집 마감이 하루 남았어요.{extraMessage}\n" +
+                    "■ 현재 참여 인원 : {participantCount}명\n" +
+                    "■ 남은 주문 수량 : {LeftQty}개\n\n" +
+                    "필요하다면 오늘 안에 수량을 조정하시거나\n" +
+                    "친구에게 소식을 살짝 전해 보세요 😉"
+    ),
+
+    GROUPBUY_PICKUP_APPROACHING(
+            KafkaTopics.GROUPBUY_PICKUP_APPROACHING,
+            "픽업 D-1! 내일 수령을 준비해주세요 📦",
+            "{groupBuyTitle}: 상품 수령일이 내일입니다.{extraMessage}\n" +
+                    "■ 참여 인원 : {participantCount}명\n" +
+                    "■ 총 주문 수량 : {totalQty}개\n\n" +
+                    "수령 장소·시간을 다시 한 번 확인하시고,\n" +
+                    "문의 사항은 채팅방에 남겨주세요. 감사합니다!"
+    ),
+
     GROUPBUY_PICKUP_UPDATED(
             KafkaTopics.GROUPBUY_PICKUP_UPDATED,
             "픽업 일정이 변경되었어요!",
