@@ -10,6 +10,8 @@ import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyI
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotFoundException;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotHostException;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
+import com.moogsan.moongsan_backend.domain.order.entity.Order;
+import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static com.moogsan.moongsan_backend.adapters.kafka.producer.KafkaTopics.GROUPBUY_STATUS_ENDED;
 import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.*;
@@ -31,6 +34,7 @@ import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SERIAL
 public class EndGroupBuy {
 
     private final GroupBuyRepository groupBuyRepository;
+    private final OrderRepository orderRepository;
     private final Clock clock;
     private final KafkaEventPublisher kafkaEventPublisher;
     private final GroupBuyEventMapper eventMapper;
@@ -53,16 +57,6 @@ public class EndGroupBuy {
             throw new GroupBuyInvalidStateException(AFTER_ENDED);
         }
 
-        // dueDate 이후인지 조회 -> 아니면 409
-        if (groupBuy.getDueDate().isAfter(LocalDateTime.now(clock))) {
-            throw new GroupBuyInvalidStateException(BEFORE_CLOSED);
-        }
-
-        // pickupDate 이후인지 조회 -> 아니면 409
-        if (groupBuy.getPickupDate().isAfter(LocalDateTime.now(clock))) {
-            throw new GroupBuyInvalidStateException(BEFORE_PICKUP_DATE);
-        }
-
         if (!groupBuy.isFixed()) {
             throw new GroupBuyInvalidStateException(BEFORE_FIXED);
         }
@@ -80,8 +74,22 @@ public class EndGroupBuy {
         // TODO V3에서는 참여자 채팅방 해제 카운트 시작(2주- CS 고려), 익명 채팅방 즉시 해제
 
         try {
+            List<Order> orders = orderRepository.findAllByGroupBuyIdOrderByStatusCustom(groupBuy.getId());
+
+            List<Long> participantIds = orders.stream()
+                    .map(order -> order.getUser().getId())
+                    .distinct()
+                    .toList();
+
             GroupBuyStatusEndedEvent eventDto =
-                    eventMapper.toGroupBuyEndedEvent(groupBuy, "ENDED");
+                    eventMapper.toGroupBuyEndedEvent(
+                            groupBuy.getId(),
+                            groupBuy.getUser().getId(),
+                            participantIds,
+                            groupBuy.getTitle(),
+                            String.valueOf(groupBuy.getParticipantCount()),
+                            String.valueOf(groupBuy.getTotalAmount())
+                    );
             String payload = objectMapper.writeValueAsString(eventDto);
             kafkaEventPublisher.publish(GROUPBUY_STATUS_ENDED, String.valueOf(groupBuy.getId()), payload);
         } catch (JsonProcessingException e) {

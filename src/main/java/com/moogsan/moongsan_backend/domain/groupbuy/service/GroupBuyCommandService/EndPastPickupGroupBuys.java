@@ -8,6 +8,8 @@ import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEvent
 import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
+import com.moogsan.moongsan_backend.domain.order.entity.Order;
+import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -27,6 +29,7 @@ import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SERIAL
 public class EndPastPickupGroupBuys {
 
     private final GroupBuyRepository groupBuyRepository;
+    private final OrderRepository orderRepository;
     private final KafkaEventPublisher kafkaEventPublisher;
     private final GroupBuyEventMapper eventMapper;
     private final ObjectMapper objectMapper;
@@ -39,8 +42,22 @@ public class EndPastPickupGroupBuys {
         for (GroupBuy gb : toEnd) {
             gb.changePostStatus("ENDED");
             try {
+                List<Order> orders = orderRepository.findAllByGroupBuyIdOrderByStatusCustom(gb.getId());
+
+                List<Long> participantIds = orders.stream()
+                        .map(order -> order.getUser().getId())
+                        .distinct()
+                        .toList();
+
                 GroupBuyStatusEndedEvent eventDto =
-                        eventMapper.toGroupBuyEndedEvent(gb, "ENDED");
+                        eventMapper.toGroupBuyEndedEvent(
+                                gb.getId(),
+                                gb.getUser().getId(),
+                                participantIds,
+                                gb.getTitle(),
+                                String.valueOf(gb.getParticipantCount()),
+                                String.valueOf(gb.getTotalAmount())
+                        );
                 String payload = objectMapper.writeValueAsString(eventDto);
                 kafkaEventPublisher.publish(GROUPBUY_STATUS_ENDED, String.valueOf(gb.getId()), payload);
             } catch (JsonProcessingException e) {

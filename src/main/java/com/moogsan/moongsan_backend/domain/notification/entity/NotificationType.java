@@ -35,9 +35,26 @@ public enum NotificationType {
     ),
 
     // ──────── 공동구매 상태 ────────
+    GROUPBUY_STATUS_CLOSED(
+            KafkaTopics.GROUPBUY_STATUS_CLOSED,
+            "공구 참여자 모집이 마감됐어요!",
+            "{groupBuyTitle}: 모집이 마감됐습니다!\n" +
+                    "■ 총 참여 인원 : {participantCount}명\n" +
+                    "■ 총 주문 수량 : {totalQty}개\n\n"
+    ),
+
+    GROUPBUY_STATUS_ENDED(
+            KafkaTopics.GROUPBUY_STATUS_ENDED,
+            "공구가 종료됐어요!",
+            "{groupBuyTitle}: 공구가 최종 종료되었습니다. {extraMessage}\n" +
+                    "■ 최종 참여 인원 : {participantCount}명\n" +
+                    "■ 총 주문 수량 : {totalQty}개\n\n" +
+                    "공구는 만족스러우셨나요? 다음 공구에도 힘을 보태 주세요!"
+    ),
+
     GROUPBUY_PICKUP_UPDATED(
             KafkaTopics.GROUPBUY_PICKUP_UPDATED,
-            "픽업 일정 변경",
+            "픽업 일정이 변경되었어요!",
             "새 픽업일: {pickupDate}, 변경 사유: {dateModificationReason}"
     );
 
