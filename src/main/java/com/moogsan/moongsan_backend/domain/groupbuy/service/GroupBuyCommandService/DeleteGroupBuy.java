@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.*;
 
@@ -26,7 +27,6 @@ public class DeleteGroupBuy {
     private final Clock clock;
 
     /// 공구 게시글 삭제: 참여자가 아무도 없는, 주문 레코드가 없는 경우이므로 하드 삭제
-    // TODO V2
     public void deleteGroupBuy(User currentUser, Long postId) {
 
         // 해당 공구가 존재하는지 조회 -> 아니면 404
@@ -39,9 +39,9 @@ public class DeleteGroupBuy {
             throw new GroupBuyInvalidStateException(NOT_OPEN);
         }
 
-        // 해당 공구의 참여자가 0명인지 조회 -> 아니면 409
-        int participantCount = orderRepository.countByGroupBuyIdAndStatusNot(postId, "CANCELED");
-        if(participantCount != 0) {
+        // 해당 공구의 참여자가 1명 이상인지 조회 -> 아니면 409
+        int participantCount = orderRepository.countByGroupBuyIdAndStatusNotIn(postId, List.of("CANCELED", "REFUNDED"));
+        if(participantCount > 1) {
             throw new GroupBuyInvalidStateException(EXIST_PARTICIPANT);
         }
 
