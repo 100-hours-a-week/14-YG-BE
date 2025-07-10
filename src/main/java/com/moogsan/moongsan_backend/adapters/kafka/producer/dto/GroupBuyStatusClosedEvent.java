@@ -1,0 +1,25 @@
+package com.moogsan.moongsan_backend.adapters.kafka.producer.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+
+import java.util.List;
+
+/**
+ * 토픽: groupbuy.status.closed
+ * 설명: 공구 모집 마감 알림용 이벤트
+ */
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
+public class GroupBuyStatusClosedEvent extends BaseEvent{
+    private Long groupBuyId;            // 공구 게시글 아이디
+    private Long hostId;                // 공구 주최자 아아디
+    private List<Long> participantIds;  // 공구 참여자 아이디 리스트
+    private String groupBuyTitle;       // 공구 게시글 제목
+    private String participantCount;    // 공구 참여자 수
+    private String totalQty;            // 공구 거래량 수
+}

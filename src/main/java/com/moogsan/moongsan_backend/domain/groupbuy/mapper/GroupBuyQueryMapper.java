@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.domain.groupbuy.mapper;
 
-import com.moogsan.moongsan_backend.domain.chatting.entity.ChatRoom;
+import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatRoom;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.ImageResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyDetail.DetailResponse;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyDetail.UserAccountResponse;
@@ -93,7 +93,7 @@ public class GroupBuyQueryMapper {
     }
 
     // 상세 페이지 조회용 DTO
-    public DetailResponse toDetailResponse(GroupBuy gb, Boolean isHost, Boolean isParticipant, Boolean isWish) {
+    public DetailResponse toDetailResponse(GroupBuy gb, Boolean isHost, Boolean isParticipant, Boolean isWish, int aliasId) {
         List<ImageResponse> imageUrls = gb.getImages().stream()
                 .map(img -> ImageResponse.builder()
                         .imageKey(img.getImageKey())
@@ -130,6 +130,7 @@ public class GroupBuyQueryMapper {
                 .isWish(isWish)
                 .createdAt(gb.getCreatedAt())
                 .userProfileResponse(toUserProfile(gb.getUser()))
+                .aliasId(aliasId)
                 .build();
     }
 

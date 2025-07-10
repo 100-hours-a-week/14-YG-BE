@@ -34,7 +34,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     int countByUserIdAndGroupBuyIdAndStatusIn(Long userId, Long groupBuyId, List<String> statuses);
 
     // 특정 공구의 주문 목록 확인
+    long countByGroupBuyIdAndStatusNotIn(Long groupBuyId, List<String> statuses);
     List<Order> findByGroupBuyIdAndStatusNot(Long groupBuyId, String status);
+    List<Order> findByGroupBuyIdAndStatusNotIn(Long groupBuyId, List<String> statuses);
 
     // 모든 공구의 컨펌, 취소되지 않은 주문 검사
     List<Order> findAllByCreatedAtBeforeAndStatusNotAndStatusNot(
@@ -107,4 +109,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
              END
     """)
     List<Order> findAllByGroupBuyIdOrderByStatusCustom(@Param("postId") Long postId);
+
+    boolean existsByUserIdAndGroupBuyIdAndStatusIn(Long id, Long id1, List<String> canceled);
 }

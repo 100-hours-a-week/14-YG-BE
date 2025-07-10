@@ -1,5 +1,8 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.service.command;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEventMapper;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.CreateGroupBuyRequest;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.UpdateGroupBuyRequest;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
@@ -12,6 +15,7 @@ import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandServi
 import com.moogsan.moongsan_backend.domain.image.entity.Image;
 import com.moogsan.moongsan_backend.domain.image.mapper.ImageMapper;
 import com.moogsan.moongsan_backend.domain.image.service.S3Service;
+import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.kafka.core.KafkaTemplate;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -38,10 +43,22 @@ class UpdateGroupBuyTest {
     private GroupBuyRepository groupBuyRepository;
 
     @Mock
+    private OrderRepository orderRepository;
+
+    @Mock
     private ImageMapper imageMapper;
 
     @Mock
     private S3Service s3Service;
+
+    @Mock
+    private KafkaEventPublisher kafkaEventPublisher;
+
+    @Mock
+    private GroupBuyEventMapper eventMapper;
+
+    @Mock
+    private ObjectMapper objectMapper;
 
     @Mock
     private Clock clock;
@@ -98,8 +115,12 @@ class UpdateGroupBuyTest {
 
         updateGroupBuy = new UpdateGroupBuy(
                 groupBuyRepository,
+                orderRepository,
                 imageMapper,
                 s3Service,
+                eventMapper,
+                objectMapper,
+                kafkaEventPublisher,
                 fixedClock
         );
 
