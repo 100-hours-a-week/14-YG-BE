@@ -48,8 +48,6 @@ public class SendGroupBuyEndedNotiUseCase {
                 event,
                 Map.of(
                         "groupBuyTitle", event.getGroupBuyTitle(),
-                        "participantCount", event.getParticipantCount(),
-                        "totalQty", String.valueOf(event.getTotalQty()),
                         "extraMessage","다음 공구에서 만나요!"
                         )
         );
@@ -62,8 +60,6 @@ public class SendGroupBuyEndedNotiUseCase {
                         event,
                         Map.of(
                                 "groupBuyTitle", event.getGroupBuyTitle(),
-                                "participantCount", event.getParticipantCount(),
-                                "totalQty", String.valueOf(event.getTotalQty()),
                                 "extraMessage", "참여해 주셔서 감사합니다! 🎉"
                         )
                 ))

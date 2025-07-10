@@ -9,6 +9,7 @@ import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.OrderEventMap
 import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
+import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.FinalizeGroupBuy;
 import com.moogsan.moongsan_backend.domain.order.dto.request.OrderStatusUpdateRequest;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
@@ -27,6 +28,7 @@ import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SERIAL
 @Service
 @RequiredArgsConstructor
 public class OrderStatusUpdateService {
+    private final FinalizeGroupBuy finalizeGroupBuy;
     private final OrderRepository orderRepository;
     private final KafkaEventPublisher kafkaEventPublisher;
     private final OrderEventMapper eventMapper;
@@ -39,6 +41,10 @@ public class OrderStatusUpdateService {
             ).orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "주문을 찾을 수 없습니다."));
 
             order.updateStatus(request.getStatus());
+
+            if (request.getStatus().equals("CONFIRMED")){
+                finalizeGroupBuy.finalizeGroupBuy(order.getGroupBuy());
+            }
 
             String currentStatus = request.getStatus();
 

@@ -20,6 +20,4 @@ public class GroupBuyStatusEndedEvent extends BaseEvent{
     private Long hostId;                // 공구 주최자 아아디
     private List<Long> participantIds;  // 공구 참여자 아이디 리스트
     private String groupBuyTitle;       // 공구 게시글 제목
-    private String participantCount;    // 공구 참여자 수
-    private String totalQty;            // 공구 거래량 수
 }

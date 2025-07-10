@@ -2,12 +2,10 @@ package com.moogsan.moongsan_backend.adapters.kafka.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.KafkaTopics;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuyPickupUpdatedEvent;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuyStatusClosedEvent;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuyStatusEndedEvent;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderPendingEvent;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.*;
 import com.moogsan.moongsan_backend.domain.notification.service.GroupBuy.SendGroupBuyClosedNotiUseCase;
 import com.moogsan.moongsan_backend.domain.notification.service.GroupBuy.SendGroupBuyEndedNotiUseCase;
+import com.moogsan.moongsan_backend.domain.notification.service.GroupBuy.SendGroupBuyFinalizedNotiUseCase;
 import com.moogsan.moongsan_backend.domain.notification.service.GroupBuy.SendPickupChangedNotiUseCase;
 import com.moogsan.moongsan_backend.domain.notification.service.SendOrderNotificationUseCase;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +23,7 @@ public class GroupBuyNotificationListener {
 
     private final SendGroupBuyClosedNotiUseCase useCase;
     private final SendGroupBuyEndedNotiUseCase endedNotiUseCase;
+    private final SendGroupBuyFinalizedNotiUseCase finalizedNotiUseCase;
     private final SendPickupChangedNotiUseCase pickupChangedNotiUseCase;
     private final ObjectMapper objectMapper;
 
@@ -46,10 +45,27 @@ public class GroupBuyNotificationListener {
     }
 
     @KafkaListener(
+            topics = KafkaTopics.GROUPBUY_STATUS_FINALIZED,
+            groupId = ConsumerGroups.NOTIFICATION
+    )
+    public void onGroupBuyFinalized(GroupBuyStatusFinalizedEvent event,
+                                    Acknowledgment ack) {
+        try {
+
+            log.debug("groupBuy.status.finalized 수신: {}", event);
+            finalizedNotiUseCase.handleGroupBuyFinalized(event);
+            ack.acknowledge();
+        } catch (Exception e) {
+            log.error("❌ GroupBuyStatusFinalizedEvent 역직렬화 실패. raw", e);
+            throw new RuntimeException(SERIALIZATION_FAIL, e);
+        }
+    }
+
+    @KafkaListener(
             topics = KafkaTopics.GROUPBUY_STATUS_ENDED,
             groupId = ConsumerGroups.NOTIFICATION
     )
-    public void onGroupBuyClosed(GroupBuyStatusEndedEvent event,
+    public void onGroupBuyEnded(GroupBuyStatusEndedEvent event,
                                  Acknowledgment ack) {
         try {
 

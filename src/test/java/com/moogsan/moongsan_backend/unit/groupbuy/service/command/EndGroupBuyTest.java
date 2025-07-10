@@ -10,6 +10,7 @@ import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyN
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.EndGroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.LeaveGroupBuy;
+import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,6 +37,9 @@ import static org.mockito.Mockito.when;
 public class EndGroupBuyTest {
     @Mock
     private GroupBuyRepository groupBuyRepository;
+
+    @Mock
+    private OrderRepository orderRepository;
 
     @Mock
     private KafkaEventPublisher kafkaEventPublisher;
@@ -68,6 +72,7 @@ public class EndGroupBuyTest {
 
         endGroupBuy = new EndGroupBuy(
                 groupBuyRepository,
+                orderRepository,
                 fixedClock,
                 kafkaEventPublisher,
                 eventMapper,
@@ -82,10 +87,6 @@ public class EndGroupBuyTest {
                 .thenReturn(Optional.of(before));
         when(before.getPostStatus())
                 .thenReturn("CLOSED");
-        when(before.getDueDate())
-                .thenReturn(now.minusDays(1));
-        when(before.getPickupDate())
-                .thenReturn(now.minusDays(1));
         when(before.isFixed())
                 .thenReturn(true);
         when(before.getUser()).thenReturn(hostUser);
@@ -143,54 +144,12 @@ public class EndGroupBuyTest {
     }
 
     @Test
-    @DisplayName("공구글 dueDate 지남 - 409 예외")
-    void endGroupBuy_dueDate_past() {
-        when(groupBuyRepository.findById(1L))
-                .thenReturn(Optional.of(before));
-        when(before.getPostStatus())
-                .thenReturn("CLOSED");
-        when(before.getDueDate())
-                .thenReturn(now.plusDays(1));
-
-        assertThatThrownBy(() -> endGroupBuy.endGroupBuy(participant, 1L))
-                .isInstanceOf(GroupBuyInvalidStateException.class)
-                .hasMessageContaining(BEFORE_CLOSED);
-
-        verify(groupBuyRepository, times(1)).findById(1L);
-        verify(groupBuyRepository, never()).save(any(GroupBuy.class));
-    }
-
-    @Test
-    @DisplayName("공구글 pickupDate 지남 - 409 예외")
-    void endGroupBuy_pickupDate_past() {
-        when(groupBuyRepository.findById(1L))
-                .thenReturn(Optional.of(before));
-        when(before.getPostStatus())
-                .thenReturn("CLOSED");
-        when(before.getDueDate())
-                .thenReturn(now.minusDays(1));
-        when(before.getPickupDate())
-                .thenReturn(now.plusDays(1));
-
-        assertThatThrownBy(() -> endGroupBuy.endGroupBuy(participant, 1L))
-                .isInstanceOf(GroupBuyInvalidStateException.class)
-                .hasMessageContaining(BEFORE_PICKUP_DATE);
-
-        verify(groupBuyRepository, times(1)).findById(1L);
-        verify(groupBuyRepository, never()).save(any(GroupBuy.class));
-    }
-
-    @Test
     @DisplayName("공구글 fixed 아님 - 409 예외")
     void endGroupBuy_not_fixed() {
         when(groupBuyRepository.findById(1L))
                 .thenReturn(Optional.of(before));
         when(before.getPostStatus())
                 .thenReturn("CLOSED");
-        when(before.getDueDate())
-                .thenReturn(now.minusDays(1));
-        when(before.getPickupDate())
-                .thenReturn(now.minusDays(1));
         when(before.isFixed())
                 .thenReturn(false);
 
@@ -209,10 +168,6 @@ public class EndGroupBuyTest {
                 .thenReturn(Optional.of(before));
         when(before.getPostStatus())
                 .thenReturn("CLOSED");
-        when(before.getDueDate())
-                .thenReturn(now.minusDays(1));
-        when(before.getPickupDate())
-                .thenReturn(now.minusDays(1));
         when(before.isFixed())
                 .thenReturn(true);
         when(before.getUser()).thenReturn(hostUser);

@@ -14,6 +14,7 @@ public interface KafkaTopics {
     String GROUPBUY_PICKUP_APPROACHING = "groupbuy.pickup.approaching";
     String GROUPBUY_DUE_APPROACHING = "groupbuy.due.approaching";
     String GROUPBUY_STATUS_CLOSED = "groupbuy.status.closed";
+    String GROUPBUY_STATUS_FINALIZED = "groupbuy.status.finalized";
     String GROUPBUY_STATUS_ENDED = "groupbuy.status.ended";
 
     // 주문 상태 관련 이벤트

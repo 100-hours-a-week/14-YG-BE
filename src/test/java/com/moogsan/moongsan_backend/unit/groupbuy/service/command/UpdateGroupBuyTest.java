@@ -15,6 +15,7 @@ import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandServi
 import com.moogsan.moongsan_backend.domain.image.entity.Image;
 import com.moogsan.moongsan_backend.domain.image.mapper.ImageMapper;
 import com.moogsan.moongsan_backend.domain.image.service.S3Service;
+import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -40,6 +41,9 @@ class UpdateGroupBuyTest {
 
     @Mock
     private GroupBuyRepository groupBuyRepository;
+
+    @Mock
+    private OrderRepository orderRepository;
 
     @Mock
     private ImageMapper imageMapper;
@@ -111,6 +115,7 @@ class UpdateGroupBuyTest {
 
         updateGroupBuy = new UpdateGroupBuy(
                 groupBuyRepository,
+                orderRepository,
                 imageMapper,
                 s3Service,
                 eventMapper,
