@@ -35,7 +35,7 @@ public class GetPastNotifications {
         if (hasNext) raw = raw.subList(0, size);
 
         List<NotificationResponse> items = raw.stream()
-                .map(NotificationMapper::toNotificationReponse)
+                .map(NotificationMapper::toNotificationResponse)
                 .toList();
 
         Long nextCursor = hasNext ? raw.getLast().getId() : null;

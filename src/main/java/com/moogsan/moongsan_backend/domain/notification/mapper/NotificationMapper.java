@@ -5,7 +5,7 @@ import com.moogsan.moongsan_backend.domain.notification.entity.Notification;
 
 public class NotificationMapper {
 
-    public static NotificationResponse toNotificationReponse(Notification notification) {
+    public static NotificationResponse toNotificationResponse(Notification notification) {
         return NotificationResponse.builder()
                 .id(notification.getId())
                 .title(notification.getTitle())
