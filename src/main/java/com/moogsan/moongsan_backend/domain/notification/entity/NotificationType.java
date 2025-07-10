@@ -10,7 +10,7 @@ public enum NotificationType {
     ORDER_PENDING(
             KafkaTopics.ORDER_STATUS_PENDING,
             "주문이 들어왔어요!",
-            "{buyerName}님이 {qty}개를 주문했습니다."
+            "{buyerName}님이 {qty}개를 주문했어요. 입금 확인 후 주문을 확정해주세요!"
     ),
 
     ORDER_CONFIRMED(
@@ -43,13 +43,20 @@ public enum NotificationType {
                     "■ 총 주문 수량 : {totalQty}개\n\n"
     ),
 
+    GROUPBUY_STATUS_FINALIZED(
+            KafkaTopics.GROUPBUY_STATUS_FINALIZED,
+            "공구가 확정되었어요!",
+            "{groupBuyTitle}: 모든 주문이 확인되어 공구가 확정되었습니다.\n" +
+                    "■ 확정 참여 인원 : {participantCount}명\n" +
+                    "■ 총 주문 수량 : {totalQty}개\n\n" +
+                    "함께 뭉쳐주셔서 감사합니다!"
+    ),
+
     GROUPBUY_STATUS_ENDED(
             KafkaTopics.GROUPBUY_STATUS_ENDED,
             "공구가 종료됐어요!",
             "{groupBuyTitle}: 공구가 최종 종료되었습니다. {extraMessage}\n" +
-                    "■ 최종 참여 인원 : {participantCount}명\n" +
-                    "■ 총 주문 수량 : {totalQty}개\n\n" +
-                    "공구는 만족스러우셨나요? 다음 공구에도 힘을 보태 주세요!"
+                    "공구는 만족스러우셨나요? 다음 공구에서도 뭉티기가 되어 주세요!"
     ),
 
     GROUPBUY_DUE_APPROACHING(

@@ -57,7 +57,7 @@ public class EndGroupBuy {
             throw new GroupBuyInvalidStateException(AFTER_ENDED);
         }
 
-        if (!groupBuy.isFixed()) {
+        if (!groupBuy.isFinalized()) {
             throw new GroupBuyInvalidStateException(BEFORE_FIXED);
         }
 
@@ -86,9 +86,7 @@ public class EndGroupBuy {
                             groupBuy.getId(),
                             groupBuy.getUser().getId(),
                             participantIds,
-                            groupBuy.getTitle(),
-                            String.valueOf(groupBuy.getParticipantCount()),
-                            String.valueOf(groupBuy.getTotalAmount())
+                            groupBuy.getTitle()
                     );
             String payload = objectMapper.writeValueAsString(eventDto);
             kafkaEventPublisher.publish(GROUPBUY_STATUS_ENDED, String.valueOf(groupBuy.getId()), payload);
