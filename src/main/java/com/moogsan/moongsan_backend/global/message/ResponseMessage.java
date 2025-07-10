@@ -6,4 +6,7 @@ public class ResponseMessage {
 
     public static final String AFTER_PROFANITY =
             "검열된 메세지입니다";
+
+    public static final String SERIALIZATION_FAIL =
+            "이벤트 DTO 직렬화를 실패했습니다.";
 }

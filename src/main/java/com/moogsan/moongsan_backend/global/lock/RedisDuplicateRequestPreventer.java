@@ -3,12 +3,13 @@ package com.moogsan.moongsan_backend.global.lock;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 @Component
 @Profile("!test")   // test 프로필 제외: 운영·dev·stage 등에서만 활성
 public class RedisDuplicateRequestPreventer extends DuplicateRequestPreventer {
 
-    public RedisDuplicateRequestPreventer(RedisTemplate<String, String> template) {
+    public RedisDuplicateRequestPreventer(@Qualifier("redisTemplate") RedisTemplate<String, String> template) {
         super(template);
     }
 

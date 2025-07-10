@@ -14,4 +14,6 @@ public interface ChatAnonRepository extends MongoRepository<ChatAnon, String> {
     List<ChatAnon> findByPostId(Long postId);
 
     List<ChatAnon> findByPostIdOrderByCreatedAtAsc(Long postId);
+
+    long countByPostId(Long postId);
 }

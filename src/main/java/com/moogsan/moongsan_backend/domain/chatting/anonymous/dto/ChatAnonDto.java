@@ -13,15 +13,25 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ChatAnonDto {
+    private long postId;
     private int aliasId;
     private String message;
     private LocalDateTime createdAt;
 
     public static ChatAnonDto from(ChatAnon entity){
         return new ChatAnonDto(
+                entity.getPostId(),
                 entity.getAliasId(),
                 entity.getMessage(),
                 entity.getCreatedAt()
         );
+    }
+
+    public ChatAnon toEntity() {
+        return ChatAnon.builder()
+                .postId(this.postId)
+                .aliasId(this.aliasId)
+                .message(this.message)
+                .build();
     }
 }

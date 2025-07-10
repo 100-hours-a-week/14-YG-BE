@@ -1,4 +1,4 @@
-version: "3.8"
+# docker-compose.yml
 
 services:
   # 1) Redis 서비스
@@ -35,8 +35,138 @@ services:
       SPRING_CONFIG_ADDITIONAL_LOCATION: file:/config/
       SPRING_PROFILES_ACTIVE: docker
 
+  # ------- Zookeeper 3대 -------
+  zookeeper-1:
+    image: bitnami/zookeeper:3.9
+    volumes:
+      - zookeeper-1-data:/bitnami/zookeeper
+    container_name: zookeeper-1
+    restart: unless-stopped
+    networks: [moongsan-net]
+    ports:
+      - "2181:2181"
+    environment:
+      ALLOW_ANONYMOUS_LOGIN: "yes"
+      ZOO_SERVER_ID: 1
+      ZOO_SERVERS: |
+        0.0.0.0:2888:3888;zookeeper-2:2888:3888;zookeeper-3:2888:3888
+
+  zookeeper-2:
+    image: bitnami/zookeeper:3.9
+    volumes:
+      - zookeeper-2-data:/bitnami/zookeeper
+    container_name: zookeeper-2
+    restart: unless-stopped
+    networks: [moongsan-net]
+    ports:
+      - "2182:2181"
+    environment:
+      ALLOW_ANONYMOUS_LOGIN: "yes"
+      ZOO_SERVER_ID: 2
+      ZOO_SERVERS: |
+        zookeeper-1:2888:3888;0.0.0.0:2888:3888;zookeeper-3:2888:3888
+
+  zookeeper-3:
+    image: bitnami/zookeeper:3.9
+    volumes:
+      - zookeeper-3-data:/bitnami/zookeeper
+    container_name: zookeeper-3
+    restart: unless-stopped
+    networks: [moongsan-net]
+    ports:
+      - "2183:2181"
+    environment:
+      ALLOW_ANONYMOUS_LOGIN: "yes"
+      ZOO_SERVER_ID: 3
+      ZOO_SERVERS: |
+        zookeeper-1:2888:3888;zookeeper-2:2888:3888;0.0.0.0:2888:3888
+
+  # ------- Kafka 브로커 3대 -------
+  kafka-1:
+    image: bitnami/kafka:3.6
+    volumes:
+      - kafka-1-data:/bitnami/kafka/data
+    container_name: kafka-1
+    restart: unless-stopped
+    depends_on:
+      - zookeeper-1
+      - zookeeper-2
+      - zookeeper-3
+    networks: [moongsan-net]
+    ports:
+      - "19092:19092"    # 호스트 ↔ 컨테이너 EXTERNAL 리스너
+    environment:
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+      KAFKA_CFG_NODE_ID: 1
+      KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper-1:2181,zookeeper-2:2181,zookeeper-3:2181
+      KAFKA_CFG_LISTENERS: INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:19092
+      KAFKA_CFG_ADVERTISED_LISTENERS: INTERNAL://kafka-1:9092,EXTERNAL://localhost:19092
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR: '3'
+      KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: '3'
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: false
+
+  kafka-2:
+    image: bitnami/kafka:3.6
+    volumes:
+      - kafka-2-data:/bitnami/kafka/data
+    container_name: kafka-2
+    restart: unless-stopped
+    depends_on:
+      - zookeeper-1
+      - zookeeper-2
+      - zookeeper-3
+    networks: [moongsan-net]
+    ports:
+      - "19093:19093"
+    environment:
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+      KAFKA_CFG_NODE_ID: 2
+      KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper-1:2181,zookeeper-2:2181,zookeeper-3:2181
+      KAFKA_CFG_LISTENERS: INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:19093
+      KAFKA_CFG_ADVERTISED_LISTENERS: INTERNAL://kafka-2:9092,EXTERNAL://localhost:19093
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR: '3'
+      KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: '3'
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: false
+
+  kafka-3:
+    image: bitnami/kafka:3.6
+    volumes:
+      - kafka-3-data:/bitnami/kafka/data
+    container_name: kafka-3
+    restart: unless-stopped
+    depends_on:
+      - zookeeper-1
+      - zookeeper-2
+      - zookeeper-3
+    networks: [moongsan-net]
+    ports:
+      - "19094:19094"
+    environment:
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+      KAFKA_CFG_NODE_ID: 3
+      KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper-1:2181,zookeeper-2:2181,zookeeper-3:2181
+      KAFKA_CFG_LISTENERS: INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:19094
+      KAFKA_CFG_ADVERTISED_LISTENERS: INTERNAL://kafka-3:9092,EXTERNAL://localhost:19094
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR: '3'
+      KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: '3'
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: false
+
 volumes:
   redis-data:
+
+  zookeeper-1-data:
+  zookeeper-2-data:
+  zookeeper-3-data:
+
+  kafka-1-data:
+  kafka-2-data:
+  kafka-3-data:
 
 networks:
   moongsan-net:

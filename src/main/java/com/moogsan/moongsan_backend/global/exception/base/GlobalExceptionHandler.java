@@ -1,33 +1,19 @@
 package com.moogsan.moongsan_backend.global.exception.base;
 
 import com.moogsan.moongsan_backend.domain.WrapperResponse;
-import com.moogsan.moongsan_backend.domain.groupbuy.exception.base.GroupBuyException;
-import com.moogsan.moongsan_backend.global.dto.ErrorResponse;
-import com.moogsan.moongsan_backend.global.exception.code.ErrorCode;
-import com.moogsan.moongsan_backend.global.exception.code.ErrorCodeType;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.HttpRequestMethodNotSupportedException;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 

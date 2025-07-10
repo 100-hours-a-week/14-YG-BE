@@ -12,6 +12,7 @@ import com.moogsan.moongsan_backend.domain.user.entity.User;
 import com.moogsan.moongsan_backend.global.exception.specific.DuplicateRequestException;
 import com.moogsan.moongsan_backend.global.lock.DuplicateRequestPreventer;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +32,7 @@ public class CreateGroupBuy {
     private final DuplicateRequestPreventer duplicateRequestPreventer;
     private final S3Service s3Service;
     private final Clock clock;
+    private final RedisTemplate<String, String> redisTemplate;
 
     /// 공구 게시글 작성
     public Long createGroupBuy(User currentUser, CreateGroupBuyRequest createGroupBuyRequest) {
@@ -69,6 +71,9 @@ public class CreateGroupBuy {
             gb.changePostStatus("CLOSED");
         }
         groupBuyRepository.save(gb);
+
+        // 주문 관리용 Redis 재고 초기화
+        redisTemplate.opsForValue().set("order:groupbuy:stock:" + gb.getId(), String.valueOf(gb.getLeftAmount()));
 
         Long chatRoomId = chattingCommandFacade.joinChatRoom(currentUser, gb.getId());
 
