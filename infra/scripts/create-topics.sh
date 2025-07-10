@@ -29,6 +29,9 @@ docker exec -it kafka-1 kafka-topics.sh --create --bootstrap-server ${BROKER} \
   --partitions 2 --replication-factor 3 --topic groupbuy.status.closed
 
 docker exec -it kafka-1 kafka-topics.sh --create --bootstrap-server ${BROKER} \
+  --partitions 2 --replication-factor 3 --topic groupbuy.status.finalized
+
+docker exec -it kafka-1 kafka-topics.sh --create --bootstrap-server ${BROKER} \
   --partitions 2 --replication-factor 3 --topic groupbuy.status.ended
 
 # 주문 상태
