@@ -6,7 +6,7 @@ import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderCanceledEve
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderConfirmedEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderPendingEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderRefundedEvent;
-import com.moogsan.moongsan_backend.domain.notification.service.SendOrderNotificationUseCase;
+import com.moogsan.moongsan_backend.domain.notification.service.useCase.Order.SendOrderNotificationUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -81,7 +81,7 @@ public class OrderNotificationListener {
             groupId = ConsumerGroups.NOTIFICATION
     )
     public void onOrderRefunded(OrderRefundedEvent event,
-                                 Acknowledgment ack) {
+                                Acknowledgment ack) {
         try {
 
             log.debug("order.status.refunded 수신: {}", event);

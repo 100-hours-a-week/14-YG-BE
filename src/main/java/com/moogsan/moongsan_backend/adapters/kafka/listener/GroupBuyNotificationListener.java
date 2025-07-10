@@ -3,11 +3,10 @@ package com.moogsan.moongsan_backend.adapters.kafka.listener;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.KafkaTopics;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.*;
-import com.moogsan.moongsan_backend.domain.notification.service.GroupBuy.SendGroupBuyClosedNotiUseCase;
-import com.moogsan.moongsan_backend.domain.notification.service.GroupBuy.SendGroupBuyEndedNotiUseCase;
-import com.moogsan.moongsan_backend.domain.notification.service.GroupBuy.SendGroupBuyFinalizedNotiUseCase;
-import com.moogsan.moongsan_backend.domain.notification.service.GroupBuy.SendPickupChangedNotiUseCase;
-import com.moogsan.moongsan_backend.domain.notification.service.SendOrderNotificationUseCase;
+import com.moogsan.moongsan_backend.domain.notification.service.useCase.GroupBuy.SendGroupBuyClosedNotiUseCase;
+import com.moogsan.moongsan_backend.domain.notification.service.useCase.GroupBuy.SendGroupBuyEndedNotiUseCase;
+import com.moogsan.moongsan_backend.domain.notification.service.useCase.GroupBuy.SendGroupBuyFinalizedNotiUseCase;
+import com.moogsan.moongsan_backend.domain.notification.service.useCase.GroupBuy.SendPickupChangedNotiUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -66,7 +65,7 @@ public class GroupBuyNotificationListener {
             groupId = ConsumerGroups.NOTIFICATION
     )
     public void onGroupBuyEnded(GroupBuyStatusEndedEvent event,
-                                 Acknowledgment ack) {
+                                Acknowledgment ack) {
         try {
 
             log.debug("groupBuy.status.ended 수신: {}", event);

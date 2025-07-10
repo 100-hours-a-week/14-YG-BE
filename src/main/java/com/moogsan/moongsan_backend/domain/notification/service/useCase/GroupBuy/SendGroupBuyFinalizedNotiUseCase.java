@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.domain.notification.service.GroupBuy;
+package com.moogsan.moongsan_backend.domain.notification.service.useCase.GroupBuy;
 
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuyStatusClosedEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuyStatusFinalizedEvent;
@@ -7,6 +7,7 @@ import com.moogsan.moongsan_backend.domain.notification.entity.Notification;
 import com.moogsan.moongsan_backend.domain.notification.entity.NotificationType;
 import com.moogsan.moongsan_backend.domain.notification.factory.NotificationFactory;
 import com.moogsan.moongsan_backend.domain.notification.repository.NotificationRepository;
+import com.moogsan.moongsan_backend.domain.notification.service.publisher.NotificationPublisher;
 import com.moogsan.moongsan_backend.domain.notification.template.NotificationPayload;
 import com.moogsan.moongsan_backend.domain.notification.template.NotificationTemplateRegistry;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class SendGroupBuyFinalizedNotiUseCase {
     private final NotificationTemplateRegistry templateRegistry;
     private final NotificationFactory notificationFactory;
     private final NotificationRepository notificationRepository;
+    private final NotificationPublisher notificationPublisher;
 
     public void handleGroupBuyFinalized(GroupBuyStatusFinalizedEvent event) {
 
@@ -37,51 +39,38 @@ public class SendGroupBuyFinalizedNotiUseCase {
         }
 
         String title = templateRegistry.title(NotificationType.GROUPBUY_STATUS_FINALIZED);
-        String body = templateRegistry.body(NotificationType.GROUPBUY_STATUS_FINALIZED)
+        String hostBody = templateRegistry.body(NotificationType.GROUPBUY_STATUS_FINALIZED)
                 .replace("{groupBuyTitle}", event.getGroupBuyTitle())
                 .replace("{participantCount}", String.valueOf(event.getParticipantCount()))
                 .replace("{totalQty}", String.valueOf(event.getTotalQty()));
 
-        NotificationPayload payload = new NotificationPayload(title, body, event);
+        String partiBody = templateRegistry.body(NotificationType.GROUPBUY_STATUS_FINALIZED)
+                .replace("{groupBuyTitle}", event.getGroupBuyTitle())
+                .replace("{participantCount}", String.valueOf(event.getParticipantCount()))
+                .replace("{totalQty}", String.valueOf(event.getTotalQty()));
 
-        Notification hostNoti = notificationFactory.create(
-                NotificationType.GROUPBUY_STATUS_FINALIZED,
+        // host에게 알림 발행
+        notificationPublisher.publish(
                 hostId,
-                event,
-                Map.of(
-                        "groupBuyTitle", event.getGroupBuyTitle(),
-                        "participantCount", event.getParticipantCount(),
-                        "totalQty", String.valueOf(event.getTotalQty())
-                )
+                NotificationType.GROUPBUY_STATUS_FINALIZED,
+                title,
+                hostBody,
+                event
         );
 
-        List<Notification> participantNotis = event.getParticipantIds().stream()
+        // 참가자들에게 알림 발행 (host 제외)
+        event.getParticipantIds().stream()
                 .filter(id -> !id.equals(hostId))
-                .map(id -> notificationFactory.create(
-                        NotificationType.GROUPBUY_STATUS_FINALIZED,
-                        id,
-                        event,
-                        Map.of(
-                                "groupBuyTitle", event.getGroupBuyTitle(),
-                                "participantCount", event.getParticipantCount(),
-                                "totalQty", String.valueOf(event.getTotalQty())
+                .forEach(participantId ->
+                        notificationPublisher.publish(
+                                participantId,
+                                NotificationType.GROUPBUY_STATUS_FINALIZED,
+                                title,
+                                partiBody,
+                                event
                         )
-                ))
-                .toList();
+                );
 
-        notificationRepository.saveAll(Stream.concat(
-                Stream.of(hostNoti),
-                participantNotis.stream()
-        ).toList());
-
-        emitterRepository.send(hostId.toString(),
-                NotificationType.GROUPBUY_STATUS_FINALIZED.name(),
-                payload);
-
-        participantNotis.forEach(noti ->
-                emitterRepository.send(noti.getReceiverId().toString(),
-                        NotificationType.GROUPBUY_STATUS_FINALIZED.name(), payload));
-
-        log.debug("✅ 알림 전송 완료: groupId={}", event.getGroupBuyId());
+        log.debug("✅ 공구 체결 알림 전송 완료: groupId={}", event.getGroupBuyId());
     }
 }

@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.domain.notification.service;
+package com.moogsan.moongsan_backend.domain.notification.service.useCase.Order;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderCanceledEvent;
@@ -6,19 +6,15 @@ import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderConfirmedEv
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderPendingEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderRefundedEvent;
 import com.moogsan.moongsan_backend.adapters.sse.SseEmitterRepository;
-import com.moogsan.moongsan_backend.domain.notification.entity.Notification;
 import com.moogsan.moongsan_backend.domain.notification.entity.NotificationType;
 import com.moogsan.moongsan_backend.domain.notification.factory.NotificationFactory;
-import com.moogsan.moongsan_backend.domain.notification.mapper.NotificationMapper;
 import com.moogsan.moongsan_backend.domain.notification.repository.NotificationRepository;
-import com.moogsan.moongsan_backend.domain.notification.template.NotificationPayload;
+import com.moogsan.moongsan_backend.domain.notification.service.publisher.NotificationPublisher;
 import com.moogsan.moongsan_backend.domain.notification.template.NotificationTemplateRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Map;
 
 @Slf4j
 @Service
@@ -30,6 +26,7 @@ public class SendOrderNotificationUseCase {
     private final NotificationTemplateRegistry templateRegistry;
     private final NotificationFactory notificationFactory;
     private final NotificationRepository notificationRepository;
+    private final NotificationPublisher notificationPublisher;
     private final ObjectMapper objectMapper;
 
     public void handleOrderPending(OrderPendingEvent event) {
@@ -42,28 +39,18 @@ public class SendOrderNotificationUseCase {
 
         String title = templateRegistry.title(NotificationType.ORDER_PENDING);
         String body = templateRegistry.body(NotificationType.ORDER_PENDING)
-                        .replace("{buyerName}", event.getBuyerName())
-                        .replace("{qty}", String.valueOf(event.getQuantity()));
+                .replace("{buyerName}", event.getBuyerName())
+                .replace("{qty}", String.valueOf(event.getQuantity()));
 
-        NotificationPayload payload = new NotificationPayload(title, body, event);
-
-        Notification notification = notificationFactory.create(
-                NotificationType.ORDER_PENDING,
+        notificationPublisher.publish(
                 hostId,
-                event,
-                Map.of(
-                    "buyerName", event.getBuyerName(),
-                    "qty", String.valueOf(event.getQuantity())
-                )
+                NotificationType.ORDER_PENDING,
+                title,
+                body,
+                event
         );
 
-        notificationRepository.save(notification);
-
-        emitterRepository.send(hostId.toString(),
-                NotificationType.ORDER_PENDING.name(),
-                payload);
-
-        log.debug("✅ 알림 전송 완료: hostId={}, orderId={}", hostId, event.getOrderId());
+        log.debug("✅ 주문 생성 알림 전송 완료: hostId={}, orderId={}", hostId, event.getOrderId());
     }
 
     public void handleOrderConfirmed(OrderConfirmedEvent event) {
@@ -79,25 +66,15 @@ public class SendOrderNotificationUseCase {
                 .replace("{groupBuyTitle}", event.getGroupBuyName())
                 .replace("{buyerName}", event.getBuyerName());
 
-        NotificationPayload payload = new NotificationPayload(title, body, event);
-
-        Notification notification = notificationFactory.create(
-                NotificationType.ORDER_CONFIRMED,
+        notificationPublisher.publish(
                 participantId,
-                event,
-                Map.of(
-                        "groupBuyTitle", event.getGroupBuyName(),
-                        "buyerName", event.getBuyerName()
-                )
+                NotificationType.ORDER_CONFIRMED,
+                title,
+                body,
+                event
         );
 
-        notificationRepository.save(notification);
-
-        emitterRepository.send(participantId.toString(),
-                NotificationType.ORDER_CONFIRMED.name(),
-                payload);
-
-        log.debug("✅ 알림 전송 완료: hostId={}, orderId={}", participantId, event.getOrderId());
+        log.debug("✅ 주문 확인 알림 전송 완료: hostId={}, orderId={}", participantId, event.getOrderId());
     }
 
     public void handleOrderCanceled(OrderCanceledEvent event) {
@@ -115,27 +92,15 @@ public class SendOrderNotificationUseCase {
                 .replace("{buyerAccount}", event.getBuyerAccount())
                 .replace("{price}", String.valueOf(event.getPrice()));
 
-        NotificationPayload payload = new NotificationPayload(title, body, event);
-
-        Notification notification = notificationFactory.create(
-                NotificationType.ORDER_CANCELED,
+        notificationPublisher.publish(
                 hostId,
-                event,
-                Map.of(
-                        "buyerName", event.getBuyerName(),
-                        "buyerBank", event.getBuyerBank(),
-                        "buyerAccount", event.getBuyerAccount(),
-                        "price", String.valueOf(event.getPrice())
-                )
+                NotificationType.ORDER_CANCELED,
+                title,
+                body,
+                event
         );
 
-        notificationRepository.save(notification);
-
-        emitterRepository.send(hostId.toString(),
-                NotificationType.ORDER_CANCELED.name(),
-                payload);
-
-        log.debug("✅ 알림 전송 완료: hostId={}, orderId={}", hostId, event.getOrderId());
+        log.debug("✅ 주문 취소 알림 전송 완료: hostId={}, orderId={}", hostId, event.getOrderId());
     }
 
     public void handleOrderRefunded(OrderRefundedEvent event) {
@@ -151,25 +116,15 @@ public class SendOrderNotificationUseCase {
                 .replace("{groupBuyTitle}", event.getGroupBuyName())
                 .replace("{buyerName}", event.getBuyerName());
 
-        NotificationPayload payload = new NotificationPayload(title, body, event);
-
-        Notification notification = notificationFactory.create(
-                NotificationType.ORDER_REFUNDED,
+        notificationPublisher.publish(
                 participantId,
-                event,
-                Map.of(
-                        "groupBuyTitle", event.getGroupBuyName(),
-                        "buyerName", event.getBuyerName()
-                )
+                NotificationType.ORDER_REFUNDED,
+                title,
+                body,
+                event
         );
 
-        notificationRepository.save(notification);
-
-        emitterRepository.send(participantId.toString(),
-                NotificationType.ORDER_REFUNDED.name(),
-                payload);
-
-        log.debug("✅ 알림 전송 완료: hostId={}, orderId={}", participantId, event.getOrderId());
+        log.debug("✅ 주문 환불 알림 전송 완료: hostId={}, orderId={}", participantId, event.getOrderId());
     }
 
 
