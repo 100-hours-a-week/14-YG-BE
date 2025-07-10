@@ -161,7 +161,7 @@ public class OrderCreateService {
         // 7. Pending 이벤트
         try {
             OrderPendingEvent pendingEvt = orderEventMapper.toPendingEvent(
-                    order.getId(), groupBuy.getId(), userId,
+                    order.getUser().getId(), groupBuy.getId(), userId,
                     order.getUser().getNickname(), order.getQuantity()
             );
             kafkaEventPublisher.publish(
