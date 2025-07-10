@@ -45,7 +45,7 @@ public class FinalizeGroupBuy {
                 "CONFIRMED");
 
         // 확정 판정
-        if (totalValid > 0 && unconfirmed == 0) {
+        if (totalValid > 0 && unconfirmed == 0 && groupBuy.getLeftAmount() == 0) {
             groupBuy.setFixed(true);          // 플래그 갱신
 
             publishFinalizedEvent(groupBuy);  // 오직 '이번'에만 호출
