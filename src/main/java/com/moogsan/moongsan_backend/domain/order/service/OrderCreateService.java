@@ -163,7 +163,7 @@ public class OrderCreateService {
         // 7. Pending 이벤트
         try {
             OrderPendingEvent pendingEvt = orderEventMapper.toPendingEvent(
-                    order.getGroupBuy().getUser().getId(), groupBuy.getId(), userId,
+                    order.getId(), groupBuy.getId(), groupBuy.getUser().getId(),
                     order.getUser().getNickname(), order.getQuantity()
             );
 
