@@ -6,6 +6,7 @@ import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderCanceledEve
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderConfirmedEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderPendingEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.OrderEventMapper;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.outbox.publisher.OutboxEventPublisher;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
@@ -30,9 +31,9 @@ import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SERIAL
 public class OrderStatusUpdateService {
     private final FinalizeGroupBuy finalizeGroupBuy;
     private final OrderRepository orderRepository;
-    private final KafkaEventPublisher kafkaEventPublisher;
     private final OrderEventMapper eventMapper;
     private final ObjectMapper objectMapper;
+    private final OutboxEventPublisher outboxEventPublisher;
 
     @Transactional
     public void updateOrderStatuses(List<OrderStatusUpdateRequest> requests) {
@@ -81,14 +82,16 @@ public class OrderStatusUpdateService {
 
             try {
                 String payload = objectMapper.writeValueAsString(eventDto);
-                kafkaEventPublisher.publish(
+                outboxEventPublisher.publish(
+                        "Order",
+                        String.valueOf(order.getId()),
                         topic,
                         String.valueOf(order.getId()),
-                        payload
+                        eventDto
                 );
                 log.info("✅ Kafka event sent: topic={}, orderId={}", topic, order.getId());
             } catch (JsonProcessingException e) {
-                log.error("❌ Failed to serialize event for topic={}", topic, e);
+                log.error("❌ OrderStatusChangeEvent outbox 저장 실패 for topic={}", topic, e);
                 throw new RuntimeException(SERIALIZATION_FAIL, e);
             }
         }
