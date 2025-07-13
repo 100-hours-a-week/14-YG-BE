@@ -6,6 +6,7 @@ import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuyStatusCl
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderPendingEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEventMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.OrderEventMapper;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.outbox.publisher.OutboxEventPublisher;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.domain.chatting.participant.Facade.command.ChattingCommandFacade;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
@@ -53,6 +54,7 @@ public class OrderCreateService {
     private final ObjectMapper objectMapper;
     private final RedisTemplate<String, String> redisTemplate;
     private final RedissonClient redissonClient;
+    private final OutboxEventPublisher outboxEventPublisher;
 
     @Transactional
     public OrderCreateResponse createOrder(OrderCreateRequest request, Long userId) {
@@ -161,18 +163,22 @@ public class OrderCreateService {
         // 7. Pending 이벤트
         try {
             OrderPendingEvent pendingEvt = orderEventMapper.toPendingEvent(
-                    order.getUser().getId(), groupBuy.getId(), userId,
+                    order.getId(), groupBuy.getId(), groupBuy.getUser().getId(),
                     order.getUser().getNickname(), order.getQuantity()
             );
-            kafkaEventPublisher.publish(
+
+            outboxEventPublisher.publish(
+                    "Order",
+                    String.valueOf(order.getId()),
                     ORDER_STATUS_PENDING,
                     String.valueOf(order.getId()),
-                    objectMapper.writeValueAsString(pendingEvt)
+                    pendingEvt
             );
+
         } catch (JsonProcessingException e) {
             redisTemplate.opsForValue().increment(stockKey, request.getQuantity());
             redisTemplate.delete(orderCheckKey);
-            log.error("❌ PendingEvent serialization failed", e);
+            log.error("❌ PendingEvent outbox 저장 실패 ", e);
             throw new BusinessException(
                     ErrorCode.INTERNAL_SERVER_ERROR,
                     SERIALIZATION_FAIL
