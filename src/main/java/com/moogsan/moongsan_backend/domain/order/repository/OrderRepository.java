@@ -12,41 +12,26 @@ import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
-    // 공구글 ID로 주문 참여자 전체 확인
+    // 🔍 FIND
     List<Order> findAllByGroupBuyId(Long postId);
-
-    // 유저 ID + 공구글 ID로 주문 단건 조회
     Optional<Order> findByUserIdAndGroupBuyId(Long userId, Long groupBuyId);
-
-    // 유저 ID + 공구글 ID + 상태가 아닌 주문 단건 조회
     Optional<Order> findByUserIdAndGroupBuyIdAndStatusNot(Long userId, Long groupBuyId, String status);
     Optional<Order> findByUserIdAndGroupBuyIdAndStatusNotIn(Long userId, Long groupBuyId, List<String> statuses);
-
-    // 유저 ID + 상태가 아닌 주문 단건 조희
-    boolean existsByUserIdAndStatusNotIn(Long userId, List<String> statuses);
-    boolean existsByUserIdAndGroupBuyIdAndStatusNotIn(Long userId, Long groupBuyId, List<String> statuses);
-
-    // 특정 공구의 참여 인원 수 확인
-    int countByGroupBuyIdAndStatusNot(Long postId, String status);
-
-    // 주문 취소 횟수 카운트
-    int countByUserIdAndGroupBuyIdAndStatus(Long userId, Long groupBuyId, String status);
-    int countByUserIdAndGroupBuyIdAndStatusIn(Long userId, Long groupBuyId, List<String> statuses);
-
-    // 특정 공구의 주문 목록 확인
-    long countByGroupBuyIdAndStatusNotIn(Long groupBuyId, List<String> statuses);
     List<Order> findByGroupBuyIdAndStatusNot(Long groupBuyId, String status);
     List<Order> findByGroupBuyIdAndStatusNotIn(Long groupBuyId, List<String> statuses);
 
-    // 모든 공구의 컨펌, 취소되지 않은 주문 검사
-    List<Order> findAllByCreatedAtBeforeAndStatusNotAndStatusNot(
-            LocalDateTime createdAt,
-            String excludedStatus1,
-            String excludedStatus2
-    );
+    // 🔢 COUNT
+    int countByGroupBuyIdAndStatusNot(Long postId, String status);
+    int countByUserIdAndGroupBuyIdAndStatus(Long userId, Long groupBuyId, String status);
+    int countByUserIdAndGroupBuyIdAndStatusIn(Long userId, Long groupBuyId, List<String> statuses);
+    long countByGroupBuyIdAndStatusNotIn(Long groupBuyId, List<String> statuses);
 
+    // ✅ EXISTS
+    boolean existsByUserIdAndStatusNotIn(Long userId, List<String> statuses);
+    boolean existsByUserIdAndGroupBuyIdAndStatusIn(Long userId, Long groupBuyId, List<String> statuses);
+    boolean existsByUserIdAndGroupBuyIdAndStatusNotIn(Long userId, Long groupBuyId, List<String> statuses);
 
-    // 특정 유저의 특정 공구 참여 여부 확인
+    // 🧾 CUSTOM QUERIES (@Query)
     @Query("""
       SELECT CASE WHEN COUNT(o) > 0 THEN TRUE ELSE FALSE END
         FROM Order o
@@ -59,7 +44,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             @Param("groupBuyId") Long groupBuyId,
             @Param("status") String status);
 
-    // 특정 유저의 공구 게시글 상태별 참여(주문) 리스트 첫 조회
     @Query("""
         SELECT o
           FROM Order o
@@ -74,7 +58,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             Pageable pageable
     );
 
-    // // 특정 유저의 공구 게시글 상태별 참여(주문) 리스트 이어서 조회
     @Query("""
         SELECT o
           FROM Order o
@@ -95,7 +78,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             Pageable pageable
     );
 
-    // 주문 참여자를 상태에 따라 순서대로 조회
     @Query("""
         SELECT o FROM Order o
          WHERE o.groupBuy.id = :postId
@@ -110,5 +92,15 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     """)
     List<Order> findAllByGroupBuyIdOrderByStatusCustom(@Param("postId") Long postId);
 
-    boolean existsByUserIdAndGroupBuyIdAndStatusIn(Long id, Long id1, List<String> canceled);
+    @Query("""
+        SELECT o FROM Order o
+         WHERE o.createdAt < :createdAt
+           AND o.status <> :excludedStatus1
+           AND o.status <> :excludedStatus2
+    """)
+    List<Order> findAllByCreatedAtBeforeAndStatusNotAndStatusNot(
+            @Param("createdAt") LocalDateTime createdAt,
+            @Param("excludedStatus1") String excludedStatus1,
+            @Param("excludedStatus2") String excludedStatus2
+    );
 }
