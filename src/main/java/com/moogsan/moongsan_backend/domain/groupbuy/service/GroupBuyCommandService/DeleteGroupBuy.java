@@ -1,10 +1,12 @@
 package com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService;
 
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuy.GroupBuyUpdatedEvent;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotFoundException;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotHostException;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
+import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuySseService.publisher.RealtimePublisher;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ public class DeleteGroupBuy {
 
     private final GroupBuyRepository groupBuyRepository;
     private final OrderRepository orderRepository;
+    private final RealtimePublisher realtimePublisher;
     private final Clock clock;
 
     /// 공구 게시글 삭제: 참여자가 아무도 없는, 주문 레코드가 없는 경우이므로 하드 삭제
@@ -51,6 +54,12 @@ public class DeleteGroupBuy {
 
         groupBuy.changePostStatus("DELETED");
         groupBuyRepository.save(groupBuy);
+
+        // 공구 상태 업데이트 이벤트 발행
+        GroupBuyUpdatedEvent event = GroupBuyUpdatedEvent.builder()
+                .groupBuyId(groupBuy.getId())
+                .build();
+        realtimePublisher.publish(event);
 
     }
 }

@@ -3,6 +3,7 @@ package com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandServ
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuy.GroupBuyPickupUpdatedEvent;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuy.GroupBuyUpdatedEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEventMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.UpdateGroupBuyRequest;
@@ -10,6 +11,7 @@ import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotFoundException;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotHostException;
+import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuySseService.publisher.RealtimePublisher;
 import com.moogsan.moongsan_backend.domain.image.entity.Image;
 import com.moogsan.moongsan_backend.domain.image.mapper.ImageMapper;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
@@ -45,6 +47,7 @@ public class UpdateGroupBuy {
     private final GroupBuyEventMapper eventMapper;
     private final ObjectMapper objectMapper;
     private final KafkaEventPublisher kafkaEventPublisher;
+    private final RealtimePublisher realtimePublisher;
     private final Clock clock;
 
     /// 공구 게시글 수정
@@ -105,6 +108,12 @@ public class UpdateGroupBuy {
         imageMapper.mapImagesToGroupBuy(finalKeys, gb);
 
         groupBuyRepository.save(gb);
+
+        // 공구 상태 업데이트 이벤트 발행
+        GroupBuyUpdatedEvent event = GroupBuyUpdatedEvent.builder()
+                .groupBuyId(gb.getId())
+                .build();
+        realtimePublisher.publish(event);
 
         if (updateGroupBuyRequest.getDateModificationReason() != null) {
             List<Order> orders = orderRepository.findAllByGroupBuyIdOrderByStatusCustom(groupBuy.getId());

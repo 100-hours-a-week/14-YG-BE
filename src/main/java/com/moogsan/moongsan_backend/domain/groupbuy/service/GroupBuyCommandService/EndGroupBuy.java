@@ -3,6 +3,7 @@ package com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandServ
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuy.GroupBuyStatusEndedEvent;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuy.GroupBuyUpdatedEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEventMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
@@ -10,6 +11,7 @@ import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyI
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotFoundException;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotHostException;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
+import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuySseService.publisher.RealtimePublisher;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
@@ -37,6 +39,7 @@ public class EndGroupBuy {
     private final KafkaEventPublisher kafkaEventPublisher;
     private final GroupBuyEventMapper eventMapper;
     private final ObjectMapper objectMapper;
+    private final RealtimePublisher realtimePublisher;
 
     /// 공구 게시글 공구 종료
     public void endGroupBuy(User currentUser, Long postId) {
@@ -70,6 +73,12 @@ public class EndGroupBuy {
         groupBuyRepository.save(groupBuy);
 
         // TODO V3에서는 참여자 채팅방 해제 카운트 시작(2주- CS 고려), 익명 채팅방 즉시 해제
+
+        // 공구 상태 업데이트 이벤트 발행
+        GroupBuyUpdatedEvent event = GroupBuyUpdatedEvent.builder()
+                .groupBuyId(groupBuy.getId())
+                .build();
+        realtimePublisher.publish(event);
 
         try {
             List<Order> orders = orderRepository.findAllByGroupBuyIdOrderByStatusCustom(groupBuy.getId());
