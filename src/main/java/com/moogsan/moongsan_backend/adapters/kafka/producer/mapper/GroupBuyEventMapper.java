@@ -99,4 +99,14 @@ public class GroupBuyEventMapper {
                 .occurredAt(Instant.now().toString())
                 .build();
     }
+
+    // 공동구매 상세 변경 이벤트
+    public GroupBuyUpdatedEvent toGroupBuyDetailUpdated(
+            Long groupBuyId
+    ) {
+        return GroupBuyUpdatedEvent.builder()
+                .groupBuyId(groupBuyId)
+                .occurredAt(Instant.now().toString())
+                .build();
+    }
 }

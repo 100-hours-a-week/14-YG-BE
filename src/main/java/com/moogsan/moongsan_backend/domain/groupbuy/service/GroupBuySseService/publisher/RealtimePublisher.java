@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.domain.groupbuy.service.publisher;
+package com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuySseService.publisher;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuy.GroupBuyUpdatedEvent;
