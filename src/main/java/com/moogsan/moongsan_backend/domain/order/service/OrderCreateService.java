@@ -2,13 +2,12 @@ package com.moogsan.moongsan_backend.domain.order.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuy.GroupBuyStatusClosedEvent;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.Order.OrderPendingEvent;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuyStatusClosedEvent;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderPendingEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEventMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.OrderEventMapper;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.outbox.publisher.OutboxEventPublisher;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
-import com.moogsan.moongsan_backend.domain.chatting.participant.facade.command.ChattingCommandFacade;
+import com.moogsan.moongsan_backend.domain.chatting.participant.Facade.command.ChattingCommandFacade;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.policy.DueSoonPolicy;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
@@ -202,7 +201,6 @@ public class OrderCreateService {
                     SERIALIZATION_FAIL
             );
         }
-        groupBuyRepository.save(groupBuy);
 
         // 8. 응답 반환
         return OrderCreateResponse.builder()
