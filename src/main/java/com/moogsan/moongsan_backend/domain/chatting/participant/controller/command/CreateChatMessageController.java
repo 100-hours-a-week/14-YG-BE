@@ -1,7 +1,7 @@
 package com.moogsan.moongsan_backend.domain.chatting.participant.controller.command;
 
 import com.moogsan.moongsan_backend.domain.WrapperResponse;
-import com.moogsan.moongsan_backend.domain.chatting.participant.Facade.command.ChattingCommandFacade;
+import com.moogsan.moongsan_backend.domain.chatting.participant.facade.command.ChattingCommandFacade;
 import com.moogsan.moongsan_backend.domain.chatting.participant.dto.command.response.CommandChattingReponse;
 import com.moogsan.moongsan_backend.domain.chatting.participant.dto.command.request.CreateChatMessageRequest;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;

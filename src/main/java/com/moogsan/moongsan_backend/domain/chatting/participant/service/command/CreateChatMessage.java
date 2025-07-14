@@ -2,10 +2,8 @@ package com.moogsan.moongsan_backend.domain.chatting.participant.service.command
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuyStatusEndedEvent;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.ParticipantChatMessageCreatedEvent;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.Chat.ChatMessagePersistEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.ChatEventMapper;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEventMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.domain.chatting.participant.dto.command.request.CreateChatMessageRequest;
 import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatMessageDocument;
@@ -20,12 +18,12 @@ import com.moogsan.moongsan_backend.domain.chatting.participant.repository.ChatP
 import com.moogsan.moongsan_backend.domain.chatting.participant.repository.ChatRoomRepository;
 import com.moogsan.moongsan_backend.domain.chatting.participant.service.query.GetLatestMessageSse;
 import com.moogsan.moongsan_backend.domain.chatting.participant.service.query.GetLatestMessages;
+import com.moogsan.moongsan_backend.domain.chatting.participant.service.websocket.GetLatestMessagesStomp;
 import com.moogsan.moongsan_backend.domain.chatting.participant.util.MessageSequenceGenerator;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -35,7 +33,6 @@ import java.time.Clock;
 import java.time.Duration;
 
 import static com.moogsan.moongsan_backend.adapters.kafka.producer.KafkaTopics.CHAT_PART_MESSAGE_CREATED;
-import static com.moogsan.moongsan_backend.adapters.kafka.producer.KafkaTopics.GROUPBUY_STATUS_ENDED;
 import static com.moogsan.moongsan_backend.domain.chatting.participant.message.ResponseMessage.DELETED_CHAT_ROOM;
 import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.NOT_PARTICIPANT;
 import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SERIALIZATION_FAIL;
@@ -54,6 +51,7 @@ public class CreateChatMessage {
     private final ChatMessageCommandMapper chatMessageCommandMapper;
     private final GetLatestMessages getLatestMessages;
     private final GetLatestMessageSse getLatestMessageSse;
+    private final GetLatestMessagesStomp getLatestMessagesStomp;
     private final RedisTemplate<String, String> redisTemplate;
     private final KafkaEventPublisher kafkaEventPublisher;
     private final ChatEventMapper eventMapper;
@@ -87,7 +85,7 @@ public class CreateChatMessage {
         chatMessageRepository.save(document);
 
         // 롱 폴링
-        getLatestMessages.notifyNewMessage(document, currentUser.getNickname(), currentUser.getImageKey(), context);
+        // getLatestMessages.notifyNewMessage(document, currentUser.getNickname(), currentUser.getImageKey(), context);
 
         // sse
         /*
@@ -97,8 +95,10 @@ public class CreateChatMessage {
                 currentUser.getImageKey(),
                 context
         );
-
          */
+
+        // socket
+        getLatestMessagesStomp.notifyNewMessage(document, currentUser.getNickname(), currentUser.getImageKey());
 
         String redisKey = "chatting:messages:" + chatRoomId;
 
@@ -114,8 +114,8 @@ public class CreateChatMessage {
         }
 
         try {
-            ParticipantChatMessageCreatedEvent eventDto =
-                    eventMapper.toParticipantChatMessageCreatedEvent(chatRoom, document);
+            ChatMessagePersistEvent eventDto =
+                    eventMapper.toChatMessagePersistEvent(chatRoom.getId(), document.getId());
             String payload = objectMapper.writeValueAsString(eventDto);
             kafkaEventPublisher.publish(CHAT_PART_MESSAGE_CREATED, String.valueOf(document.getId()), payload);
         } catch (JsonProcessingException e) {

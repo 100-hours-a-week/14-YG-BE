@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.domain.chatting.participant.dto.query;
+package com.moogsan.moongsan_backend.domain.chatting.participant.dto.query.response;
 
 import lombok.Builder;
 import lombok.Getter;

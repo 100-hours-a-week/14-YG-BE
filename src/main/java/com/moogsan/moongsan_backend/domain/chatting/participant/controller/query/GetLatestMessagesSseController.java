@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.domain.chatting.participant.controller.query;
 
-import com.moogsan.moongsan_backend.domain.chatting.participant.Facade.query.ChattingQueryFacade;
+import com.moogsan.moongsan_backend.domain.chatting.participant.facade.query.ChattingQueryFacade;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
