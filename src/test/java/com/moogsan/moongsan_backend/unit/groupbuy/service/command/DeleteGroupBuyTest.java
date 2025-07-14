@@ -6,6 +6,7 @@ import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyN
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotHostException;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.DeleteGroupBuy;
+import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuySseService.publisher.RealtimePublisher;
 import com.moogsan.moongsan_backend.domain.image.mapper.ImageMapper;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
@@ -40,6 +41,9 @@ public class DeleteGroupBuyTest {
     @Mock
     private OrderRepository orderRepository;
 
+    @Mock
+    private RealtimePublisher realtimePublisher;
+
     private DeleteGroupBuy deleteGroupBuy;
     private User hostUser;
     private GroupBuy before;
@@ -61,6 +65,7 @@ public class DeleteGroupBuyTest {
         deleteGroupBuy = new DeleteGroupBuy(
                 groupBuyRepository,
                 orderRepository,
+                realtimePublisher,
                 fixedClock
         );
     }

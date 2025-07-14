@@ -3,6 +3,7 @@ package com.moogsan.moongsan_backend.domain.order.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuy.GroupBuyStatusClosedEvent;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuy.GroupBuyUpdatedEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.Order.OrderPendingEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEventMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.OrderEventMapper;
@@ -12,6 +13,7 @@ import com.moogsan.moongsan_backend.domain.chatting.participant.facade.command.C
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.policy.DueSoonPolicy;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
+import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuySseService.publisher.RealtimePublisher;
 import com.moogsan.moongsan_backend.domain.order.dto.request.OrderCreateRequest;
 import com.moogsan.moongsan_backend.domain.order.dto.response.OrderCreateResponse;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
@@ -54,6 +56,7 @@ public class OrderCreateService {
     private final ObjectMapper objectMapper;
     private final RedisTemplate<String, String> redisTemplate;
     private final RedissonClient redissonClient;
+    private final RealtimePublisher realtimePublisher;
     private final OutboxEventPublisher outboxEventPublisher;
 
     @Transactional
@@ -161,6 +164,12 @@ public class OrderCreateService {
         }
 
         // 7. Pending 이벤트
+
+        GroupBuyUpdatedEvent event = GroupBuyUpdatedEvent.builder()
+                .groupBuyId(groupBuy.getId())
+                .build();
+        realtimePublisher.publish(event);
+
         try {
             OrderPendingEvent pendingEvt = orderEventMapper.toPendingEvent(
                     order.getId(), groupBuy.getId(), groupBuy.getUser().getId(),

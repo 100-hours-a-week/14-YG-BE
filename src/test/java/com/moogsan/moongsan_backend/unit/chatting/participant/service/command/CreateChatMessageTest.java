@@ -18,6 +18,7 @@ import com.moogsan.moongsan_backend.domain.chatting.participant.repository.ChatR
 import com.moogsan.moongsan_backend.domain.chatting.participant.service.command.CreateChatMessage;
 import com.moogsan.moongsan_backend.domain.chatting.participant.service.query.GetLatestMessageSse;
 import com.moogsan.moongsan_backend.domain.chatting.participant.service.query.GetLatestMessages;
+import com.moogsan.moongsan_backend.domain.chatting.participant.service.websocket.GetLatestMessagesStomp;
 import com.moogsan.moongsan_backend.domain.chatting.participant.util.MessageSequenceGenerator;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -64,6 +65,9 @@ public class CreateChatMessageTest {
 
     @Mock
     private RedisTemplate<String, String> redisTemplate;
+
+    @Mock
+    private GetLatestMessagesStomp getLatestMessagesStomp;
 
     @Mock
     private KafkaEventPublisher kafkaEventPublisher;
@@ -113,6 +117,7 @@ public class CreateChatMessageTest {
                 chatMessageCommandMapper,
                 getLatestMessages,
                 getLatestMessageSse,
+                getLatestMessagesStomp,
                 redisTemplate,
                 kafkaEventPublisher,
                 eventMapper,

@@ -44,6 +44,18 @@ public class SseEmitterRepository {
         }
     }
 
+    public <T> void send(String key, T data) {
+        List<SseEmitter> list = emitters.getOrDefault(key, Collections.emptyList());
+        for (SseEmitter emitter : list) {
+            try {
+                // event 이름 없이 data 만 전송
+                emitter.send(data);
+            } catch (Exception ex) {
+                emitter.completeWithError(ex);
+            }
+        }
+    }
+
     private void remove(String key, SseEmitter emitter) {
         List<SseEmitter> list = emitters.get(key);
         if (list != null) list.remove(emitter);
