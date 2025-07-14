@@ -1,77 +1,65 @@
 package com.moogsan.moongsan_backend.global.config;
 
+import com.moogsan.moongsan_backend.global.security.jwt.JwtHandshakeInterceptor;
 import com.moogsan.moongsan_backend.global.security.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
-import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
-import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SOCKET_FAIL;
-
 @Configuration
-@EnableWebSocketMessageBroker
 @RequiredArgsConstructor
+@Order(1)
 public class ParticipantChatWebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final JwtUtil jwtUtil;
-    private final UserDetailsService userDetailsService;
+    private final JwtHandshakeInterceptor jwtHandshakeInterceptor;
 
+    /* ── 엔드포인트 ── */
     @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws/participant")
+    public void registerStompEndpoints(StompEndpointRegistry r){
+        r.addEndpoint("/ws/participant")
                 .setAllowedOriginPatterns("*")
-                .withSockJS(); // 필요하면 제거 가능
+                .addInterceptors(jwtHandshakeInterceptor)  // JWT + AUTH_REQUIRED 플래그
+                .withSockJS()
+                .setSessionCookieNeeded(true);
     }
 
+    /* ── 브로커 ── (추가 prefix만) */
     @Override
-    public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/sub");
-        registry.setApplicationDestinationPrefixes("/pub/participant");
+    public void configureMessageBroker(MessageBrokerRegistry r){
+        r.enableSimpleBroker("/sub");   // /topic 는 이미 등록됨
     }
 
+    /* ── 인증 인터셉터 ── */
     @Override
-    public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.interceptors(new ChannelInterceptor() {
-
+    public void configureClientInboundChannel(ChannelRegistration r){
+        r.interceptors(new ChannelInterceptor(){
             @Override
-            public Message<?> preSend(Message<?> message, MessageChannel channel) {
+            public Message<?> preSend(Message<?> msg, MessageChannel ch){
 
-                StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-                if (accessor == null || accessor.getCommand() != StompCommand.CONNECT) return message;
+                var acc = StompHeaderAccessor.wrap(msg);
 
-                // 1. 토큰 꺼내기
-                String token = accessor.getFirstNativeHeader("Authorization"); // 또는 "token"
-                if (token != null && token.startsWith("Bearer ")) {
-                    token = token.substring(7);
+                // 익명 세션이면 바로 통과
+                if (!Boolean.TRUE.equals(acc.getSessionAttributes().get("AUTH_REQUIRED")))
+                    return msg;
+
+                // Principal 없으면 Handshake 에서 만든 인증 삽입
+                if (acc.getUser() == null){
+                    var ctx = SecurityContextHolder.getContext().getAuthentication();
+                    if (ctx != null && ctx.isAuthenticated())
+                        acc.setUser(ctx);
                 }
-
-                if (token != null && jwtUtil.validateToken(token)) {
-                    Long userId = jwtUtil.getUserIdFromToken(token);
-
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(String.valueOf(userId));
-                    accessor.setUser(new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            userDetails.getAuthorities()
-                    ));
-                } else {
-                    throw new AccessDeniedException(SOCKET_FAIL);
-                }
-
-                return message;
+                return msg;   // ★ 원본 그대로! (헤더 보존)
             }
         });
     }
