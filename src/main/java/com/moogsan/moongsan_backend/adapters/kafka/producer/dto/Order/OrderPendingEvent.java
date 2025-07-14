@@ -1,5 +1,6 @@
-package com.moogsan.moongsan_backend.adapters.kafka.producer.dto;
+package com.moogsan.moongsan_backend.adapters.kafka.producer.dto.Order;
 
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.BaseEvent;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,7 +14,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class OrderPendingEvent extends BaseEvent{
+public class OrderPendingEvent extends BaseEvent {
     private Long orderId;      // 주문 아이디
     private Long groupBuyId;   // 공동구매 게시글 아이디
     private Long hostId;       // 공동구매 호스트 아이디

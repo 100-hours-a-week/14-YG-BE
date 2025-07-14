@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>Participant Chat WebSocket Test (쿠키 인증)</title>
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+  <style>
+    body{font-family:sans-serif;margin:40px;max-width:700px}
+    label{font-weight:700;display:block;margin-top:10px}
+    input{width:100%;padding:6px;margin-top:4px;box-sizing:border-box}
+    button{padding:6px 12px;margin-top:10px;margin-right:6px}
+    #messages{border:1px solid #ddd;height:250px;overflow-y:auto;padding:6px;list-style:none}
+    #messages li{padding:2px 0;border-bottom:1px solid #f0f0f0;font-size:14px}
+  </style>
+</head>
+<body>
+  <h2>Participant Chat WebSocket 테스트 (쿠키 인증)</h2>
+
+  <label>AccessToken (쿠키 저장용)
+    <input type="text" id="token" placeholder="eyJhbGciOi..." />
+  </label>
+
+  <label>ChatRoom ID
+    <input type="number" id="chatRoomId" placeholder="예: 31" />
+  </label>
+
+  <label>Message
+    <input type="text" id="message" placeholder="보낼 메세지" />
+  </label>
+
+  <button onclick="setTokenCookie()">Set Token Cookie</button>
+  <button onclick="connect()">Connect</button>
+  <button onclick="sendMessage()">Send</button>
+  <button onclick="disconnect()">Disconnect</button>
+
+  <h3>수신 메시지</h3>
+  <ul id="messages"></ul>
+
+<script>
+let stompClient=null;
+
+function setTokenCookie(){
+  const token=document.getElementById('token').value.trim();
+  if(!token){alert('토큰을 입력하세요');return;}
+  document.cookie='AccessToken='+token+'; path=/; SameSite=Lax';
+  alert('쿠키 저장 완료!');
+}
+
+function connect(){
+  if(stompClient && stompClient.connected){alert('이미 연결됨');return;}
+  const socket=new SockJS('http://localhost:8080/ws/participant');
+  stompClient=Stomp.over(socket);
+  stompClient.debug=(m)=>console.log('[STOMP]',m);
+  stompClient.connect({},()=>{
+      console.log('✅ CONNECTED');
+      const room=document.getElementById('chatRoomId').value;
+      if(!room){alert('ChatRoom ID 입력');return;}
+      stompClient.subscribe('/sub/chat-participant/'+room,(msg)=>{
+          const body=JSON.parse(msg.body);
+          const li=document.createElement('li');
+          li.textContent='['+body.createdAt+'] '+body.nickname+': '+body.content;
+          document.getElementById('messages').appendChild(li);
+      });
+  },(err)=>console.error('CONNECT ERROR',err));
+}
+
+function sendMessage(){
+  if(!stompClient || !stompClient.connected){alert('먼저 Connect');return;}
+  const room=document.getElementById('chatRoomId').value;
+  const content=document.getElementById('message').value;
+  stompClient.send('/pub/participant/api/chats/participant/message',{},
+      JSON.stringify({chatRoomId:room,content}));
+  document.getElementById('message').value='';
+}
+
+function disconnect(){
+  if(stompClient){stompClient.disconnect(()=>console.log('🔌 Disconnected'));}
+}
+</script>
+</body>
+</html>

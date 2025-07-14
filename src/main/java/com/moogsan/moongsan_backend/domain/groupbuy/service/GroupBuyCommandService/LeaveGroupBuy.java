@@ -2,11 +2,10 @@ package com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandServ
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderCanceledEvent;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderPendingEvent;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.Order.OrderCanceledEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.OrderEventMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
-import com.moogsan.moongsan_backend.domain.chatting.participant.Facade.command.ChattingCommandFacade;
+import com.moogsan.moongsan_backend.domain.chatting.participant.facade.command.ChattingCommandFacade;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotFoundException;
@@ -26,7 +25,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.moogsan.moongsan_backend.adapters.kafka.producer.KafkaTopics.ORDER_STATUS_CANCELED;
-import static com.moogsan.moongsan_backend.adapters.kafka.producer.KafkaTopics.ORDER_STATUS_PENDING;
 import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.NOT_OPEN;
 import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SERIALIZATION_FAIL;
 
@@ -88,7 +86,7 @@ public class LeaveGroupBuy {
         int totalPrice = price * quantity;
         try {
             OrderCanceledEvent eventDto =
-                    eventDto = eventMapper.toCanceledEvent(
+                    eventMapper.toCanceledEvent(
                             order.getId(),
                             groupBuy.getId(),
                             groupBuy.getUser().getId(),

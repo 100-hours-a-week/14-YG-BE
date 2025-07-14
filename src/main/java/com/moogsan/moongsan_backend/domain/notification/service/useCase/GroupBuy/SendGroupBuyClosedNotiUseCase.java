@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.domain.notification.service.useCase.GroupBuy;
 
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuyStatusClosedEvent;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuy.GroupBuyStatusClosedEvent;
 import com.moogsan.moongsan_backend.domain.notification.entity.NotificationType;
 import com.moogsan.moongsan_backend.domain.notification.service.publisher.NotificationPublisher;
 import com.moogsan.moongsan_backend.domain.notification.template.NotificationTemplateRegistry;
@@ -8,10 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service

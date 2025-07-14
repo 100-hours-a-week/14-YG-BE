@@ -1,24 +1,17 @@
 package com.moogsan.moongsan_backend.adapters.kafka.producer.mapper;
 
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuyStatusClosedEvent;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.ParticipantChatMessageCreatedEvent;
-import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatMessageDocument;
-import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatRoom;
-import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.Chat.ChatMessagePersistEvent;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuy.GroupBuyStatusClosedEvent;
 import org.springframework.stereotype.Component;
-
-import java.time.Instant;
 
 @Component
 public class ChatEventMapper {
-
-    // 참여자 채팅 작성 이벤트
-    public ParticipantChatMessageCreatedEvent toParticipantChatMessageCreatedEvent(ChatRoom chatRoom, ChatMessageDocument chatMessageDocument) {
-        return ParticipantChatMessageCreatedEvent.builder()
-                .chatRoomId(chatRoom.getId())
-                .chatMessageId(chatMessageDocument.getId())
-                .authorId(chatMessageDocument.getChatParticipantId())
-                .occurredAt(Instant.now().toString())
+    public ChatMessagePersistEvent toChatMessagePersistEvent(
+            Long chatRoomId, String chatMessageId
+    ){
+        return ChatMessagePersistEvent.builder()
+                .chatRoomId(chatRoomId)
+                .chatMessageId(chatMessageId)
                 .build();
     }
 }
