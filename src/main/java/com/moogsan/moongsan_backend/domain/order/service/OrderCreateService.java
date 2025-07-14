@@ -77,7 +77,7 @@ public class OrderCreateService {
         if (orderRepository.existsByUserIdAndGroupBuyIdAndStatusIn(userId, request.getPostId(), List.of("CANCELED"))) {
             throw new BusinessException(ErrorCode.DUPLICATE_REQUEST, "환불중인 주문이 존재합니다.");
         }
-        if (orderRepository.existsByUserIdAndGroupBuyIdAndStatusNotIn(userId, request.getPostId(), List.of("CANCELED", "REFUNDED"))) {
+        if (orderRepository.existsByUserIdAndGroupBuyIdAndStatusIn(userId, request.getPostId(), List.of("PENDING", "CONFIRMED"))) {
             throw new BusinessException(ErrorCode.DUPLICATE_REQUEST, "이미 공동구매에 참여하였습니다.");
         }
         if (request.getQuantity() % groupBuy.getUnitAmount() != 0) {
