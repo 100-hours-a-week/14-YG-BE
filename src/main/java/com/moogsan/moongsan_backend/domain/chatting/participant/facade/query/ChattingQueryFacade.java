@@ -1,8 +1,8 @@
-package com.moogsan.moongsan_backend.domain.chatting.participant.Facade.query;
+package com.moogsan.moongsan_backend.domain.chatting.participant.facade.query;
 
-import com.moogsan.moongsan_backend.domain.chatting.participant.dto.query.ChatMessagePageResponse;
-import com.moogsan.moongsan_backend.domain.chatting.participant.dto.query.ChatMessageResponse;
-import com.moogsan.moongsan_backend.domain.chatting.participant.dto.query.ChatRoomPagedResponse;
+import com.moogsan.moongsan_backend.domain.chatting.participant.dto.query.response.ChatMessagePageResponse;
+import com.moogsan.moongsan_backend.domain.chatting.participant.dto.query.response.ChatMessageResponse;
+import com.moogsan.moongsan_backend.domain.chatting.participant.dto.query.response.ChatRoomPagedResponse;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -34,4 +34,10 @@ public interface ChattingQueryFacade {
             LocalDateTime cursorJoinedAt,
             Integer limit)
     ;
+
+    void getLatestMessagesStomp(
+            User user,
+            Long chatRoomId,
+            String lastMessageId
+    );
 }

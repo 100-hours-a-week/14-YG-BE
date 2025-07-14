@@ -9,4 +9,7 @@ public class ResponseMessage {
 
     public static final String SERIALIZATION_FAIL =
             "이벤트 DTO 직렬화를 실패했습니다.";
+
+    public static final String SOCKET_FAIL =
+            "WebSocket 연결에 실패했습니다. 토큰이 유효하지 않습니다.";
 }
