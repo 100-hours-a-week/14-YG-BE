@@ -57,8 +57,8 @@ public class OrderCreateService {
         }
 
         // 해당 공구 내 CANCELED, REFUNDED 상태가 아닌 주문 존재
-        boolean exists = orderRepository.existsByUserIdAndGroupBuyIdAndStatusNotIn(
-                user.getId(), groupBuy.getId(), List.of("CANCELED", "REFUNDED"));
+        boolean exists = orderRepository.existsByUserIdAndGroupBuyIdAndStatusIn(
+                userId, request.getPostId(), List.of("PENDING", "CONFIRMED"));
 
         if (exists) {
             throw new BusinessException(ErrorCode.DUPLICATE_REQUEST, "이미 공동구매에 참여하였습니다.");
