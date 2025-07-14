@@ -12,6 +12,7 @@ import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyN
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.CreateGroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.UpdateGroupBuy;
+import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuySseService.publisher.RealtimePublisher;
 import com.moogsan.moongsan_backend.domain.image.entity.Image;
 import com.moogsan.moongsan_backend.domain.image.mapper.ImageMapper;
 import com.moogsan.moongsan_backend.domain.image.service.S3Service;
@@ -59,6 +60,9 @@ class UpdateGroupBuyTest {
 
     @Mock
     private ObjectMapper objectMapper;
+
+    @Mock
+    private RealtimePublisher realtimePublisher;
 
     @Mock
     private Clock clock;
@@ -121,6 +125,7 @@ class UpdateGroupBuyTest {
                 eventMapper,
                 objectMapper,
                 kafkaEventPublisher,
+                realtimePublisher,
                 fixedClock
         );
 

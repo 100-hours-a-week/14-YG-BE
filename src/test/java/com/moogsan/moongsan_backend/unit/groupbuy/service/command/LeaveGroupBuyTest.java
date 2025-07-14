@@ -10,6 +10,7 @@ import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyN
 import com.moogsan.moongsan_backend.domain.groupbuy.policy.DueSoonPolicy;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.LeaveGroupBuy;
+import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuySseService.publisher.RealtimePublisher;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
 import com.moogsan.moongsan_backend.domain.order.exception.specific.OrderNotFoundException;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
@@ -32,36 +33,41 @@ import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessa
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class LeaveGroupBuyTest {
-    @Mock private GroupBuyRepository groupBuyRepository;
-    @Mock private OrderRepository orderRepository;
-    @Mock private DueSoonPolicy dueSoonPolicy;
-    @Mock private KafkaEventPublisher kafkaEventPublisher;
-    @Mock private OrderEventMapper eventMapper;
-    @Mock private ObjectMapper objectMapper;
+    @Mock private GroupBuyRepository    groupBuyRepository;
+    @Mock private OrderRepository       orderRepository;
+    @Mock private DueSoonPolicy         dueSoonPolicy;
+    @Mock private KafkaEventPublisher   kafkaEventPublisher;
+    @Mock private OrderEventMapper      eventMapper;
+    @Mock private ObjectMapper          objectMapper;
     @Mock private ChattingCommandFacade chattingCommandFacade;
+    @Mock private RealtimePublisher     realtimePublisher;
 
     private LeaveGroupBuy leaveGroupBuy;
-    private User participant;
-    private GroupBuy before;
-    private Order order;
-    private Clock fixedClock;
+    private User        participant;
+    private GroupBuy    before;
+    private Order       order;
+    private Clock       fixedClock;
     private LocalDateTime now;
 
     @BeforeEach
     void setup() {
         participant = User.builder().id(1L).build();
-        before = mock(GroupBuy.class);
-        order = mock(Order.class);
+        before = spy(GroupBuy.builder()
+                .id(20L)
+                .user(participant)
+                .build());
+        order = Order.builder().id(1L).user(participant).groupBuy(before).build();
+        // set mandatory fields to avoid NPEs
+        order.setQuantity(2);
+        order.setPrice(1000);
 
         fixedClock = Clock.fixed(
                 Instant.parse("2025-06-11T13:00:00Z"),
                 ZoneId.of("Asia/Seoul")
         );
-
         now = LocalDateTime.now(fixedClock);
 
         leaveGroupBuy = new LeaveGroupBuy(
@@ -70,6 +76,7 @@ public class LeaveGroupBuyTest {
                 dueSoonPolicy,
                 chattingCommandFacade,
                 kafkaEventPublisher,
+                realtimePublisher,
                 eventMapper,
                 objectMapper,
                 fixedClock
@@ -79,97 +86,90 @@ public class LeaveGroupBuyTest {
     @Test
     @DisplayName("공구 참여 취소 성공")
     void leaveGroupBuy_success() {
-        when(groupBuyRepository.findById(1L))
+        when(groupBuyRepository.findById(20L))
                 .thenReturn(Optional.of(before));
         when(before.getPostStatus()).thenReturn("OPEN");
-        when(before.getDueDate())
-                .thenReturn(now.plusDays(1));
-        when(before.getId()).thenReturn(20L);
-        when(orderRepository.findByUserIdAndGroupBuyIdAndStatusNotIn(1L, 20L,
-                List.of("CANCELED", "REFUNDED")))
+        when(before.getDueDate()).thenReturn(now.plusDays(1));
+        when(orderRepository.findByUserIdAndGroupBuyIdAndStatusNotIn(
+                1L, 20L, List.of("CANCELED", "REFUNDED")))
                 .thenReturn(Optional.of(order));
 
-        leaveGroupBuy.leaveGroupBuy(participant, 1L);
+        leaveGroupBuy.leaveGroupBuy(participant, 20L);
 
-        verify(groupBuyRepository, times(1)).findById(1L);
-        verify(orderRepository, times(1))
-                .findByUserIdAndGroupBuyIdAndStatusNotIn(1L, 20L, List.of("CANCELED", "REFUNDED"));
-        verify(orderRepository, times(1)).save(any(Order.class));
+        verify(groupBuyRepository).findById(20L);
+        verify(orderRepository).findByUserIdAndGroupBuyIdAndStatusNotIn(
+                1L, 20L, List.of("CANCELED", "REFUNDED")
+        );
+        verify(orderRepository).save(any(Order.class));
     }
 
     @Test
     @DisplayName("존재하지 않는 공구글 - 404 예외")
     void leaveGroupBuy_groupBuy_notFound() {
-        when(groupBuyRepository.findById(1L))
-                .thenReturn(Optional.empty());
-
         assertThatThrownBy(() -> leaveGroupBuy.leaveGroupBuy(participant, 1L))
                 .isInstanceOf(GroupBuyNotFoundException.class)
                 .hasMessageContaining(NOT_EXIST);
 
-        verify(groupBuyRepository, times(1)).findById(1L);
+        verify(groupBuyRepository).findById(1L);
         verify(orderRepository, never())
-                .findByUserIdAndGroupBuyIdAndStatusNotIn(1L, 20L, List.of("CANCELED", "REFUNDED"));
-        verify(orderRepository, never()).save(any(Order.class));
+                .findByUserIdAndGroupBuyIdAndStatusNotIn(anyLong(), anyLong(), anyList());
+        verify(orderRepository, never()).save(any());
     }
 
     @Test
     @DisplayName("공구글 status가 OPEN이 아님 - 409 예외")
     void leaveGroupBuy_postStatus_not_open() {
-        when(groupBuyRepository.findById(1L))
+        when(groupBuyRepository.findById(20L))
                 .thenReturn(Optional.of(before));
-        when(before.getPostStatus())
-                .thenReturn("ENDED");
+        when(before.getPostStatus()).thenReturn("CLOSED");
 
-        assertThatThrownBy(() -> leaveGroupBuy.leaveGroupBuy(participant, 1L))
+        assertThatThrownBy(() -> leaveGroupBuy.leaveGroupBuy(participant, 20L))
                 .isInstanceOf(GroupBuyInvalidStateException.class)
                 .hasMessageContaining(NOT_OPEN);
 
-        verify(groupBuyRepository, times(1)).findById(1L);
+        verify(groupBuyRepository).findById(20L);
         verify(orderRepository, never())
-                .findByUserIdAndGroupBuyIdAndStatusNotIn(1L, 20L, List.of("CANCELED", "REFUNDED"));
-        verify(orderRepository, never()).save(any(Order.class));
+                .findByUserIdAndGroupBuyIdAndStatusNotIn(anyLong(), anyLong(), anyList());
+        verify(orderRepository, never()).save(any());
     }
 
     @Test
     @DisplayName("dueDate가 현재보다 과거 - 409 예외")
     void leaveGroupBuy_dueDate_past() {
-        when(groupBuyRepository.findById(1L))
+        when(groupBuyRepository.findById(20L))
                 .thenReturn(Optional.of(before));
         when(before.getPostStatus()).thenReturn("OPEN");
-        when(before.getDueDate())
-                .thenReturn(now.minusDays(1));
+        when(before.getDueDate()).thenReturn(now.minusDays(1));
 
-        assertThatThrownBy(() -> leaveGroupBuy.leaveGroupBuy(participant, 1L))
+        assertThatThrownBy(() -> leaveGroupBuy.leaveGroupBuy(participant, 20L))
                 .isInstanceOf(GroupBuyInvalidStateException.class)
                 .hasMessageContaining(NOT_OPEN);
 
-        verify(groupBuyRepository, times(1)).findById(1L);
+        verify(groupBuyRepository).findById(20L);
         verify(orderRepository, never())
-                .findByUserIdAndGroupBuyIdAndStatusNotIn(1L, 20L, List.of("CANCELED", "REFUNDED"));
-        verify(orderRepository, never()).save(any(Order.class));
+                .findByUserIdAndGroupBuyIdAndStatusNotIn(anyLong(), anyLong(), anyList());
+        verify(orderRepository, never()).save(any());
     }
 
     @Test
     @DisplayName("존재하지 않는 주문 - 404 예외")
     void leaveGroupBuy_order_notFound() {
-        when(groupBuyRepository.findById(1L))
+        when(groupBuyRepository.findById(20L))
                 .thenReturn(Optional.of(before));
         when(before.getPostStatus()).thenReturn("OPEN");
-        when(before.getDueDate())
-                .thenReturn(LocalDateTime.now().plusDays(1));
-        when(before.getId()).thenReturn(20L);
-        when(orderRepository.findByUserIdAndGroupBuyIdAndStatusNotIn(1L, 20L,
-                List.of("CANCELED", "REFUNDED")))
-                .thenReturn(Optional.empty());
+        when(before.getDueDate()).thenReturn(now.plusDays(1));
+        when(orderRepository.findByUserIdAndGroupBuyIdAndStatusNotIn(
+                1L, 20L, List.of("CANCELED", "REFUNDED")
+        )).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> leaveGroupBuy.leaveGroupBuy(participant, 1L))
+        assertThatThrownBy(() -> leaveGroupBuy.leaveGroupBuy(participant, 20L))
                 .isInstanceOf(OrderNotFoundException.class)
                 .hasMessageContaining(NOT_EXIST_ORDER);
 
-        verify(groupBuyRepository, times(1)).findById(1L);
-        verify(orderRepository, times(1))
-                .findByUserIdAndGroupBuyIdAndStatusNotIn(1L, 20L, List.of("CANCELED", "REFUNDED"));
-        verify(orderRepository, never()).save(any(Order.class));
+        verify(groupBuyRepository).findById(20L);
+        verify(orderRepository).findByUserIdAndGroupBuyIdAndStatusNotIn(
+                1L, 20L, List.of("CANCELED", "REFUNDED")
+        );
+        verify(orderRepository, never()).save(any());
     }
 }
