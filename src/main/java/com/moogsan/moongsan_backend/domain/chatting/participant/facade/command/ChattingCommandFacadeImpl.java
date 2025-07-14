@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.domain.chatting.participant.Facade.command;
+package com.moogsan.moongsan_backend.domain.chatting.participant.facade.command;
 
 import com.moogsan.moongsan_backend.domain.chatting.participant.dto.command.request.CreateChatMessageRequest;
 import com.moogsan.moongsan_backend.domain.chatting.participant.service.command.CreateChatMessage;

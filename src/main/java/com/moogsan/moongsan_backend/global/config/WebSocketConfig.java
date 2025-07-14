@@ -1,6 +1,9 @@
 package com.moogsan.moongsan_backend.global.config;
 
+import com.moogsan.moongsan_backend.global.security.jwt.JwtHandshakeInterceptor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -12,10 +15,14 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 @Configuration
 @EnableWebSocketMessageBroker
+@RequiredArgsConstructor
+@Order(0)
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
+
+        // 익명 채팅방용 엔드포인트
         registry.addEndpoint("/ws/chat")
                 .setAllowedOriginPatterns("*");
     }

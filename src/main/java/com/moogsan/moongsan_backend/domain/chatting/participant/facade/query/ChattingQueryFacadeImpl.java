@@ -1,12 +1,13 @@
-package com.moogsan.moongsan_backend.domain.chatting.participant.Facade.query;
+package com.moogsan.moongsan_backend.domain.chatting.participant.facade.query;
 
-import com.moogsan.moongsan_backend.domain.chatting.participant.dto.query.ChatMessagePageResponse;
-import com.moogsan.moongsan_backend.domain.chatting.participant.dto.query.ChatMessageResponse;
-import com.moogsan.moongsan_backend.domain.chatting.participant.dto.query.ChatRoomPagedResponse;
+import com.moogsan.moongsan_backend.domain.chatting.participant.dto.query.response.ChatMessagePageResponse;
+import com.moogsan.moongsan_backend.domain.chatting.participant.dto.query.response.ChatMessageResponse;
+import com.moogsan.moongsan_backend.domain.chatting.participant.dto.query.response.ChatRoomPagedResponse;
 import com.moogsan.moongsan_backend.domain.chatting.participant.service.query.GetChatRoomList;
 import com.moogsan.moongsan_backend.domain.chatting.participant.service.query.GetLatestMessageSse;
 import com.moogsan.moongsan_backend.domain.chatting.participant.service.query.GetLatestMessages;
 import com.moogsan.moongsan_backend.domain.chatting.participant.service.query.GetPastMessages;
+import com.moogsan.moongsan_backend.domain.chatting.participant.service.websocket.GetLatestMessagesStomp;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class ChattingQueryFacadeImpl implements ChattingQueryFacade{
     private final GetLatestMessages getLatestMessages;
     private final GetLatestMessageSse getLatestMessagesSse;
     private final GetChatRoomList getChatRoomList;
+    private final GetLatestMessagesStomp getLatestMessagesStomp;
 
     @Override
     public ChatMessagePageResponse getPastMessages(
@@ -74,4 +76,8 @@ public class ChattingQueryFacadeImpl implements ChattingQueryFacade{
     public ChatRoomPagedResponse getChatRoomList (Long userId, LocalDateTime cursorJoinedAt, Integer limit) {
         return getChatRoomList.getChatRoomList(userId, cursorJoinedAt, limit);
     };
+
+    public void getLatestMessagesStomp(User user, Long chatRoomId, String lastMessageId) {
+        getLatestMessagesStomp.getMessagesAfter(user, chatRoomId, lastMessageId);
+    }
 }
