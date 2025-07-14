@@ -39,10 +39,12 @@ public class OutboxEventEntity {
     @Column(columnDefinition = "json")
     private String headers;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OutboxEventStatus status = OutboxEventStatus.PENDING;
 
+    @Builder.Default
     @Column(name = "retry_count")
     private Integer retryCount = 0;
 
