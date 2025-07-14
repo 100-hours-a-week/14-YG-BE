@@ -2,15 +2,18 @@ package com.moogsan.moongsan_backend.domain.order.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuyStatusClosedEvent;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderPendingEvent;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuy.GroupBuyStatusClosedEvent;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuy.GroupBuyUpdatedEvent;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.Order.OrderPendingEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEventMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.OrderEventMapper;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.outbox.publisher.OutboxEventPublisher;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
-import com.moogsan.moongsan_backend.domain.chatting.participant.Facade.command.ChattingCommandFacade;
+import com.moogsan.moongsan_backend.domain.chatting.participant.facade.command.ChattingCommandFacade;
 import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.policy.DueSoonPolicy;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
+import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuySseService.publisher.RealtimePublisher;
 import com.moogsan.moongsan_backend.domain.order.dto.request.OrderCreateRequest;
 import com.moogsan.moongsan_backend.domain.order.dto.response.OrderCreateResponse;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
@@ -53,9 +56,9 @@ public class OrderCreateService {
     private final ObjectMapper objectMapper;
     private final RedisTemplate<String, String> redisTemplate;
     private final RedissonClient redissonClient;
+    private final RealtimePublisher realtimePublisher;
     private final OutboxEventPublisher outboxEventPublisher;
 
-    // 주문 생성 서비스
     @Transactional
     public OrderCreateResponse createOrder(OrderCreateRequest request, Long userId) {
         // 1. 유저 및 공동구매 조회
@@ -74,26 +77,11 @@ public class OrderCreateService {
                 List.of("CANCELED", "REFUNDED"));
         if (canceledCount > 3) {
             throw new BusinessException(ErrorCode.DUPLICATE_REQUEST, "주문을 3회 이상 취소하였습니다.");
-            throw new BusinessException(ErrorCode.DUPLICATE_REQUEST, "주문을 3회 이상 취소하였습니다.");
-        }
-
-        // CANCELED가 있을 시 오류 표시
-        boolean existsCanceled = orderRepository.existsByUserIdAndGroupBuyIdAndStatusIn(
-                user.getId(), groupBuy.getId(), List.of("CANCELED"));
-
-        if (existsCanceled) {
-            throw new BusinessException(ErrorCode.DUPLICATE_REQUEST, "환불중인 공동구매가 존재합니다.");
         }
         if (orderRepository.existsByUserIdAndGroupBuyIdAndStatusIn(userId, request.getPostId(), List.of("CANCELED"))) {
             throw new BusinessException(ErrorCode.DUPLICATE_REQUEST, "환불중인 주문이 존재합니다.");
         }
-        if (orderRepository.existsByUserIdAndGroupBuyIdAndStatusNotIn(userId, request.getPostId(), List.of("CANCELED", "REFUNDED"))) {
-
-        // 해당 공구 내 CANCELED, REFUNDED 상태가 아닌 주문 존재
-        boolean exists = orderRepository.existsByUserIdAndGroupBuyIdAndStatusIn(
-                userId, request.getPostId(), List.of("PENDING", "CONFIRMED"));
-
-        if (exists) {
+        if (orderRepository.existsByUserIdAndGroupBuyIdAndStatusIn(userId, request.getPostId(), List.of("PENDING", "CONFIRMED"))) {
             throw new BusinessException(ErrorCode.DUPLICATE_REQUEST, "이미 공동구매에 참여하였습니다.");
         }
         if (request.getQuantity() % groupBuy.getUnitAmount() != 0) {
@@ -149,7 +137,6 @@ public class OrderCreateService {
         chattingCommandFacade.joinChatRoom(user, groupBuy.getId());
 
         // 6. CLOSED 이벤트 (마감 시)
-
         if (groupBuy.getLeftAmount() == 0) {
             groupBuy.changePostStatus("CLOSED");
             List<Long> participantIds = orderRepository
@@ -178,6 +165,12 @@ public class OrderCreateService {
         }
 
         // 7. Pending 이벤트
+
+        GroupBuyUpdatedEvent event = GroupBuyUpdatedEvent.builder()
+                .groupBuyId(groupBuy.getId())
+                .build();
+        realtimePublisher.publish(event);
+
         try {
             OrderPendingEvent pendingEvt = orderEventMapper.toPendingEvent(
                     order.getId(), groupBuy.getId(), groupBuy.getUser().getId(),

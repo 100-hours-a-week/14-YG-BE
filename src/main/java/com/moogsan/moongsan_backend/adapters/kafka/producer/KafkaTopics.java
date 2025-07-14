@@ -16,6 +16,7 @@ public interface KafkaTopics {
     String GROUPBUY_STATUS_CLOSED = "groupbuy.status.closed";
     String GROUPBUY_STATUS_FINALIZED = "groupbuy.status.finalized";
     String GROUPBUY_STATUS_ENDED = "groupbuy.status.ended";
+    String GROUPBUY_DETAIL_UPDATED = "groupbuy.detail.updated";
 
     // 주문 상태 관련 이벤트
     String ORDER_STATUS_PENDING = "order.status.pending";

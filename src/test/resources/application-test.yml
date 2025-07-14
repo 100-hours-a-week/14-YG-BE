@@ -20,16 +20,14 @@ spring:
       database: test_mongo
       uri: ${MONGO_DB_URI:mongodb://localhost:27017/test_mongo}
     redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
+      host: localhost
+      port: 3333
   kafka:
     bootstrap-servers: dummy:9092
     listener:
       auto-startup: false
     consumer:
       group-id: test.test.test
-
-
 ai:
   service:
     base-url: http://localhost:18080  # 더미 주소

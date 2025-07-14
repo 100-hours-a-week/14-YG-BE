@@ -7,6 +7,7 @@ import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyI
 import com.moogsan.moongsan_backend.domain.groupbuy.mapper.GroupBuyCommandMapper;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.CreateGroupBuy;
+import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuySseService.publisher.RealtimePublisher;
 import com.moogsan.moongsan_backend.domain.image.mapper.ImageMapper;
 import com.moogsan.moongsan_backend.domain.image.service.S3Service;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
@@ -17,6 +18,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -48,6 +51,12 @@ public class CreateGroupBuyTest {
     private ChattingCommandFacade chattingCommandFacade;
 
     @Mock
+    private RedisTemplate<String, String> redisTemplate;
+
+    @Mock
+    ValueOperations<String,String> valueOps;
+
+    @Mock
     private S3Service s3Service;
 
     private CreateGroupBuy createGroupBuy;
@@ -75,7 +84,8 @@ public class CreateGroupBuyTest {
                 chattingCommandFacade,
                 duplicateRequestPreventer,
                 s3Service,
-                fixedClock
+                fixedClock,
+                redisTemplate
         );
 
         request = CreateGroupBuyRequest.builder()
@@ -101,6 +111,7 @@ public class CreateGroupBuyTest {
     void createGroupBuy_success() {
         // given
         GroupBuy mockGb = mock(GroupBuy.class);
+        when(redisTemplate.opsForValue()).thenReturn(valueOps);
         when(groupBuyCommandMapper.create(request, user)).thenReturn(mockGb);
         when(groupBuyRepository.save(mockGb)).thenReturn(mockGb);
         doReturn(42L).when(mockGb).getId();

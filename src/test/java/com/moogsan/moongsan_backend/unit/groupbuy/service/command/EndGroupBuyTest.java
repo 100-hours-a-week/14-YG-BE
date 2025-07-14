@@ -10,6 +10,7 @@ import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyN
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.EndGroupBuy;
 import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.LeaveGroupBuy;
+import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuySseService.publisher.RealtimePublisher;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,6 +51,9 @@ public class EndGroupBuyTest {
     @Mock
     private ObjectMapper objectMapper;
 
+    @Mock
+    private RealtimePublisher realtimePublisher;
+
     private EndGroupBuy endGroupBuy;
     private User hostUser;
     private User participant;
@@ -76,7 +80,8 @@ public class EndGroupBuyTest {
                 fixedClock,
                 kafkaEventPublisher,
                 eventMapper,
-                objectMapper
+                objectMapper,
+                realtimePublisher
         );
     }
 
@@ -87,7 +92,7 @@ public class EndGroupBuyTest {
                 .thenReturn(Optional.of(before));
         when(before.getPostStatus())
                 .thenReturn("CLOSED");
-        when(before.isFixed())
+        when(before.isFinalized())
                 .thenReturn(true);
         when(before.getUser()).thenReturn(hostUser);
 
@@ -150,7 +155,7 @@ public class EndGroupBuyTest {
                 .thenReturn(Optional.of(before));
         when(before.getPostStatus())
                 .thenReturn("CLOSED");
-        when(before.isFixed())
+        when(before.isFinalized())
                 .thenReturn(false);
 
         assertThatThrownBy(() -> endGroupBuy.endGroupBuy(participant, 1L))
@@ -168,7 +173,7 @@ public class EndGroupBuyTest {
                 .thenReturn(Optional.of(before));
         when(before.getPostStatus())
                 .thenReturn("CLOSED");
-        when(before.isFixed())
+        when(before.isFinalized())
                 .thenReturn(true);
         when(before.getUser()).thenReturn(hostUser);
 

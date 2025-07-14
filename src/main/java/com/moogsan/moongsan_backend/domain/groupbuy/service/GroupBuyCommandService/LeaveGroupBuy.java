@@ -2,6 +2,7 @@ package com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandServ
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuy.GroupBuyUpdatedEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.Order.OrderCanceledEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.OrderEventMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
@@ -11,6 +12,7 @@ import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyI
 import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotFoundException;
 import com.moogsan.moongsan_backend.domain.groupbuy.policy.DueSoonPolicy;
 import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
+import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuySseService.publisher.RealtimePublisher;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
 import com.moogsan.moongsan_backend.domain.order.exception.specific.OrderNotFoundException;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
@@ -39,6 +41,7 @@ public class LeaveGroupBuy {
     private final DueSoonPolicy dueSoonPolicy;
     private final ChattingCommandFacade chattingCommandFacade;
     private final KafkaEventPublisher kafkaEventPublisher;
+    private final RealtimePublisher realtimePublisher;
     private final OrderEventMapper eventMapper;
     private final ObjectMapper objectMapper;
     private final Clock clock;
@@ -80,6 +83,12 @@ public class LeaveGroupBuy {
         groupBuy.updateDueSoonStatus(dueSoonPolicy);
 
         orderRepository.save(order);
+
+        // 공구 상태 업데이트 이벤트 발행
+        GroupBuyUpdatedEvent event = GroupBuyUpdatedEvent.builder()
+                .groupBuyId(order.getGroupBuy().getId())
+                .build();
+        realtimePublisher.publish(event);
 
         int price = order.getPrice();
         int quantity = order.getQuantity();
