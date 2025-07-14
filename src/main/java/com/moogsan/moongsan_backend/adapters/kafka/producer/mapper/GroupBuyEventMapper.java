@@ -1,7 +1,6 @@
 package com.moogsan.moongsan_backend.adapters.kafka.producer.mapper;
 
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.*;
-import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuy.*;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;

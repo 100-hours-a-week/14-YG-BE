@@ -1,11 +1,9 @@
 package com.moogsan.moongsan_backend.adapters.kafka.producer.mapper;
 
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderCanceledEvent;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderConfirmedEvent;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderPendingEvent;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.OrderRefundedEvent;
-import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
-import com.moogsan.moongsan_backend.domain.order.entity.Order;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.Order.OrderCanceledEvent;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.Order.OrderConfirmedEvent;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.Order.OrderPendingEvent;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.Order.OrderRefundedEvent;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;

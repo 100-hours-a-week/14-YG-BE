@@ -1,5 +1,6 @@
-package com.moogsan.moongsan_backend.adapters.kafka.producer.dto;
+package com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuy;
 
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.BaseEvent;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class GroupBuyPickupApproachingEvent extends BaseEvent{
+public class GroupBuyPickupApproachingEvent extends BaseEvent {
     private Long groupBuyId;                // 공구 게시글 아이디
     private Long hostId;                    // 공구 주최자 아이디
     private String groupBuyTitle;           // 공구 게시글 제목

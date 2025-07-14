@@ -1,5 +1,6 @@
-package com.moogsan.moongsan_backend.adapters.kafka.producer.dto;
+package com.moogsan.moongsan_backend.adapters.kafka.producer.dto.User;
 
+import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.BaseEvent;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,6 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class UserProfileUpdatedEvent extends BaseEvent{
+public class UserProfileUpdatedEvent extends BaseEvent {
     private Long userId;  // 주문 아이디
 }
