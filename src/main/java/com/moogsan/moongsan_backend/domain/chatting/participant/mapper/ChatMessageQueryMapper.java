@@ -1,7 +1,7 @@
 package com.moogsan.moongsan_backend.domain.chatting.participant.mapper;
 
-import com.moogsan.moongsan_backend.domain.chatting.participant.dto.query.ChatMessageResponse;
-import com.moogsan.moongsan_backend.domain.chatting.participant.dto.query.ChatRoomResponse;
+import com.moogsan.moongsan_backend.domain.chatting.participant.dto.query.response.ChatMessageResponse;
+import com.moogsan.moongsan_backend.domain.chatting.participant.dto.query.response.ChatRoomResponse;
 import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatMessageDocument;
 import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatRoom;
 import com.moogsan.moongsan_backend.domain.chatting.participant.repository.ChatMessageRepository;

@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.domain.chatting.participant.service.query;
 
-import com.moogsan.moongsan_backend.domain.chatting.participant.dto.query.ChatMessageResponse;
+import com.moogsan.moongsan_backend.domain.chatting.participant.dto.query.response.ChatMessageResponse;
 import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatMessageDocument;
 import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatRoom;
 import com.moogsan.moongsan_backend.domain.chatting.participant.exception.specific.ChatRoomNotFoundException;
