@@ -1,8 +1,8 @@
 package com.moogsan.moongsan_backend.domain.chatting.participant.controller.query;
 
 import com.moogsan.moongsan_backend.domain.WrapperResponse;
-import com.moogsan.moongsan_backend.domain.chatting.participant.Facade.query.ChattingQueryFacade;
-import com.moogsan.moongsan_backend.domain.chatting.participant.dto.query.ChatRoomPagedResponse;
+import com.moogsan.moongsan_backend.domain.chatting.participant.facade.query.ChattingQueryFacade;
+import com.moogsan.moongsan_backend.domain.chatting.participant.dto.query.response.ChatRoomPagedResponse;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
 import com.moogsan.moongsan_backend.global.exception.specific.UnauthenticatedAccessException;
 import lombok.RequiredArgsConstructor;
