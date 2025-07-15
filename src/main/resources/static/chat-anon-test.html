@@ -10,7 +10,7 @@
 
 <!-- 사용자 입력 폼 -->
 <label>Post ID: <input id="postIdInput" type="number" value="10"/></label><br>
-<label>Participant ID: <input id="participantIdInput" type="text" value="10"/></label><br>
+<label>Participant ID: <input id="participantIdInput" type="number" value="10"/></label><br>
 <label>Message: <input id="messageInput" type="text" value="테스트 메시지입니다." size="50"/></label><br><br>
 
 <!-- 연결 및 메시지 전송 버튼 -->
@@ -45,12 +45,12 @@
 
                     const item = document.createElement("li");
                     item.textContent =
-                        `createdAt: ${msg.createdAt ?? '??'}\n` +
                         `messageId: ${msg.messageId ?? '??'}\n` +
                         `postId: ${msg.postId ?? '??'}\n` +
                         `participantId: ${msg.participantId ?? '??'}\n` +
                         `messageContent: ${msg.messageContent ?? '??'}\n` +
-                        `type: ${msg.type ?? '??'}`;
+                        `type: ${msg.type ?? '??'}\n` +
+                        `createdAt: ${msg.createdAt ?? '??'}`;
                     document.getElementById("messageLog").appendChild(item);
                 } catch (e) {
                     console.error('❌ JSON 파싱 실패:', e);

@@ -44,4 +44,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             }
         });
     }
+
+    @Override
+    public void configureClientOutboundChannel(ChannelRegistration registration) {
+        registration.interceptors(new ChannelInterceptor() {
+            @Override
+            public void postSend(Message<?> message, MessageChannel channel, boolean sent) {
+                System.out.println("📤 [Broker] 클라이언트로 전송된 메시지: " + message);
+            }
+        });
+    }
 }
