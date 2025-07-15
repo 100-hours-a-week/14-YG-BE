@@ -6,7 +6,7 @@ import com.moogsan.moongsan_backend.domain.chatting.participant.exception.specif
 import com.moogsan.moongsan_backend.domain.chatting.participant.exception.specific.NotParticipantException;
 import com.moogsan.moongsan_backend.domain.chatting.participant.repository.ChatParticipantRepository;
 import com.moogsan.moongsan_backend.domain.chatting.participant.repository.ChatRoomRepository;
-import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
+import com.moogsan.moongsan_backend.groupbuy.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
 import com.moogsan.moongsan_backend.domain.order.exception.specific.OrderNotFoundException;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
@@ -20,7 +20,7 @@ import java.util.List;
 
 import static com.moogsan.moongsan_backend.domain.chatting.participant.message.ResponseMessage.CHAT_ROOM_NOT_FOUND;
 import static com.moogsan.moongsan_backend.domain.chatting.participant.message.ResponseMessage.ORDER_NOT_FOUND;
-import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.NOT_PARTICIPANT;
+import static com.moogsan.moongsan_backend.groupbuy.message.ResponseMessage.NOT_PARTICIPANT;
 
 @Slf4j
 @Service

@@ -1,7 +1,5 @@
 package com.moogsan.moongsan_backend.domain.notification.exception.base;
 
-import com.moogsan.moongsan_backend.domain.chatting.participant.exception.code.ChattingErrorCode;
-import com.moogsan.moongsan_backend.domain.groupbuy.exception.code.GroupBuyErrorCode;
 import com.moogsan.moongsan_backend.domain.notification.exception.code.NotiErrorCode;
 import com.moogsan.moongsan_backend.global.exception.base.BusinessException;
 

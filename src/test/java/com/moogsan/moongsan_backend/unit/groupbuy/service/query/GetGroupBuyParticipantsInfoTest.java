@@ -1,15 +1,13 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.service.query;
 
-import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyDetail.DetailResponse;
-import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.ParticipantList.ParticipantListResponse;
-import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.ParticipantList.ParticipantResponse;
-import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
-import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotFoundException;
-import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotHostException;
-import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotParticipantException;
-import com.moogsan.moongsan_backend.domain.groupbuy.mapper.GroupBuyQueryMapper;
-import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
-import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyQueryService.GetGroupBuyParticipantsInfo;
+import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyList.ParticipantList.ParticipantListResponse;
+import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyList.ParticipantList.ParticipantResponse;
+import com.moogsan.moongsan_backend.groupbuy.entity.GroupBuy;
+import com.moogsan.moongsan_backend.groupbuy.exception.specific.GroupBuyNotFoundException;
+import com.moogsan.moongsan_backend.groupbuy.exception.specific.GroupBuyNotHostException;
+import com.moogsan.moongsan_backend.groupbuy.mapper.GroupBuyQueryMapper;
+import com.moogsan.moongsan_backend.groupbuy.repository.GroupBuyRepository;
+import com.moogsan.moongsan_backend.groupbuy.service.GroupBuyQueryService.GetGroupBuyParticipantsInfo;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
@@ -23,7 +21,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
-import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.*;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;

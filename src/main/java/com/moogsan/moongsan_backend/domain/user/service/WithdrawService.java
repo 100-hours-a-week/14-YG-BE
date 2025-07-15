@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.domain.user.service;
 
-import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
+import com.moogsan.moongsan_backend.groupbuy.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import com.moogsan.moongsan_backend.domain.user.repository.UserRepository;
 import com.moogsan.moongsan_backend.domain.user.repository.TokenRepository;
@@ -11,9 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
-import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service

@@ -3,7 +3,7 @@ package com.moogsan.moongsan_backend.adapters.kafka.consumer.listener;
 import com.moogsan.moongsan_backend.adapters.kafka.consumer.ConsumerGroups;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.KafkaTopics;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuy.GroupBuyUpdatedEvent;
-import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuySseService.useCase.BroadcastGroupBuyUpdatedEventUseCase;
+import com.moogsan.moongsan_backend.groupbuy.service.GroupBuySseService.useCase.BroadcastGroupBuyUpdatedEventUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;

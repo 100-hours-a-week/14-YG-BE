@@ -1,10 +1,10 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.controller.query;
 
-import com.moogsan.moongsan_backend.domain.groupbuy.controller.query.GroupBuyDetailController;
-import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.ImageResponse;
-import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyDetail.DetailResponse;
-import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyDetail.UserProfileResponse;
-import com.moogsan.moongsan_backend.domain.groupbuy.facade.query.GroupBuyQueryFacade;
+import com.moogsan.moongsan_backend.groupbuy.controller.query.GroupBuyDetailController;
+import com.moogsan.moongsan_backend.groupbuy.dto.query.response.ImageResponse;
+import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyDetail.DetailResponse;
+import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyDetail.UserProfileResponse;
+import com.moogsan.moongsan_backend.groupbuy.facade.query.GroupBuyQueryFacade;
 import com.moogsan.moongsan_backend.support.security.WithMockCustomUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.GET_DETAIL_SUCCESS;
+import static com.moogsan.moongsan_backend.groupbuy.message.ResponseMessage.GET_DETAIL_SUCCESS;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
