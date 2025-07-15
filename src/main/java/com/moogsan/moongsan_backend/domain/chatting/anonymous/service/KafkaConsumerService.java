@@ -19,7 +19,7 @@ public class KafkaConsumerService {
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     @KafkaListener(topics = "chat.anon.message.created", groupId = "chat-anon-message", containerFactory = "simpleMessageListenerFactory")
-    public void consume(ChatAnonDto message, @Header(KafkaHeaders.RECEIVED_KEY) String postId, Acknowledgment ack) {
+    public void consume(ChatAnonDto message, @Header(KafkaHeaders.RECEIVED_KEY) Long postId, Acknowledgment ack) {
         if (postId == null) {
             System.out.println("🟡 [KafkaConsumer] Kafka 메시지 키(postId)가 null입니다.");
             return;
@@ -28,10 +28,16 @@ public class KafkaConsumerService {
         ChatAnon entity = message.toEntity();
 
         chatAnonRepository.save(entity);
-        deleteOldMessages.deleteOldMessages(Long.parseLong(postId));
+        deleteOldMessages.deleteOldMessages(postId);
         simpMessagingTemplate.convertAndSend("/topic/chat-anon/" + postId, message);
 
-        System.out.println("🟡 [KafkaConsumer] MongoDB 저장 및 WebSocket 토픽 발행 완료 - participantId: " + message.getParticipantId() + ", messageContent: " + message.getMessageContent());
+        System.out.println("🟡 [KafkaConsumer] MongoDB 저장 및 WebSocket 토픽 발행 완료 -\n" +
+                "  messageId=" + message.getMessageId() + "\n" +
+                "  postId=" + message.getPostId() + "\n" +
+                "  participantId=" + message.getParticipantId() + "\n" +
+                "  messageContent=" + message.getMessageContent() + "\n" +
+                "  type=" + message.getType() + "\n" +
+                "  createdAt=" + message.getCreatedAt());
         ack.acknowledge();
     }
 }
