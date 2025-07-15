@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.participantchat.domain.event.ChatMessagePersistEvent;
 import com.moogsan.moongsan_backend.participantchat.domain.mapper.ChatEventMapper;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
+import com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.participantchat.presentation.dto.command.request.CreateChatMessageRequest;
 import com.moogsan.moongsan_backend.participantchat.domain.entity.ChatMessageDocument;
 import com.moogsan.moongsan_backend.participantchat.domain.entity.ChatParticipant;
@@ -32,7 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.time.Duration;
 
-import static com.moogsan.moongsan_backend.adapters.kafka.producer.KafkaTopics.CHAT_PART_MESSAGE_CREATED;
+import static com.moogsan.moongsan_backend.global.infrastructure.kafka.KafkaTopics.CHAT_PART_MESSAGE_CREATED;
 import static com.moogsan.moongsan_backend.participantchat.domain.message.ResponseMessage.DELETED_CHAT_ROOM;
 import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.NOT_PARTICIPANT;
 import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SERIALIZATION_FAIL;

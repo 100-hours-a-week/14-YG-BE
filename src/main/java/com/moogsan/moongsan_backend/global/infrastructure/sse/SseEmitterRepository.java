@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.adapters.sse;
+package com.moogsan.moongsan_backend.global.infrastructure.sse;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

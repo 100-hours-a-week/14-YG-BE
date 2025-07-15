@@ -1,7 +1,7 @@
 package com.moogsan.moongsan_backend.groupbuy.infrastructure.kafka;
 
-import com.moogsan.moongsan_backend.adapters.kafka.consumer.ConsumerGroups;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.KafkaTopics;
+import com.moogsan.moongsan_backend.global.infrastructure.kafka.ConsumerGroups;
+import com.moogsan.moongsan_backend.global.infrastructure.kafka.KafkaTopics;
 import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyUpdatedEvent;
 import com.moogsan.moongsan_backend.groupbuy.application.port.BroadcastGroupBuyUpdatedEventUseCase;
 import lombok.RequiredArgsConstructor;

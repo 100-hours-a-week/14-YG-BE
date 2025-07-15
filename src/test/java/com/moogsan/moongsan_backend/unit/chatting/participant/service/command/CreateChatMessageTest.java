@@ -3,7 +3,7 @@ package com.moogsan.moongsan_backend.unit.chatting.participant.service.command;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.participantchat.domain.mapper.ChatEventMapper;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
+import com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.participantchat.presentation.dto.command.request.CreateChatMessageRequest;
 import com.moogsan.moongsan_backend.participantchat.domain.entity.ChatMessageDocument;
 import com.moogsan.moongsan_backend.participantchat.domain.entity.ChatParticipant;

@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.adapters.kafka.consumer;
+package com.moogsan.moongsan_backend.global.infrastructure.kafka;
 
 public final class ConsumerGroups {
     private ConsumerGroups() {}

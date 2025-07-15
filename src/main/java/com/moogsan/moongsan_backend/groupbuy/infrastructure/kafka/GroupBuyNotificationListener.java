@@ -1,8 +1,8 @@
 package com.moogsan.moongsan_backend.groupbuy.infrastructure.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moogsan.moongsan_backend.adapters.kafka.consumer.ConsumerGroups;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.KafkaTopics;
+import com.moogsan.moongsan_backend.global.infrastructure.kafka.ConsumerGroups;
+import com.moogsan.moongsan_backend.global.infrastructure.kafka.KafkaTopics;
 import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyPickupUpdatedEvent;
 import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyStatusClosedEvent;
 import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyStatusEndedEvent;

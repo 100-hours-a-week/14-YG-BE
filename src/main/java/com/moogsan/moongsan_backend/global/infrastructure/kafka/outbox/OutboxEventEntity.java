@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.adapters.kafka.producer.outbox;
+package com.moogsan.moongsan_backend.global.infrastructure.kafka.outbox;
 
 import jakarta.persistence.*;
 import lombok.*;

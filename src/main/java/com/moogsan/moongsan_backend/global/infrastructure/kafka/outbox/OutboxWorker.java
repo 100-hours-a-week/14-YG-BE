@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.adapters.kafka.producer.outbox;
+package com.moogsan.moongsan_backend.global.infrastructure.kafka.outbox;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

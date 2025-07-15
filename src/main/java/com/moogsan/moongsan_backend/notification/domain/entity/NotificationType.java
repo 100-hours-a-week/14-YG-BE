@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.notification.domain.entity;
 
-import com.moogsan.moongsan_backend.adapters.kafka.producer.KafkaTopics;
+import com.moogsan.moongsan_backend.global.infrastructure.kafka.KafkaTopics;
 import lombok.Getter;
 
 @Getter

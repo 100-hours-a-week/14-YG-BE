@@ -1,6 +1,6 @@
-package com.moogsan.moongsan_backend.adapters.kafka.producer.publisher;
+package com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher;
 
-import com.moogsan.moongsan_backend.adapters.sse.SseEmitterRepository;
+import com.moogsan.moongsan_backend.global.infrastructure.sse.SseEmitterRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

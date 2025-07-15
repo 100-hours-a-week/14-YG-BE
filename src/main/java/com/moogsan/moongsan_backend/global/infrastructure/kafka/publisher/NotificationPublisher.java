@@ -1,8 +1,8 @@
-package com.moogsan.moongsan_backend.adapters.kafka.producer.publisher;
+package com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moogsan.moongsan_backend.adapters.sse.SseEmitterRepository;
+import com.moogsan.moongsan_backend.global.infrastructure.sse.SseEmitterRepository;
 import com.moogsan.moongsan_backend.notification.presentation.dto.NotificationResponse;
 import com.moogsan.moongsan_backend.notification.domain.entity.Notification;
 import com.moogsan.moongsan_backend.notification.domain.entity.NotificationType;

@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.domain.user.event;
 
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.BaseEvent;
+import com.moogsan.moongsan_backend.global.infrastructure.kafka.BaseEvent;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

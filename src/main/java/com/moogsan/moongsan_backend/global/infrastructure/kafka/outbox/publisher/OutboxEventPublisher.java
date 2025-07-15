@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.adapters.kafka.producer.outbox.publisher;
+package com.moogsan.moongsan_backend.global.infrastructure.kafka.outbox.publisher;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 

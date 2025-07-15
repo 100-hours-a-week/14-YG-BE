@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.adapters.kafka.producer.dto;
+package com.moogsan.moongsan_backend.global.infrastructure.kafka;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

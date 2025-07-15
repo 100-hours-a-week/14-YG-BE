@@ -1,10 +1,10 @@
-package com.moogsan.moongsan_backend.adapters.kafka.producer.outbox.publisher;
+package com.moogsan.moongsan_backend.global.infrastructure.kafka.outbox.publisher;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.outbox.OutboxEventEntity;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.outbox.OutboxEventRepository;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.outbox.OutboxEventStatus;
+import com.moogsan.moongsan_backend.global.infrastructure.kafka.outbox.OutboxEventEntity;
+import com.moogsan.moongsan_backend.global.infrastructure.kafka.outbox.OutboxEventRepository;
+import com.moogsan.moongsan_backend.global.infrastructure.kafka.outbox.OutboxEventStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;

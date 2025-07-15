@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.notification.presentation.controller;
 
-import com.moogsan.moongsan_backend.adapters.sse.SseEmitterRepository;
+import com.moogsan.moongsan_backend.global.infrastructure.sse.SseEmitterRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;

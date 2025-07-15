@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.adapters.kafka.producer;
+package com.moogsan.moongsan_backend.global.infrastructure.kafka;
 
 public interface KafkaTopics {
 
