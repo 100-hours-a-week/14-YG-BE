@@ -10,6 +10,8 @@ import org.hibernate.validator.constraints.URL;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.moogsan.moongsan_backend.groupbuy.domain.message.ValidationMessage.*;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

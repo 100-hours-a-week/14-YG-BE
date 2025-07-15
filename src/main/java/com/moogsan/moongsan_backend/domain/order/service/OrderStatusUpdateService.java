@@ -17,6 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
+import static com.moogsan.moongsan_backend.global.infrastructure.kafka.KafkaTopics.ORDER_STATUS_CONFIRMED;
+import static com.moogsan.moongsan_backend.global.infrastructure.kafka.KafkaTopics.ORDER_STATUS_REFUNDED;
 import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SERIALIZATION_FAIL;
 
 @Slf4j

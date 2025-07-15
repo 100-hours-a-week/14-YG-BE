@@ -1,6 +1,5 @@
 package com.moogsan.moongsan_backend.groupbuy.application.facade.command;
 
-import com.moogsan.moongsan_backend.domain.groupbuy.dto.command.request.*;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.request.CreateGroupBuyRequest;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.request.UpdateGroupBuyRequest;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.response.DescriptionDto;
@@ -19,5 +18,5 @@ public interface GroupBuyCommandFacade {
 
     void endGroupBuy(User user, Long postId);
 
-    Mono<DescriptionDto> generateDescription(String url, String sessionId); // ✨ 추가됨
+    Mono<DescriptionDto> generateDescription(String url, String sessionId);
 }

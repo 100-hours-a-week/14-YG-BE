@@ -25,6 +25,7 @@ import java.util.List;
 
 import static com.moogsan.moongsan_backend.global.infrastructure.kafka.KafkaTopics.GROUPBUY_STATUS_ENDED;
 import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SERIALIZATION_FAIL;
+import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.*;
 
 @Slf4j
 @Service

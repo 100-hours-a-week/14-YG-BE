@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.time.LocalDateTime;
 
+import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.*;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
