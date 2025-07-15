@@ -1,9 +1,9 @@
-package com.moogsan.moongsan_backend.domain.notification.controller;
+package com.moogsan.moongsan_backend.notification.presentation.controller;
 
 import com.moogsan.moongsan_backend.domain.WrapperResponse;
-import com.moogsan.moongsan_backend.domain.notification.dto.NotificationResponse;
-import com.moogsan.moongsan_backend.domain.notification.dto.PagedResponse;
-import com.moogsan.moongsan_backend.domain.notification.service.GetPastNotifications;
+import com.moogsan.moongsan_backend.notification.presentation.dto.NotificationResponse;
+import com.moogsan.moongsan_backend.notification.presentation.dto.PagedResponse;
+import com.moogsan.moongsan_backend.notification.application.service.GetPastNotifications;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
 import com.moogsan.moongsan_backend.global.exception.specific.UnauthenticatedAccessException;
 import lombok.RequiredArgsConstructor;
@@ -14,9 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
-import static com.moogsan.moongsan_backend.domain.notification.message.ResponseMessage.GET_PAST_NOTIFICATION_SUCCESS;
+import static com.moogsan.moongsan_backend.notification.domain.message.ResponseMessage.GET_PAST_NOTIFICATION_SUCCESS;
 
 @RestController
 @RequiredArgsConstructor

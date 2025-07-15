@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.notification.template;
+package com.moogsan.moongsan_backend.notification.infrastructure.template;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

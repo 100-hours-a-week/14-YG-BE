@@ -2,7 +2,7 @@ package com.moogsan.moongsan_backend.groupbuy.application.port;
 
 import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyUpdatedEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.RealtimePublisher;
-import com.moogsan.moongsan_backend.domain.notification.template.NotificationTemplateRegistry;
+import com.moogsan.moongsan_backend.notification.infrastructure.template.NotificationTemplateRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

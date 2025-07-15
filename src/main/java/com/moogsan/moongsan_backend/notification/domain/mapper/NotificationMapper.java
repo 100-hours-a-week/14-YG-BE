@@ -1,7 +1,7 @@
-package com.moogsan.moongsan_backend.domain.notification.mapper;
+package com.moogsan.moongsan_backend.notification.domain.mapper;
 
-import com.moogsan.moongsan_backend.domain.notification.dto.NotificationResponse;
-import com.moogsan.moongsan_backend.domain.notification.entity.Notification;
+import com.moogsan.moongsan_backend.notification.presentation.dto.NotificationResponse;
+import com.moogsan.moongsan_backend.notification.domain.entity.Notification;
 
 public class NotificationMapper {
 

@@ -1,6 +1,6 @@
-package com.moogsan.moongsan_backend.domain.notification.repository;
+package com.moogsan.moongsan_backend.notification.domain.repository;
 
-import com.moogsan.moongsan_backend.domain.notification.entity.Notification;
+import com.moogsan.moongsan_backend.notification.domain.entity.Notification;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

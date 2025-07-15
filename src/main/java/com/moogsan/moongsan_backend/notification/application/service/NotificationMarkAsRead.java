@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.notification.service;
+package com.moogsan.moongsan_backend.notification.application.service;
 
 import com.moogsan.moongsan_backend.notification.presentation.dto.NotificationReadStatus;
 import com.moogsan.moongsan_backend.notification.domain.entity.Notification;

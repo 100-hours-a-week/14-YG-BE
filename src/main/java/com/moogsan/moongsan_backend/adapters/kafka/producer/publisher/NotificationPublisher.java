@@ -1,12 +1,12 @@
-package com.moogsan.moongsan_backend.domain.notification.service.publisher;
+package com.moogsan.moongsan_backend.adapters.kafka.producer.publisher;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.adapters.sse.SseEmitterRepository;
-import com.moogsan.moongsan_backend.domain.notification.dto.NotificationResponse;
-import com.moogsan.moongsan_backend.domain.notification.entity.Notification;
-import com.moogsan.moongsan_backend.domain.notification.entity.NotificationType;
-import com.moogsan.moongsan_backend.domain.notification.repository.NotificationRepository;
+import com.moogsan.moongsan_backend.notification.presentation.dto.NotificationResponse;
+import com.moogsan.moongsan_backend.notification.domain.entity.Notification;
+import com.moogsan.moongsan_backend.notification.domain.entity.NotificationType;
+import com.moogsan.moongsan_backend.notification.domain.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

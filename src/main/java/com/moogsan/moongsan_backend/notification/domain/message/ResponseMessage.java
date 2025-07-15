@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.domain.notification.message;
+package com.moogsan.moongsan_backend.notification.domain.message;
 
 public final class ResponseMessage {
 

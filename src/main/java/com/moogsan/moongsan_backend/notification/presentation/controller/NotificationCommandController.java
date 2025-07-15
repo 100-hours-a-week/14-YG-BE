@@ -1,11 +1,10 @@
-package com.moogsan.moongsan_backend.domain.notification.controller;
+package com.moogsan.moongsan_backend.notification.presentation.controller;
 
 import com.moogsan.moongsan_backend.domain.WrapperResponse;
-import com.moogsan.moongsan_backend.domain.notification.dto.NotificationReadStatus;
-import com.moogsan.moongsan_backend.domain.notification.dto.NotificationResponse;
-import com.moogsan.moongsan_backend.domain.notification.dto.PagedResponse;
-import com.moogsan.moongsan_backend.domain.notification.service.GetPastNotifications;
-import com.moogsan.moongsan_backend.domain.notification.service.NotificationMarkAsRead;
+import com.moogsan.moongsan_backend.notification.presentation.dto.NotificationReadStatus;
+import com.moogsan.moongsan_backend.notification.presentation.dto.NotificationResponse;
+import com.moogsan.moongsan_backend.notification.presentation.dto.PagedResponse;
+import com.moogsan.moongsan_backend.notification.application.service.NotificationMarkAsRead;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

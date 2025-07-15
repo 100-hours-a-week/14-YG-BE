@@ -7,7 +7,7 @@ import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.Order.OrderCance
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.Order.OrderConfirmedEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.Order.OrderPendingEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.Order.OrderRefundedEvent;
-import com.moogsan.moongsan_backend.domain.notification.service.useCase.Order.SendOrderNotificationUseCase;
+import com.moogsan.moongsan_backend.notification.domain.service.Order.SendOrderNotificationUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;

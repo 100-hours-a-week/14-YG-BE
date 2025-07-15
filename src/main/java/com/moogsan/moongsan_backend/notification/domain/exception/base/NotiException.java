@@ -1,6 +1,6 @@
-package com.moogsan.moongsan_backend.domain.notification.exception.base;
+package com.moogsan.moongsan_backend.notification.domain.exception.base;
 
-import com.moogsan.moongsan_backend.domain.notification.exception.code.NotiErrorCode;
+import com.moogsan.moongsan_backend.notification.domain.exception.code.NotiErrorCode;
 import com.moogsan.moongsan_backend.global.exception.base.BusinessException;
 
 import java.util.Map;

@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.domain.notification.controller;
+package com.moogsan.moongsan_backend.notification.presentation.controller;
 
 import com.moogsan.moongsan_backend.adapters.sse.SseEmitterRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;

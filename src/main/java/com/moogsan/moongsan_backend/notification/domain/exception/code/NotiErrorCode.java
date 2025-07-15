@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.domain.notification.exception.code;
+package com.moogsan.moongsan_backend.notification.domain.exception.code;
 
 import com.moogsan.moongsan_backend.global.exception.code.ErrorCodeType;
 import org.springframework.http.HttpStatus;

@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.domain.notification.dto;
+package com.moogsan.moongsan_backend.notification.presentation.dto;
 
 import lombok.Builder;
 import lombok.Getter;

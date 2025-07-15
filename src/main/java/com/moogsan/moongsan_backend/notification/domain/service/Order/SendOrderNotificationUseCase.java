@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.domain.notification.service.useCase.Order;
+package com.moogsan.moongsan_backend.notification.domain.service.Order;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.Order.OrderCanceledEvent;
@@ -6,11 +6,11 @@ import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.Order.OrderConfi
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.Order.OrderPendingEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.Order.OrderRefundedEvent;
 import com.moogsan.moongsan_backend.adapters.sse.SseEmitterRepository;
-import com.moogsan.moongsan_backend.domain.notification.entity.NotificationType;
-import com.moogsan.moongsan_backend.domain.notification.factory.NotificationFactory;
-import com.moogsan.moongsan_backend.domain.notification.repository.NotificationRepository;
-import com.moogsan.moongsan_backend.domain.notification.service.publisher.NotificationPublisher;
-import com.moogsan.moongsan_backend.domain.notification.template.NotificationTemplateRegistry;
+import com.moogsan.moongsan_backend.notification.domain.entity.NotificationType;
+import com.moogsan.moongsan_backend.notification.application.factory.NotificationFactory;
+import com.moogsan.moongsan_backend.notification.domain.repository.NotificationRepository;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.NotificationPublisher;
+import com.moogsan.moongsan_backend.notification.infrastructure.template.NotificationTemplateRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

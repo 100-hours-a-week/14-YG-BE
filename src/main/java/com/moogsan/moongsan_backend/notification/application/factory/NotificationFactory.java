@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.notification.factory;
+package com.moogsan.moongsan_backend.notification.application.factory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.notification.domain.entity.Notification;

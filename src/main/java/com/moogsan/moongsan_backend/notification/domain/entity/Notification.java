@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.domain.notification.entity;
+package com.moogsan.moongsan_backend.notification.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

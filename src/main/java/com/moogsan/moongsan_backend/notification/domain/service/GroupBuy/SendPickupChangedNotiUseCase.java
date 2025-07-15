@@ -1,9 +1,9 @@
-package com.moogsan.moongsan_backend.domain.notification.service.useCase.GroupBuy;
+package com.moogsan.moongsan_backend.notification.domain.service.GroupBuy;
 
 import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyPickupUpdatedEvent;
-import com.moogsan.moongsan_backend.domain.notification.entity.NotificationType;
-import com.moogsan.moongsan_backend.domain.notification.service.publisher.NotificationPublisher;
-import com.moogsan.moongsan_backend.domain.notification.template.NotificationTemplateRegistry;
+import com.moogsan.moongsan_backend.notification.domain.entity.NotificationType;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.NotificationPublisher;
+import com.moogsan.moongsan_backend.notification.infrastructure.template.NotificationTemplateRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

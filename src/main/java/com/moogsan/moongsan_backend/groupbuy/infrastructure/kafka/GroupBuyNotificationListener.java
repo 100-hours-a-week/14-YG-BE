@@ -7,10 +7,10 @@ import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyPickupUpdatedE
 import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyStatusClosedEvent;
 import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyStatusEndedEvent;
 import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyStatusFinalizedEvent;
-import com.moogsan.moongsan_backend.domain.notification.service.useCase.GroupBuy.SendGroupBuyClosedNotiUseCase;
-import com.moogsan.moongsan_backend.domain.notification.service.useCase.GroupBuy.SendGroupBuyEndedNotiUseCase;
-import com.moogsan.moongsan_backend.domain.notification.service.useCase.GroupBuy.SendGroupBuyFinalizedNotiUseCase;
-import com.moogsan.moongsan_backend.domain.notification.service.useCase.GroupBuy.SendPickupChangedNotiUseCase;
+import com.moogsan.moongsan_backend.notification.domain.service.GroupBuy.SendGroupBuyClosedNotiUseCase;
+import com.moogsan.moongsan_backend.notification.domain.service.GroupBuy.SendGroupBuyEndedNotiUseCase;
+import com.moogsan.moongsan_backend.notification.domain.service.GroupBuy.SendGroupBuyFinalizedNotiUseCase;
+import com.moogsan.moongsan_backend.notification.domain.service.GroupBuy.SendPickupChangedNotiUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;

@@ -1,10 +1,9 @@
-package com.moogsan.moongsan_backend.domain.notification.exception.specific;
+package com.moogsan.moongsan_backend.notification.domain.exception.specific;
 
-import com.moogsan.moongsan_backend.domain.notification.exception.base.NotiException;
-import com.moogsan.moongsan_backend.domain.notification.exception.code.NotiErrorCode;
+import com.moogsan.moongsan_backend.notification.domain.exception.base.NotiException;
 
-import static com.moogsan.moongsan_backend.domain.notification.exception.code.NotiErrorCode.NOTI_NOT_FOUND;
-import static com.moogsan.moongsan_backend.domain.notification.message.ResponseMessage.NOTIFICATION_NOT_FOUND;
+import static com.moogsan.moongsan_backend.notification.domain.exception.code.NotiErrorCode.NOTI_NOT_FOUND;
+import static com.moogsan.moongsan_backend.notification.domain.message.ResponseMessage.NOTIFICATION_NOT_FOUND;
 
 public class NotiNotFoundException extends NotiException {
     public NotiNotFoundException() {
