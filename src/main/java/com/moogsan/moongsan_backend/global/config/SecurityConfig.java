@@ -48,6 +48,7 @@ public class SecurityConfig {
                         "/error", "/error/**",
                         "/api/users",                           // 회원가입
                         "/api/users/token",                     // 로그인
+                        "/api/users/token/refresh",             // 토큰 재발급
                         "/api/users/check-nickname",            // 닉네임 중복 확인
                         "/api/users/check-email",               // 이메일 중복 확인
                         "/uploads/**",                          // 이미지 업로드
