@@ -1,8 +1,10 @@
 package com.moogsan.moongsan_backend.adapters.sse;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -14,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 2) key = 수신 대상(예: userId, chatRoomId 등) / value = emitter list
  * 3) 만료·끊김 시 자동 제거
  */
+@Slf4j
 @Component
 public class SseEmitterRepository {
 
@@ -25,9 +28,16 @@ public class SseEmitterRepository {
         emitters
                 .computeIfAbsent(key, k -> Collections.synchronizedList(new ArrayList<>()))
                 .add(emitter);
-
         emitter.onCompletion(() -> remove(key, emitter));
         emitter.onTimeout   (() -> { emitter.complete(); remove(key, emitter); });
+
+        try {
+            emitter.send(SseEmitter.event()
+                    .name("connect")
+                    .data("SSE 연결 성공"));
+        } catch (IOException e) {
+            remove(key, emitter);
+        }
 
         return emitter;
     }
