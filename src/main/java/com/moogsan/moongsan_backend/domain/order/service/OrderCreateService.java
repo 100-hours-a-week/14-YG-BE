@@ -45,12 +45,20 @@ public class OrderCreateService {
         int canceledCount = orderRepository.countByUserIdAndGroupBuyIdAndStatusIn(user.getId(), groupBuy.getId(),
                 List.of("CANCELED", "REFUNDED"));
         if (canceledCount > 3) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "주문을 3회 이상 취소하였습니다.");
+            throw new BusinessException(ErrorCode.DUPLICATE_REQUEST, "주문을 3회 이상 취소하였습니다.");
+        }
+
+        // CANCELED가 있을 시 오류 표시
+        boolean existsCanceled = orderRepository.existsByUserIdAndGroupBuyIdAndStatusIn(
+                user.getId(), groupBuy.getId(), List.of("CANCELED"));
+
+        if (existsCanceled) {
+            throw new BusinessException(ErrorCode.DUPLICATE_REQUEST, "환불중인 공동구매가 존재합니다.");
         }
 
         // 해당 공구 내 CANCELED, REFUNDED 상태가 아닌 주문 존재
-        boolean exists = orderRepository.existsByUserIdAndGroupBuyIdAndStatusNotIn(
-                user.getId(), groupBuy.getId(), List.of("CANCELED", "REFUNDED"));
+        boolean exists = orderRepository.existsByUserIdAndGroupBuyIdAndStatusIn(
+                userId, request.getPostId(), List.of("PENDING", "CONFIRMED"));
 
         if (exists) {
             throw new BusinessException(ErrorCode.DUPLICATE_REQUEST, "이미 공동구매에 참여하였습니다.");

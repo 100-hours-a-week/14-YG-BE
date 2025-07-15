@@ -27,7 +27,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     boolean existsByUserIdAndGroupBuyIdAndStatusNotIn(Long userId, Long groupBuyId, List<String> statuses);
 
     // 특정 공구의 참여 인원 수 확인
-    int countByGroupBuyIdAndStatusNot(Long postId, String status);
+    int countByGroupBuyIdAndStatusNotIn(Long postId, List<String> statuses);
 
     // 주문 취소 횟수 카운트
     int countByUserIdAndGroupBuyIdAndStatus(Long userId, Long groupBuyId, String status);
@@ -63,10 +63,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
           FROM Order o
          WHERE o.user.id = :userId
            AND o.groupBuy.postStatus = :status
-           AND o.status           <> 'CANCELED'
+           AND o.status           <> 'Refunded'
         ORDER BY o.createdAt DESC, o.id DESC
     """)
-    List<Order> findByUserAndPostStatusAndNotCanceled(
+    List<Order> findByUserAndPostStatusAndNotRefunded(
             @Param("userId") Long userId,
             @Param("status") String status,
             Pageable pageable
@@ -78,14 +78,14 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
           FROM Order o
          WHERE o.user.id = :userId
            AND o.groupBuy.postStatus = :status
-           AND o.status           <> 'CANCELED'
+           AND o.status           <> 'Refunded'
            AND (
                 o.createdAt < :cursorCreatedAt
              OR (o.createdAt = :cursorCreatedAt AND o.id < :cursorOrderId)
            )
         ORDER BY o.createdAt DESC, o.id DESC
     """)
-    List<Order> findByUserAndPostStatusAndNotCanceledBeforeCursor(
+    List<Order> findByUserAndPostStatusAndNotRefundedBeforeCursor(
             @Param("userId")          Long userId,
             @Param("status")          String status,
             @Param("cursorCreatedAt") LocalDateTime cursorCreatedAt,
@@ -107,4 +107,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
              END
     """)
     List<Order> findAllByGroupBuyIdOrderByStatusCustom(@Param("postId") Long postId);
+
+    boolean existsByUserIdAndGroupBuyIdAndStatusIn(Long id, Long id1, List<String> canceled);
 }

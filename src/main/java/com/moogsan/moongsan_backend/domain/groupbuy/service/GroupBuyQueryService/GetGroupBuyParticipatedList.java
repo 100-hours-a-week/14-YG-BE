@@ -53,13 +53,13 @@ public class GetGroupBuyParticipatedList {
         // cursorId가 없으면 cursor 조건 제외
         List<Order> orders;
         if (cursorCreatedAt == null) {
-            orders = orderRepository.findByUserAndPostStatusAndNotCanceled(
+            orders = orderRepository.findByUserAndPostStatusAndNotRefunded(
                     userId,
                     status,
                     page
             );
         } else {
-            orders = orderRepository.findByUserAndPostStatusAndNotCanceledBeforeCursor(
+            orders = orderRepository.findByUserAndPostStatusAndNotRefundedBeforeCursor(
                     userId,
                     status,
                     cursorCreatedAt,

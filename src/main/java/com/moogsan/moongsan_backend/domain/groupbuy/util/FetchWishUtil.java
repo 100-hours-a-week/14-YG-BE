@@ -24,6 +24,7 @@ public class FetchWishUtil {
         }
         List<Long> ids = posts.stream()
                 .map(GroupBuy::getId)
+                .distinct()
                 .toList();
         Set<Long> wishedIds = new HashSet<>(wishRepository.findWishedGroupBuyIds(userId, ids));
 
