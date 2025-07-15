@@ -2,7 +2,7 @@ package com.moogsan.moongsan_backend.domain.order.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.OrderEventMapper;
+import com.moogsan.moongsan_backend.domain.order.mapper.OrderEventMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.outbox.publisher.OutboxEventPublisher;
 import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
 import com.moogsan.moongsan_backend.groupbuy.domain.service.FinalizeGroupBuy;

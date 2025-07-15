@@ -1,6 +1,6 @@
-package com.moogsan.moongsan_backend.domain.image.service;
+package com.moogsan.moongsan_backend.image.service;
 
-import com.moogsan.moongsan_backend.domain.image.dto.PresignResponse;
+import com.moogsan.moongsan_backend.image.dto.PresignResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

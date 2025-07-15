@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.adapters.kafka.producer.dto.Order;
+package com.moogsan.moongsan_backend.domain.order.event;
 
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.BaseEvent;
 import lombok.AllArgsConstructor;

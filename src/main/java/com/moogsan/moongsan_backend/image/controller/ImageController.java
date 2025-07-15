@@ -1,7 +1,7 @@
-package com.moogsan.moongsan_backend.domain.image.controller;
+package com.moogsan.moongsan_backend.image.controller;
 
-import com.moogsan.moongsan_backend.domain.image.dto.ImageUploadResponse;
-import com.moogsan.moongsan_backend.domain.image.service.ImageService;
+import com.moogsan.moongsan_backend.image.dto.ImageUploadResponse;
+import com.moogsan.moongsan_backend.image.service.ImageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

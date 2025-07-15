@@ -5,7 +5,7 @@ import com.moogsan.moongsan_backend.participantchat.domain.entity.ChatRoom;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.request.UpdateGroupBuyRequest;
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.groupbuy.domain.service.DueSoonPolicy;
-import com.moogsan.moongsan_backend.domain.image.entity.Image;
+import com.moogsan.moongsan_backend.image.entity.Image;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;

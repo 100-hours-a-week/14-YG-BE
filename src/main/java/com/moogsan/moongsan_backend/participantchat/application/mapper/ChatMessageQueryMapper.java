@@ -5,7 +5,7 @@ import com.moogsan.moongsan_backend.participantchat.presentation.dto.query.respo
 import com.moogsan.moongsan_backend.participantchat.domain.entity.ChatMessageDocument;
 import com.moogsan.moongsan_backend.participantchat.domain.entity.ChatRoom;
 import com.moogsan.moongsan_backend.participantchat.domain.repository.ChatMessageRepository;
-import com.moogsan.moongsan_backend.domain.image.entity.Image;
+import com.moogsan.moongsan_backend.image.entity.Image;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

@@ -1,7 +1,7 @@
-package com.moogsan.moongsan_backend.domain.image.controller;
+package com.moogsan.moongsan_backend.image.controller;
 
-import com.moogsan.moongsan_backend.domain.image.dto.PresignResponse;
-import com.moogsan.moongsan_backend.domain.image.service.S3Service;
+import com.moogsan.moongsan_backend.image.dto.PresignResponse;
+import com.moogsan.moongsan_backend.image.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

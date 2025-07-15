@@ -11,9 +11,9 @@ import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyN
 import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.groupbuy.application.service.command.UpdateGroupBuy;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.RealtimePublisher;
-import com.moogsan.moongsan_backend.domain.image.entity.Image;
-import com.moogsan.moongsan_backend.domain.image.mapper.ImageMapper;
-import com.moogsan.moongsan_backend.domain.image.service.S3Service;
+import com.moogsan.moongsan_backend.image.entity.Image;
+import com.moogsan.moongsan_backend.image.mapper.ImageMapper;
+import com.moogsan.moongsan_backend.image.service.S3Service;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import org.junit.jupiter.api.BeforeEach;

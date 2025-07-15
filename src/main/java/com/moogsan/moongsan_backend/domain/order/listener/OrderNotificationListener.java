@@ -1,12 +1,12 @@
-package com.moogsan.moongsan_backend.adapters.kafka.consumer.listener;
+package com.moogsan.moongsan_backend.domain.order.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.consumer.ConsumerGroups;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.KafkaTopics;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.Order.OrderCanceledEvent;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.Order.OrderConfirmedEvent;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.Order.OrderPendingEvent;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.Order.OrderRefundedEvent;
+import com.moogsan.moongsan_backend.domain.order.event.OrderCanceledEvent;
+import com.moogsan.moongsan_backend.domain.order.event.OrderConfirmedEvent;
+import com.moogsan.moongsan_backend.domain.order.event.OrderPendingEvent;
+import com.moogsan.moongsan_backend.domain.order.event.OrderRefundedEvent;
 import com.moogsan.moongsan_backend.notification.domain.service.Order.SendOrderNotificationUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

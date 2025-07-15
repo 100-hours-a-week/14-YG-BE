@@ -12,7 +12,7 @@ import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.gro
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.WishList.WishListResponse;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyUpdate.GroupBuyForUpdateResponse;
 import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
-import com.moogsan.moongsan_backend.domain.image.entity.Image;
+import com.moogsan.moongsan_backend.image.entity.Image;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import org.springframework.stereotype.Component;
