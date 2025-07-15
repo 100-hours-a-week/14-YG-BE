@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.participantchat.presentation.controller.query;
 
-import com.moogsan.moongsan_backend.domain.WrapperResponse;
+import com.moogsan.moongsan_backend.global.dto.WrapperResponse;
 import com.moogsan.moongsan_backend.participantchat.application.facade.query.ChattingQueryFacade;
 import com.moogsan.moongsan_backend.participantchat.presentation.dto.query.response.ChatRoomPagedResponse;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;

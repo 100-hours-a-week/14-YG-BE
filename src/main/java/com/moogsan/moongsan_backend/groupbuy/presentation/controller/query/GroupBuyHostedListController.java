@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.groupbuy.presentation.controller.query;
 
-import com.moogsan.moongsan_backend.domain.WrapperResponse;
+import com.moogsan.moongsan_backend.global.dto.WrapperResponse;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.HostedList.HostedListResponse;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.PagedResponse;
 import com.moogsan.moongsan_backend.groupbuy.application.facade.query.GroupBuyQueryFacade;

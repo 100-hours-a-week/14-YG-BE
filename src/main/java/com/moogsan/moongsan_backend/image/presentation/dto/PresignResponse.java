@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.image.dto;
+package com.moogsan.moongsan_backend.image.presentation.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,7 +1,7 @@
-package com.moogsan.moongsan_backend.image.mapper;
+package com.moogsan.moongsan_backend.image.application.mapper;
 
 import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
-import com.moogsan.moongsan_backend.image.entity.Image;
+import com.moogsan.moongsan_backend.image.domain.entity.Image;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

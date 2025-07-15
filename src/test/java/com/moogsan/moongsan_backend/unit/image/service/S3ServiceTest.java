@@ -1,7 +1,7 @@
 package com.moogsan.moongsan_backend.unit.image.service;
 
-import com.moogsan.moongsan_backend.image.dto.PresignResponse;
-import com.moogsan.moongsan_backend.image.service.S3Service;
+import com.moogsan.moongsan_backend.image.presentation.dto.PresignResponse;
+import com.moogsan.moongsan_backend.image.application.service.S3Service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;

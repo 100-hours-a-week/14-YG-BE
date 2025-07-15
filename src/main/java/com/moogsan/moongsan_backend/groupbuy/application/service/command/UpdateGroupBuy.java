@@ -12,10 +12,10 @@ import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyI
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyNotFoundException;
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyNotHostException;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.RealtimePublisher;
-import com.moogsan.moongsan_backend.image.entity.Image;
-import com.moogsan.moongsan_backend.image.mapper.ImageMapper;
+import com.moogsan.moongsan_backend.image.domain.entity.Image;
+import com.moogsan.moongsan_backend.image.application.mapper.ImageMapper;
 import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
-import com.moogsan.moongsan_backend.image.service.S3Service;
+import com.moogsan.moongsan_backend.image.application.service.S3Service;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;

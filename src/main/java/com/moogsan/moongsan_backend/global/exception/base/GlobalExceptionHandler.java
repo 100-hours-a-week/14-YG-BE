@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.global.exception.base;
 
-import com.moogsan.moongsan_backend.domain.WrapperResponse;
+import com.moogsan.moongsan_backend.global.dto.WrapperResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

@@ -1,7 +1,7 @@
 package com.moogsan.moongsan_backend.groupbuy.presentation.controller.command;
 
-import com.moogsan.moongsan_backend.domain.EmptyResponse;
-import com.moogsan.moongsan_backend.domain.WrapperResponse;
+import com.moogsan.moongsan_backend.global.dto.EmptyResponse;
+import com.moogsan.moongsan_backend.global.dto.WrapperResponse;
 import com.moogsan.moongsan_backend.groupbuy.application.facade.command.GroupBuyCommandFacade;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
 import com.moogsan.moongsan_backend.global.exception.specific.UnauthenticatedAccessException;

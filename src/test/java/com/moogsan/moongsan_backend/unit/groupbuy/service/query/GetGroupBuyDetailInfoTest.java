@@ -6,7 +6,7 @@ import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
 import com.moogsan.moongsan_backend.groupbuy.application.mapper.GroupBuyQueryMapper;
 import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.groupbuy.application.service.query.GetGroupBuyDetailInfo;
-import com.moogsan.moongsan_backend.image.entity.Image;
+import com.moogsan.moongsan_backend.image.domain.entity.Image;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import com.moogsan.moongsan_backend.domain.user.repository.WishRepository;

@@ -5,9 +5,9 @@ import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.request.Cr
 import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.groupbuy.application.mapper.GroupBuyCommandMapper;
-import com.moogsan.moongsan_backend.image.mapper.ImageMapper;
+import com.moogsan.moongsan_backend.image.application.mapper.ImageMapper;
 import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
-import com.moogsan.moongsan_backend.image.service.S3Service;
+import com.moogsan.moongsan_backend.image.application.service.S3Service;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import com.moogsan.moongsan_backend.global.exception.specific.DuplicateRequestException;
 import com.moogsan.moongsan_backend.global.lock.DuplicateRequestPreventer;

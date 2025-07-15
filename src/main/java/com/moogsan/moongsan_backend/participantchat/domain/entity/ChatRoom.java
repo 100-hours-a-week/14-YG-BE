@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.participantchat.domain.entity;
 
-import com.moogsan.moongsan_backend.domain.BaseEntity;
+import com.moogsan.moongsan_backend.global.persistence.BaseEntity;
 import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

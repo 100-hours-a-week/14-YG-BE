@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.domain;
+package com.moogsan.moongsan_backend.global.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

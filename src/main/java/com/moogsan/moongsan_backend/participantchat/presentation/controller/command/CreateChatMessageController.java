@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.participantchat.presentation.controller.command;
 
-import com.moogsan.moongsan_backend.domain.WrapperResponse;
+import com.moogsan.moongsan_backend.global.dto.WrapperResponse;
 import com.moogsan.moongsan_backend.participantchat.application.facade.command.ChattingCommandFacade;
 import com.moogsan.moongsan_backend.participantchat.presentation.dto.command.response.CommandChattingReponse;
 import com.moogsan.moongsan_backend.participantchat.presentation.dto.command.request.CreateChatMessageRequest;

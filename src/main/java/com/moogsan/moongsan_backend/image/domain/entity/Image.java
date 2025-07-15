@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.image.entity;
+package com.moogsan.moongsan_backend.image.domain.entity;
 
 import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
 import jakarta.persistence.*;

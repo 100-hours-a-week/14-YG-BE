@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.groupbuy.presentation.controller.command;
 
-import com.moogsan.moongsan_backend.domain.WrapperResponse;
+import com.moogsan.moongsan_backend.global.dto.WrapperResponse;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.request.CreateGroupBuyRequest;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.response.CommandGroupBuyResponse;
 import com.moogsan.moongsan_backend.groupbuy.application.facade.command.GroupBuyCommandFacade;

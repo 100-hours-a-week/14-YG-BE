@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.domain.order.entity;
 
-import com.moogsan.moongsan_backend.domain.BaseEntity;
+import com.moogsan.moongsan_backend.global.persistence.BaseEntity;
 import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import jakarta.persistence.*;

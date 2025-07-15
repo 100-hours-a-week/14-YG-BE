@@ -18,7 +18,7 @@ import com.moogsan.moongsan_backend.domain.user.service.TokenRefreshService;
 import com.moogsan.moongsan_backend.domain.user.service.WishService;
 import com.moogsan.moongsan_backend.domain.user.service.CheckAccountService;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
-import com.moogsan.moongsan_backend.domain.WrapperResponse;
+import com.moogsan.moongsan_backend.global.dto.WrapperResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
