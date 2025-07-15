@@ -3,7 +3,7 @@ package com.moogsan.moongsan_backend.unit.groupbuy.controller.query;
 import com.moogsan.moongsan_backend.groupbuy.presentation.controller.query.GroupBuyParticipantsController;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.ParticipantList.ParticipantListResponse;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.ParticipantList.ParticipantResponse;
-import com.moogsan.moongsan_backend.groupbuy.facade.query.GroupBuyQueryFacade;
+import com.moogsan.moongsan_backend.groupbuy.application.facade.query.GroupBuyQueryFacade;
 import com.moogsan.moongsan_backend.support.security.WithMockCustomUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static com.moogsan.moongsan_backend.groupbuy.message.ResponseMessage.GET_PARTICIPANTS_SUCCESS;
+import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.GET_PARTICIPANTS_SUCCESS;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;

@@ -5,10 +5,10 @@ import com.moogsan.moongsan_backend.domain.chatting.participant.repository.ChatR
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.HostedList.HostedListResponse;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.PagedResponse;
 import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
-import com.moogsan.moongsan_backend.groupbuy.mapper.GroupBuyQueryMapper;
+import com.moogsan.moongsan_backend.groupbuy.application.mapper.GroupBuyQueryMapper;
 import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
-import com.moogsan.moongsan_backend.groupbuy.application.service.GroupBuyQueryService.GetGroupBuyHostedList;
-import com.moogsan.moongsan_backend.groupbuy.util.FetchWishUtil;
+import com.moogsan.moongsan_backend.groupbuy.application.service.query.GetGroupBuyHostedList;
+import com.moogsan.moongsan_backend.groupbuy.domain.util.FetchWishUtil;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

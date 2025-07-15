@@ -2,7 +2,7 @@ package com.moogsan.moongsan_backend.unit.groupbuy.controller.command;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.groupbuy.presentation.controller.command.EndGroupBuyController;
-import com.moogsan.moongsan_backend.groupbuy.facade.command.GroupBuyCommandFacade;
+import com.moogsan.moongsan_backend.groupbuy.application.facade.command.GroupBuyCommandFacade;
 import com.moogsan.moongsan_backend.support.fake.InMemoryDuplicateRequestPreventer;
 import com.moogsan.moongsan_backend.support.security.WithMockCustomUser;
 import org.junit.jupiter.api.DisplayName;
@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static com.moogsan.moongsan_backend.groupbuy.message.ResponseMessage.END_SUCCESS;
+import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.END_SUCCESS;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.delete;

@@ -4,9 +4,9 @@ import com.moogsan.moongsan_backend.domain.chatting.participant.facade.command.C
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.request.CreateGroupBuyRequest;
 import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyInvalidStateException;
-import com.moogsan.moongsan_backend.groupbuy.mapper.GroupBuyCommandMapper;
+import com.moogsan.moongsan_backend.groupbuy.application.mapper.GroupBuyCommandMapper;
 import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
-import com.moogsan.moongsan_backend.groupbuy.application.service.GroupBuyCommandService.CreateGroupBuy;
+import com.moogsan.moongsan_backend.groupbuy.application.service.command.CreateGroupBuy;
 import com.moogsan.moongsan_backend.domain.image.mapper.ImageMapper;
 import com.moogsan.moongsan_backend.domain.image.service.S3Service;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
@@ -26,7 +26,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 
-import static com.moogsan.moongsan_backend.groupbuy.message.ResponseMessage.NOT_DIVISOR;
+import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.NOT_DIVISOR;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;

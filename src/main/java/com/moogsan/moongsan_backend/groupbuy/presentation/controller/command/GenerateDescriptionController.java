@@ -3,7 +3,7 @@ package com.moogsan.moongsan_backend.groupbuy.presentation.controller.command;
 import com.moogsan.moongsan_backend.domain.WrapperResponse;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.request.DescriptionGenerationRequest;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.response.DescriptionDto;
-import com.moogsan.moongsan_backend.groupbuy.facade.command.GroupBuyCommandFacade;
+import com.moogsan.moongsan_backend.groupbuy.application.facade.command.GroupBuyCommandFacade;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
 import com.moogsan.moongsan_backend.global.exception.specific.UnauthenticatedAccessException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
-import static com.moogsan.moongsan_backend.groupbuy.message.ResponseMessage.GENERATE_SUCCESS;
+import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.GENERATE_SUCCESS;
 import static com.moogsan.moongsan_backend.global.util.CookieUtils.extractCookie;
 
 @RestController

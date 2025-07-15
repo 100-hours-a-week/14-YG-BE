@@ -7,10 +7,10 @@ import com.moogsan.moongsan_backend.domain.chatting.participant.facade.command.C
 import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyNotFoundException;
-import com.moogsan.moongsan_backend.groupbuy.policy.DueSoonPolicy;
+import com.moogsan.moongsan_backend.groupbuy.domain.service.DueSoonPolicy;
 import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
-import com.moogsan.moongsan_backend.groupbuy.application.service.GroupBuyCommandService.LeaveGroupBuy;
-import com.moogsan.moongsan_backend.groupbuy.application.service.GroupBuySseService.publisher.RealtimePublisher;
+import com.moogsan.moongsan_backend.groupbuy.application.service.command.LeaveGroupBuy;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.RealtimePublisher;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
 import com.moogsan.moongsan_backend.domain.order.exception.specific.OrderNotFoundException;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;

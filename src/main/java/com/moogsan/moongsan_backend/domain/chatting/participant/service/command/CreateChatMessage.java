@@ -34,7 +34,7 @@ import java.time.Duration;
 
 import static com.moogsan.moongsan_backend.adapters.kafka.producer.KafkaTopics.CHAT_PART_MESSAGE_CREATED;
 import static com.moogsan.moongsan_backend.domain.chatting.participant.message.ResponseMessage.DELETED_CHAT_ROOM;
-import static com.moogsan.moongsan_backend.groupbuy.message.ResponseMessage.NOT_PARTICIPANT;
+import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.NOT_PARTICIPANT;
 import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SERIALIZATION_FAIL;
 import static com.moogsan.moongsan_backend.global.util.ObjectIdScoreUtil.toScore;
 

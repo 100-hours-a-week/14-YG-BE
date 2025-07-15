@@ -5,8 +5,8 @@ import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyI
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyNotFoundException;
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyNotHostException;
 import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
-import com.moogsan.moongsan_backend.groupbuy.application.service.GroupBuyCommandService.DeleteGroupBuy;
-import com.moogsan.moongsan_backend.groupbuy.application.service.GroupBuySseService.publisher.RealtimePublisher;
+import com.moogsan.moongsan_backend.groupbuy.application.service.command.DeleteGroupBuy;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.RealtimePublisher;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import org.junit.jupiter.api.BeforeEach;

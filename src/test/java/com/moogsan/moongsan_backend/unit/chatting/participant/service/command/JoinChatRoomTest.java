@@ -24,7 +24,7 @@ import java.util.List;
 
 import static com.moogsan.moongsan_backend.domain.chatting.participant.message.ResponseMessage.ALREADEY_JOINED;
 import static com.moogsan.moongsan_backend.domain.chatting.participant.message.ResponseMessage.ORDER_NOT_FOUND;
-import static com.moogsan.moongsan_backend.groupbuy.message.ResponseMessage.NOT_EXIST;
+import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.NOT_EXIST;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 

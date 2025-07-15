@@ -3,7 +3,7 @@ package com.moogsan.moongsan_backend.groupbuy.presentation.controller.query;
 import com.moogsan.moongsan_backend.domain.WrapperResponse;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.PagedResponse;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.WishList.WishListResponse;
-import com.moogsan.moongsan_backend.groupbuy.facade.query.GroupBuyQueryFacade;
+import com.moogsan.moongsan_backend.groupbuy.application.facade.query.GroupBuyQueryFacade;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
 import com.moogsan.moongsan_backend.global.exception.specific.UnauthenticatedAccessException;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
-import static com.moogsan.moongsan_backend.groupbuy.message.ResponseMessage.GET_WISH_SUCCESS;
+import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.GET_WISH_SUCCESS;
 
 @RestController
 @RequiredArgsConstructor

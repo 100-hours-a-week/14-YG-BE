@@ -1,15 +1,15 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.service.command;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEventMapper;
+import com.moogsan.moongsan_backend.groupbuy.domain.mapper.GroupBuyEventMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyNotFoundException;
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyNotHostException;
 import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
-import com.moogsan.moongsan_backend.groupbuy.application.service.GroupBuyCommandService.EndGroupBuy;
-import com.moogsan.moongsan_backend.groupbuy.application.service.GroupBuySseService.publisher.RealtimePublisher;
+import com.moogsan.moongsan_backend.groupbuy.application.service.command.EndGroupBuy;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.RealtimePublisher;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import org.junit.jupiter.api.BeforeEach;

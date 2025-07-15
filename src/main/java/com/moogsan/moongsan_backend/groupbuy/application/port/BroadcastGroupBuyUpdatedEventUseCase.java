@@ -1,7 +1,7 @@
 package com.moogsan.moongsan_backend.groupbuy.application.port;
 
 import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyUpdatedEvent;
-import com.moogsan.moongsan_backend.groupbuy.application.service.GroupBuySseService.publisher.RealtimePublisher;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.RealtimePublisher;
 import com.moogsan.moongsan_backend.domain.notification.template.NotificationTemplateRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

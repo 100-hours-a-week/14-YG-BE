@@ -2,7 +2,7 @@ package com.moogsan.moongsan_backend.groupbuy.presentation.controller.command;
 
 import com.moogsan.moongsan_backend.domain.EmptyResponse;
 import com.moogsan.moongsan_backend.domain.WrapperResponse;
-import com.moogsan.moongsan_backend.groupbuy.facade.command.GroupBuyCommandFacade;
+import com.moogsan.moongsan_backend.groupbuy.application.facade.command.GroupBuyCommandFacade;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
 import com.moogsan.moongsan_backend.global.exception.specific.UnauthenticatedAccessException;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.moogsan.moongsan_backend.groupbuy.message.ResponseMessage.END_SUCCESS;
+import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.END_SUCCESS;
 
 @RestController
 @RequiredArgsConstructor

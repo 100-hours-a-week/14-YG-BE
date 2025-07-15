@@ -2,14 +2,14 @@ package com.moogsan.moongsan_backend.groupbuy.presentation.controller.query;
 
 import com.moogsan.moongsan_backend.domain.WrapperResponse;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyDetail.DetailResponse;
-import com.moogsan.moongsan_backend.groupbuy.facade.query.GroupBuyQueryFacade;
+import com.moogsan.moongsan_backend.groupbuy.application.facade.query.GroupBuyQueryFacade;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import static com.moogsan.moongsan_backend.groupbuy.message.ResponseMessage.GET_DETAIL_SUCCESS;
+import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.GET_DETAIL_SUCCESS;
 
 @RestController
 @RequiredArgsConstructor

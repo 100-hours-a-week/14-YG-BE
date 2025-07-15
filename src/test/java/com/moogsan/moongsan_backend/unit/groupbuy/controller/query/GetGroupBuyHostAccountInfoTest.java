@@ -2,7 +2,7 @@ package com.moogsan.moongsan_backend.unit.groupbuy.controller.query;
 
 import com.moogsan.moongsan_backend.groupbuy.presentation.controller.query.GroupBuyHostAccountController;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyDetail.UserAccountResponse;
-import com.moogsan.moongsan_backend.groupbuy.facade.query.GroupBuyQueryFacade;
+import com.moogsan.moongsan_backend.groupbuy.application.facade.query.GroupBuyQueryFacade;
 import com.moogsan.moongsan_backend.support.security.WithMockCustomUser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,7 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static com.moogsan.moongsan_backend.groupbuy.message.ResponseMessage.GET_ACCOUNT_SUCCESS;
+import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.GET_ACCOUNT_SUCCESS;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;

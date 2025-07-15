@@ -1,7 +1,7 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.service.command;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEventMapper;
+import com.moogsan.moongsan_backend.groupbuy.domain.mapper.GroupBuyEventMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.request.UpdateGroupBuyRequest;
 import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
@@ -9,8 +9,8 @@ import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyI
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyNotFoundException;
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyNotHostException;
 import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
-import com.moogsan.moongsan_backend.groupbuy.application.service.GroupBuyCommandService.UpdateGroupBuy;
-import com.moogsan.moongsan_backend.groupbuy.application.service.GroupBuySseService.publisher.RealtimePublisher;
+import com.moogsan.moongsan_backend.groupbuy.application.service.command.UpdateGroupBuy;
+import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.RealtimePublisher;
 import com.moogsan.moongsan_backend.domain.image.entity.Image;
 import com.moogsan.moongsan_backend.domain.image.mapper.ImageMapper;
 import com.moogsan.moongsan_backend.domain.image.service.S3Service;

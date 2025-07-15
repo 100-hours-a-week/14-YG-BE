@@ -1,8 +1,8 @@
 package com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.moogsan.moongsan_backend.groupbuy.validator.NotBlankIfPresent;
-import com.moogsan.moongsan_backend.groupbuy.validator.RequireReasonIfPickupDateChanged;
+import com.moogsan.moongsan_backend.groupbuy.presentation.validator.NotBlankIfPresent;
+import com.moogsan.moongsan_backend.groupbuy.presentation.validator.RequireReasonIfPickupDateChanged;
 import com.moogsan.moongsan_backend.global.profanity.ProfanitySafe;
 import com.moogsan.moongsan_backend.global.xss.XssSafe;
 import jakarta.validation.constraints.*;
@@ -10,8 +10,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static com.moogsan.moongsan_backend.groupbuy.message.ValidationMessage.*;
 
 @RequireReasonIfPickupDateChanged
 @Data

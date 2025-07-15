@@ -1,11 +1,11 @@
 package com.moogsan.moongsan_backend.unit.order.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEventMapper;
+import com.moogsan.moongsan_backend.groupbuy.domain.mapper.GroupBuyEventMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.domain.chatting.participant.facade.command.ChattingCommandFacade;
 import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
-import com.moogsan.moongsan_backend.groupbuy.policy.DueSoonPolicy;
+import com.moogsan.moongsan_backend.groupbuy.domain.service.DueSoonPolicy;
 import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.order.dto.request.OrderCreateRequest;
 import com.moogsan.moongsan_backend.domain.order.dto.response.OrderCreateResponse;

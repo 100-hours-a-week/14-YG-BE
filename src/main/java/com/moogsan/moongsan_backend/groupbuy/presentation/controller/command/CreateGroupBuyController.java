@@ -3,7 +3,7 @@ package com.moogsan.moongsan_backend.groupbuy.presentation.controller.command;
 import com.moogsan.moongsan_backend.domain.WrapperResponse;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.request.CreateGroupBuyRequest;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.response.CommandGroupBuyResponse;
-import com.moogsan.moongsan_backend.groupbuy.facade.command.GroupBuyCommandFacade;
+import com.moogsan.moongsan_backend.groupbuy.application.facade.command.GroupBuyCommandFacade;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
 import com.moogsan.moongsan_backend.global.exception.specific.UnauthenticatedAccessException;
 import jakarta.validation.Valid;
@@ -18,7 +18,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 
-import static com.moogsan.moongsan_backend.groupbuy.message.ResponseMessage.CREATE_SUCCESS;
+import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.CREATE_SUCCESS;
 
 @RestController
 @RequiredArgsConstructor
