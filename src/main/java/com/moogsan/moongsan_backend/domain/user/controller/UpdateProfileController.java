@@ -6,7 +6,7 @@ import com.moogsan.moongsan_backend.domain.user.dto.request.UpdateProfilePasswor
 import com.moogsan.moongsan_backend.domain.user.dto.request.UpdateProfileImageRequest;
 import com.moogsan.moongsan_backend.domain.user.service.UpdateProfileService;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
-import com.moogsan.moongsan_backend.domain.WrapperResponse;
+import com.moogsan.moongsan_backend.global.dto.WrapperResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

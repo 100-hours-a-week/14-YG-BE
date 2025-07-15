@@ -1,17 +1,16 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.service.command;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.OrderEventMapper;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
-import com.moogsan.moongsan_backend.domain.chatting.participant.facade.command.ChattingCommandFacade;
-import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
-import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyInvalidStateException;
-import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotFoundException;
-import com.moogsan.moongsan_backend.domain.groupbuy.policy.DueSoonPolicy;
-import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
-import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.CreateGroupBuy;
-import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.LeaveGroupBuy;
-import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuySseService.publisher.RealtimePublisher;
+import com.moogsan.moongsan_backend.domain.order.mapper.OrderEventMapper;
+import com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher.KafkaEventPublisher;
+import com.moogsan.moongsan_backend.participantchat.application.facade.command.ChattingCommandFacade;
+import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
+import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyInvalidStateException;
+import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyNotFoundException;
+import com.moogsan.moongsan_backend.groupbuy.domain.service.DueSoonPolicy;
+import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
+import com.moogsan.moongsan_backend.groupbuy.application.service.command.LeaveGroupBuy;
+import com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher.RealtimePublisher;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
 import com.moogsan.moongsan_backend.domain.order.exception.specific.OrderNotFoundException;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
@@ -20,7 +19,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -31,7 +29,6 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
-import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;

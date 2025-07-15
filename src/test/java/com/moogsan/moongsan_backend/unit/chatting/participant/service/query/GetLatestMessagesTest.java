@@ -1,15 +1,15 @@
 package com.moogsan.moongsan_backend.unit.chatting.participant.service.query;
 
-import com.moogsan.moongsan_backend.domain.chatting.participant.dto.query.response.ChatMessageResponse;
-import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatMessageDocument;
-import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatRoom;
-import com.moogsan.moongsan_backend.domain.chatting.participant.exception.specific.ChatRoomNotFoundException;
-import com.moogsan.moongsan_backend.domain.chatting.participant.exception.specific.NotParticipantException;
-import com.moogsan.moongsan_backend.domain.chatting.participant.mapper.ChatMessageQueryMapper;
-import com.moogsan.moongsan_backend.domain.chatting.participant.repository.ChatMessageRepository;
-import com.moogsan.moongsan_backend.domain.chatting.participant.repository.ChatParticipantRepository;
-import com.moogsan.moongsan_backend.domain.chatting.participant.repository.ChatRoomRepository;
-import com.moogsan.moongsan_backend.domain.chatting.participant.service.query.GetLatestMessages;
+import com.moogsan.moongsan_backend.participantchat.presentation.dto.query.response.ChatMessageResponse;
+import com.moogsan.moongsan_backend.participantchat.domain.entity.ChatMessageDocument;
+import com.moogsan.moongsan_backend.participantchat.domain.entity.ChatRoom;
+import com.moogsan.moongsan_backend.participantchat.domain.exception.specific.ChatRoomNotFoundException;
+import com.moogsan.moongsan_backend.participantchat.domain.exception.specific.NotParticipantException;
+import com.moogsan.moongsan_backend.participantchat.application.mapper.ChatMessageQueryMapper;
+import com.moogsan.moongsan_backend.participantchat.domain.repository.ChatMessageRepository;
+import com.moogsan.moongsan_backend.participantchat.domain.repository.ChatParticipantRepository;
+import com.moogsan.moongsan_backend.participantchat.domain.repository.ChatRoomRepository;
+import com.moogsan.moongsan_backend.participantchat.application.service.query.GetLatestMessages;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,8 +23,8 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
-import static com.moogsan.moongsan_backend.domain.chatting.participant.message.ResponseMessage.CHAT_ROOM_NOT_FOUND;
-import static com.moogsan.moongsan_backend.domain.chatting.participant.message.ResponseMessage.NOT_PARTICIPANT;
+import static com.moogsan.moongsan_backend.participantchat.domain.message.ResponseMessage.CHAT_ROOM_NOT_FOUND;
+import static com.moogsan.moongsan_backend.participantchat.domain.message.ResponseMessage.NOT_PARTICIPANT;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;

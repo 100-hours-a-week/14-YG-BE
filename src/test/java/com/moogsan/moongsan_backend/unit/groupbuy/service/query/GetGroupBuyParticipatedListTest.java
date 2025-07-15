@@ -1,13 +1,13 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.service.query;
 
-import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatRoom;
-import com.moogsan.moongsan_backend.domain.chatting.participant.repository.ChatRoomRepository;
-import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.PagedResponse;
-import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyList.ParticipatedList.ParticipatedListResponse;
-import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
-import com.moogsan.moongsan_backend.domain.groupbuy.mapper.GroupBuyQueryMapper;
-import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyQueryService.GetGroupBuyParticipatedList;
-import com.moogsan.moongsan_backend.domain.groupbuy.util.FetchWishUtil;
+import com.moogsan.moongsan_backend.participantchat.domain.entity.ChatRoom;
+import com.moogsan.moongsan_backend.participantchat.domain.repository.ChatRoomRepository;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.PagedResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.ParticipatedList.ParticipatedListResponse;
+import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
+import com.moogsan.moongsan_backend.groupbuy.application.mapper.GroupBuyQueryMapper;
+import com.moogsan.moongsan_backend.groupbuy.application.service.query.GetGroupBuyParticipatedList;
+import com.moogsan.moongsan_backend.groupbuy.domain.util.FetchWishUtil;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;

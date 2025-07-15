@@ -1,7 +1,5 @@
 package com.moogsan.moongsan_backend.domain.order.exception.specific;
 
-import com.moogsan.moongsan_backend.domain.groupbuy.exception.base.GroupBuyException;
-import com.moogsan.moongsan_backend.domain.groupbuy.exception.code.GroupBuyErrorCode;
 import com.moogsan.moongsan_backend.domain.order.exception.base.OrderException;
 import com.moogsan.moongsan_backend.domain.order.exception.code.OrderErrorCode;
 

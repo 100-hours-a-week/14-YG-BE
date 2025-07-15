@@ -1,0 +1,16 @@
+package com.moogsan.moongsan_backend.groupbuy.domain.exception.specific;
+
+import com.moogsan.moongsan_backend.groupbuy.domain.exception.base.GroupBuyException;
+import com.moogsan.moongsan_backend.groupbuy.domain.exception.code.GroupBuyErrorCode;
+
+import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.NOT_EXIST;
+
+public class GroupBuyNotFoundException extends GroupBuyException {
+    public GroupBuyNotFoundException() {
+        super(GroupBuyErrorCode.GROUPBUY_NOT_FOUND, NOT_EXIST);
+    }
+
+    public GroupBuyNotFoundException(String message) {
+        super(GroupBuyErrorCode.GROUPBUY_NOT_FOUND, message);
+    }
+}

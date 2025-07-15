@@ -1,7 +1,7 @@
 package com.moogsan.moongsan_backend.domain.user.entity;
 
-import com.moogsan.moongsan_backend.domain.BaseEntity;
-import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
+import com.moogsan.moongsan_backend.global.persistence.BaseEntity;
+import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

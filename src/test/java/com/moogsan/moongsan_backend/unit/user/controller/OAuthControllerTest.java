@@ -3,7 +3,7 @@ package com.moogsan.moongsan_backend.unit.user.controller;
 import com.moogsan.moongsan_backend.domain.user.controller.OAuthController;
 import com.moogsan.moongsan_backend.domain.user.dto.response.LoginResponse;
 import com.moogsan.moongsan_backend.domain.user.service.KakaoOAuthService;
-import com.moogsan.moongsan_backend.domain.WrapperResponse;
+import com.moogsan.moongsan_backend.global.dto.WrapperResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

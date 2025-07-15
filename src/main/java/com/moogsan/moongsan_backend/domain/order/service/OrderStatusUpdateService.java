@@ -2,10 +2,10 @@ package com.moogsan.moongsan_backend.domain.order.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.OrderEventMapper;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.outbox.publisher.OutboxEventPublisher;
-import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
-import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyCommandService.FinalizeGroupBuy;
+import com.moogsan.moongsan_backend.domain.order.mapper.OrderEventMapper;
+import com.moogsan.moongsan_backend.global.infrastructure.kafka.outbox.publisher.OutboxEventPublisher;
+import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
+import com.moogsan.moongsan_backend.groupbuy.domain.service.FinalizeGroupBuy;
 import com.moogsan.moongsan_backend.domain.order.dto.request.OrderStatusUpdateRequest;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
@@ -17,7 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
-import static com.moogsan.moongsan_backend.adapters.kafka.producer.KafkaTopics.*;
+import static com.moogsan.moongsan_backend.global.infrastructure.kafka.KafkaTopics.ORDER_STATUS_CONFIRMED;
+import static com.moogsan.moongsan_backend.global.infrastructure.kafka.KafkaTopics.ORDER_STATUS_REFUNDED;
 import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SERIALIZATION_FAIL;
 
 @Slf4j
