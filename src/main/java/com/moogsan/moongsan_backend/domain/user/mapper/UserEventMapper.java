@@ -1,6 +1,6 @@
-package com.moogsan.moongsan_backend.adapters.kafka.producer.mapper;
+package com.moogsan.moongsan_backend.domain.user.mapper;
 
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.User.UserProfileUpdatedEvent;
+import com.moogsan.moongsan_backend.domain.user.event.UserProfileUpdatedEvent;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import org.springframework.stereotype.Component;
 

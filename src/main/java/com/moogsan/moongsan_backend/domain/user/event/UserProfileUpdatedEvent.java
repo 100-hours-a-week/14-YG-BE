@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.adapters.kafka.producer.dto.User;
+package com.moogsan.moongsan_backend.domain.user.event;
 
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.BaseEvent;
 import lombok.AllArgsConstructor;
