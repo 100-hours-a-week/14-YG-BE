@@ -1,9 +1,9 @@
-package com.moogsan.moongsan_backend.domain.notification.factory;
+package com.moogsan.moongsan_backend.notification.factory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moogsan.moongsan_backend.domain.notification.entity.Notification;
-import com.moogsan.moongsan_backend.domain.notification.entity.NotificationType;
-import com.moogsan.moongsan_backend.domain.notification.template.NotificationTemplateRegistry;
+import com.moogsan.moongsan_backend.notification.domain.entity.Notification;
+import com.moogsan.moongsan_backend.notification.domain.entity.NotificationType;
+import com.moogsan.moongsan_backend.notification.infrastructure.template.NotificationTemplateRegistry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

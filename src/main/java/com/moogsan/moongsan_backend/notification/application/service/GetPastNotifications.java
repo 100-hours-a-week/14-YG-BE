@@ -1,10 +1,10 @@
-package com.moogsan.moongsan_backend.domain.notification.service;
+package com.moogsan.moongsan_backend.notification.service;
 
-import com.moogsan.moongsan_backend.domain.notification.dto.NotificationResponse;
-import com.moogsan.moongsan_backend.domain.notification.dto.PagedResponse;
-import com.moogsan.moongsan_backend.domain.notification.entity.Notification;
-import com.moogsan.moongsan_backend.domain.notification.mapper.NotificationMapper;
-import com.moogsan.moongsan_backend.domain.notification.repository.NotificationRepository;
+import com.moogsan.moongsan_backend.notification.presentation.dto.NotificationResponse;
+import com.moogsan.moongsan_backend.notification.presentation.dto.PagedResponse;
+import com.moogsan.moongsan_backend.notification.domain.entity.Notification;
+import com.moogsan.moongsan_backend.notification.domain.mapper.NotificationMapper;
+import com.moogsan.moongsan_backend.notification.domain.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;

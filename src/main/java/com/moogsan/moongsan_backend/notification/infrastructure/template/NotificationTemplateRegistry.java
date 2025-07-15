@@ -1,10 +1,8 @@
-package com.moogsan.moongsan_backend.domain.notification.template;
+package com.moogsan.moongsan_backend.notification.template;
 
-import com.moogsan.moongsan_backend.domain.notification.entity.NotificationType;
+import com.moogsan.moongsan_backend.notification.domain.entity.NotificationType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
-import java.util.Map;
 
 @Component
 @RequiredArgsConstructor

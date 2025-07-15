@@ -1,9 +1,9 @@
-package com.moogsan.moongsan_backend.domain.notification.service;
+package com.moogsan.moongsan_backend.notification.service;
 
-import com.moogsan.moongsan_backend.domain.notification.dto.NotificationReadStatus;
-import com.moogsan.moongsan_backend.domain.notification.entity.Notification;
-import com.moogsan.moongsan_backend.domain.notification.exception.specific.NotiNotFoundException;
-import com.moogsan.moongsan_backend.domain.notification.repository.NotificationRepository;
+import com.moogsan.moongsan_backend.notification.presentation.dto.NotificationReadStatus;
+import com.moogsan.moongsan_backend.notification.domain.entity.Notification;
+import com.moogsan.moongsan_backend.notification.domain.exception.specific.NotiNotFoundException;
+import com.moogsan.moongsan_backend.notification.domain.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
