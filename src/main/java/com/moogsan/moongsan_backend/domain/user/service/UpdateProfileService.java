@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.domain.user.service;
 
-import com.moogsan.moongsan_backend.domain.image.service.S3Service;
+import com.moogsan.moongsan_backend.image.application.service.S3Service;
 import com.moogsan.moongsan_backend.domain.user.dto.request.UpdateProfileAccountRequest;
 import com.moogsan.moongsan_backend.domain.user.dto.request.UpdateProfileRequest;
 import com.moogsan.moongsan_backend.domain.user.dto.request.UpdateProfileImageRequest;

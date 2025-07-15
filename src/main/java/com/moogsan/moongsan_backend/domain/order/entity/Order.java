@@ -1,13 +1,10 @@
 package com.moogsan.moongsan_backend.domain.order.entity;
 
-import com.moogsan.moongsan_backend.domain.BaseEntity;
-import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
+import com.moogsan.moongsan_backend.global.persistence.BaseEntity;
+import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "orders")

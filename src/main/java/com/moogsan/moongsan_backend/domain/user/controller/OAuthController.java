@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.domain.user.controller;
 
-import com.moogsan.moongsan_backend.domain.WrapperResponse;
+import com.moogsan.moongsan_backend.global.dto.WrapperResponse;
 import com.moogsan.moongsan_backend.domain.user.dto.response.LoginResponse;
 import com.moogsan.moongsan_backend.domain.user.service.KakaoOAuthService;
 import jakarta.servlet.http.HttpServletResponse;

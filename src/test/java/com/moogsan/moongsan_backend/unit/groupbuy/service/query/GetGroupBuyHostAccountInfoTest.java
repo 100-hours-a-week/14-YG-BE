@@ -1,13 +1,11 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.service.query;
 
-import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyDetail.UserAccountResponse;
-import com.moogsan.moongsan_backend.domain.groupbuy.dto.query.response.groupBuyUpdate.GroupBuyForUpdateResponse;
-import com.moogsan.moongsan_backend.domain.groupbuy.entity.GroupBuy;
-import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotHostException;
-import com.moogsan.moongsan_backend.domain.groupbuy.exception.specific.GroupBuyNotParticipantException;
-import com.moogsan.moongsan_backend.domain.groupbuy.mapper.GroupBuyQueryMapper;
-import com.moogsan.moongsan_backend.domain.groupbuy.repository.GroupBuyRepository;
-import com.moogsan.moongsan_backend.domain.groupbuy.service.GroupBuyQueryService.GetGroupBuyHostAccountInfo;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyDetail.UserAccountResponse;
+import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
+import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyNotParticipantException;
+import com.moogsan.moongsan_backend.groupbuy.application.mapper.GroupBuyQueryMapper;
+import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
+import com.moogsan.moongsan_backend.groupbuy.application.service.query.GetGroupBuyHostAccountInfo;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
@@ -20,8 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.NOT_HOST;
-import static com.moogsan.moongsan_backend.domain.groupbuy.message.ResponseMessage.NOT_PARTICIPANT;
+import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.NOT_PARTICIPANT;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;

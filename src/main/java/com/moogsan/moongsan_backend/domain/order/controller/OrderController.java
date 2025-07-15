@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.domain.order.controller;
 
-import com.moogsan.moongsan_backend.domain.WrapperResponse;
+import com.moogsan.moongsan_backend.global.dto.WrapperResponse;
 import com.moogsan.moongsan_backend.domain.order.dto.request.OrderStatusUpdateRequest;
 import com.moogsan.moongsan_backend.domain.order.dto.response.OrderCreateResponse;
 import com.moogsan.moongsan_backend.domain.order.dto.response.OrderParticipantResponse;
