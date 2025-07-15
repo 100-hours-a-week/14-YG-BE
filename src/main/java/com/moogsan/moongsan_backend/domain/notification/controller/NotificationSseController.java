@@ -17,7 +17,7 @@ public class NotificationSseController {
 
     private final SseEmitterRepository sseEmitterRepository;
 
-    @GetMapping(path = "/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribe(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
