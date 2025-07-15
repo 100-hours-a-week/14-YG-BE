@@ -1,10 +1,10 @@
 package com.moogsan.moongsan_backend.unit.chatting.participant.service.command;
 
-import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatRoom;
-import com.moogsan.moongsan_backend.domain.chatting.participant.exception.specific.AlreadyJoinedException;
-import com.moogsan.moongsan_backend.domain.chatting.participant.repository.ChatParticipantRepository;
-import com.moogsan.moongsan_backend.domain.chatting.participant.repository.ChatRoomRepository;
-import com.moogsan.moongsan_backend.domain.chatting.participant.service.command.JoinChatRoom;
+import com.moogsan.moongsan_backend.participantchat.domain.entity.ChatRoom;
+import com.moogsan.moongsan_backend.participantchat.domain.exception.specific.AlreadyJoinedException;
+import com.moogsan.moongsan_backend.participantchat.domain.repository.ChatParticipantRepository;
+import com.moogsan.moongsan_backend.participantchat.domain.repository.ChatRoomRepository;
+import com.moogsan.moongsan_backend.participantchat.application.service.command.JoinChatRoom;
 import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyNotFoundException;
 import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
@@ -22,8 +22,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 import java.util.List;
 
-import static com.moogsan.moongsan_backend.domain.chatting.participant.message.ResponseMessage.ALREADEY_JOINED;
-import static com.moogsan.moongsan_backend.domain.chatting.participant.message.ResponseMessage.ORDER_NOT_FOUND;
+import static com.moogsan.moongsan_backend.participantchat.domain.message.ResponseMessage.ALREADEY_JOINED;
+import static com.moogsan.moongsan_backend.participantchat.domain.message.ResponseMessage.ORDER_NOT_FOUND;
 import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.NOT_EXIST;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;

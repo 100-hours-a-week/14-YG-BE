@@ -1,12 +1,12 @@
 package com.moogsan.moongsan_backend.unit.chatting.participant.service.query;
 
-import com.moogsan.moongsan_backend.domain.chatting.participant.dto.query.response.ChatRoomPagedResponse;
-import com.moogsan.moongsan_backend.domain.chatting.participant.dto.query.response.ChatRoomResponse;
-import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatParticipant;
-import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatRoom;
-import com.moogsan.moongsan_backend.domain.chatting.participant.mapper.ChatMessageQueryMapper;
-import com.moogsan.moongsan_backend.domain.chatting.participant.repository.ChatParticipantRepository;
-import com.moogsan.moongsan_backend.domain.chatting.participant.service.query.GetChatRoomList;
+import com.moogsan.moongsan_backend.participantchat.presentation.dto.query.response.ChatRoomPagedResponse;
+import com.moogsan.moongsan_backend.participantchat.presentation.dto.query.response.ChatRoomResponse;
+import com.moogsan.moongsan_backend.participantchat.domain.entity.ChatParticipant;
+import com.moogsan.moongsan_backend.participantchat.domain.entity.ChatRoom;
+import com.moogsan.moongsan_backend.participantchat.application.mapper.ChatMessageQueryMapper;
+import com.moogsan.moongsan_backend.participantchat.domain.repository.ChatParticipantRepository;
+import com.moogsan.moongsan_backend.participantchat.application.service.query.GetChatRoomList;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

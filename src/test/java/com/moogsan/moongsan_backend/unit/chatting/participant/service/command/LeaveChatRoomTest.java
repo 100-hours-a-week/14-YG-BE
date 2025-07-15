@@ -1,12 +1,12 @@
 package com.moogsan.moongsan_backend.unit.chatting.participant.service.command;
 
-import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatParticipant;
-import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatRoom;
-import com.moogsan.moongsan_backend.domain.chatting.participant.exception.specific.ChatRoomNotFoundException;
-import com.moogsan.moongsan_backend.domain.chatting.participant.exception.specific.NotParticipantException;
-import com.moogsan.moongsan_backend.domain.chatting.participant.repository.ChatParticipantRepository;
-import com.moogsan.moongsan_backend.domain.chatting.participant.repository.ChatRoomRepository;
-import com.moogsan.moongsan_backend.domain.chatting.participant.service.command.LeaveChatRoom;
+import com.moogsan.moongsan_backend.participantchat.domain.entity.ChatParticipant;
+import com.moogsan.moongsan_backend.participantchat.domain.entity.ChatRoom;
+import com.moogsan.moongsan_backend.participantchat.domain.exception.specific.ChatRoomNotFoundException;
+import com.moogsan.moongsan_backend.participantchat.domain.exception.specific.NotParticipantException;
+import com.moogsan.moongsan_backend.participantchat.domain.repository.ChatParticipantRepository;
+import com.moogsan.moongsan_backend.participantchat.domain.repository.ChatRoomRepository;
+import com.moogsan.moongsan_backend.participantchat.application.service.command.LeaveChatRoom;
 import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
 import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
@@ -23,8 +23,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 import java.util.List;
 
-import static com.moogsan.moongsan_backend.domain.chatting.participant.message.ResponseMessage.CHAT_ROOM_NOT_FOUND;
-import static com.moogsan.moongsan_backend.domain.chatting.participant.message.ResponseMessage.ORDER_NOT_FOUND;
+import static com.moogsan.moongsan_backend.participantchat.domain.message.ResponseMessage.CHAT_ROOM_NOT_FOUND;
+import static com.moogsan.moongsan_backend.participantchat.domain.message.ResponseMessage.ORDER_NOT_FOUND;
 import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.NOT_PARTICIPANT;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;

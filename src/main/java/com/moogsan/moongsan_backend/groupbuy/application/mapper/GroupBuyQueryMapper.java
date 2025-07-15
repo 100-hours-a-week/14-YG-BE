@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.groupbuy.application.mapper;
 
-import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatRoom;
+import com.moogsan.moongsan_backend.participantchat.domain.entity.ChatRoom;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.ImageResponse;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyDetail.DetailResponse;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyDetail.UserAccountResponse;
