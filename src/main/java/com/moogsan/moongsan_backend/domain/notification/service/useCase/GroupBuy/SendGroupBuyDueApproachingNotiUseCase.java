@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.domain.notification.service.useCase.GroupBuy;
 
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuy.GroupBuyDueApproachingEvent;
+import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyDueApproachingEvent;
 import com.moogsan.moongsan_backend.domain.notification.entity.NotificationType;
 import com.moogsan.moongsan_backend.domain.notification.service.publisher.NotificationPublisher;
 import com.moogsan.moongsan_backend.domain.notification.template.NotificationTemplateRegistry;

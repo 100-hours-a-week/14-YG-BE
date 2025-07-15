@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.domain.user.repository;
 
-import com.moogsan.moongsan_backend.groupbuy.entity.GroupBuy;
+import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.user.entity.Wish;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

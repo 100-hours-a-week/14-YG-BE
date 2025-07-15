@@ -2,11 +2,11 @@ package com.moogsan.moongsan_backend.unit.groupbuy.service.command;
 
 import com.moogsan.moongsan_backend.domain.chatting.participant.facade.command.ChattingCommandFacade;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.request.CreateGroupBuyRequest;
-import com.moogsan.moongsan_backend.groupbuy.entity.GroupBuy;
-import com.moogsan.moongsan_backend.groupbuy.exception.specific.GroupBuyInvalidStateException;
+import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
+import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.groupbuy.mapper.GroupBuyCommandMapper;
-import com.moogsan.moongsan_backend.groupbuy.repository.GroupBuyRepository;
-import com.moogsan.moongsan_backend.groupbuy.service.GroupBuyCommandService.CreateGroupBuy;
+import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
+import com.moogsan.moongsan_backend.groupbuy.application.service.GroupBuyCommandService.CreateGroupBuy;
 import com.moogsan.moongsan_backend.domain.image.mapper.ImageMapper;
 import com.moogsan.moongsan_backend.domain.image.service.S3Service;
 import com.moogsan.moongsan_backend.domain.user.entity.User;

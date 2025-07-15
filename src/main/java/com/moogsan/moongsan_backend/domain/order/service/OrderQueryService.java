@@ -1,7 +1,7 @@
 package com.moogsan.moongsan_backend.domain.order.service;
 
-import com.moogsan.moongsan_backend.groupbuy.entity.GroupBuy;
-import com.moogsan.moongsan_backend.groupbuy.repository.GroupBuyRepository;
+import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
+import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.order.dto.response.OrderCreateResponse;
 import com.moogsan.moongsan_backend.domain.order.dto.response.OrderParticipantResponse;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;

@@ -1,12 +1,12 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.service.command;
 
-import com.moogsan.moongsan_backend.groupbuy.entity.GroupBuy;
-import com.moogsan.moongsan_backend.groupbuy.exception.specific.GroupBuyInvalidStateException;
-import com.moogsan.moongsan_backend.groupbuy.exception.specific.GroupBuyNotFoundException;
-import com.moogsan.moongsan_backend.groupbuy.exception.specific.GroupBuyNotHostException;
-import com.moogsan.moongsan_backend.groupbuy.repository.GroupBuyRepository;
-import com.moogsan.moongsan_backend.groupbuy.service.GroupBuyCommandService.DeleteGroupBuy;
-import com.moogsan.moongsan_backend.groupbuy.service.GroupBuySseService.publisher.RealtimePublisher;
+import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
+import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyInvalidStateException;
+import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyNotFoundException;
+import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyNotHostException;
+import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
+import com.moogsan.moongsan_backend.groupbuy.application.service.GroupBuyCommandService.DeleteGroupBuy;
+import com.moogsan.moongsan_backend.groupbuy.application.service.GroupBuySseService.publisher.RealtimePublisher;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import org.junit.jupiter.api.BeforeEach;

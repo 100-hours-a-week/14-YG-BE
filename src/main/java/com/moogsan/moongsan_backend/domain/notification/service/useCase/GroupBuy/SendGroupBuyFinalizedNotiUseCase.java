@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.domain.notification.service.useCase.GroupBuy;
 
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuy.GroupBuyStatusFinalizedEvent;
+import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyStatusFinalizedEvent;
 import com.moogsan.moongsan_backend.adapters.sse.SseEmitterRepository;
 import com.moogsan.moongsan_backend.domain.notification.entity.NotificationType;
 import com.moogsan.moongsan_backend.domain.notification.factory.NotificationFactory;

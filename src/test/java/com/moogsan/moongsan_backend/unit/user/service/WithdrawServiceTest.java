@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.unit.user.service;
 
-import com.moogsan.moongsan_backend.groupbuy.repository.GroupBuyRepository;
+import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import com.moogsan.moongsan_backend.domain.user.exception.base.UserException;

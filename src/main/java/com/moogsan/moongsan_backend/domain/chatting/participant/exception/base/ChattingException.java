@@ -1,7 +1,7 @@
 package com.moogsan.moongsan_backend.domain.chatting.participant.exception.base;
 
 import com.moogsan.moongsan_backend.domain.chatting.participant.exception.code.ChattingErrorCode;
-import com.moogsan.moongsan_backend.groupbuy.exception.code.GroupBuyErrorCode;
+import com.moogsan.moongsan_backend.groupbuy.domain.exception.code.GroupBuyErrorCode;
 import com.moogsan.moongsan_backend.global.exception.base.BusinessException;
 
 import java.util.Map;

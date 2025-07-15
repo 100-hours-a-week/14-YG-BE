@@ -1,7 +1,7 @@
 package com.moogsan.moongsan_backend.unit.user.service;
 
-import com.moogsan.moongsan_backend.groupbuy.entity.GroupBuy;
-import com.moogsan.moongsan_backend.groupbuy.repository.GroupBuyRepository;
+import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
+import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import com.moogsan.moongsan_backend.domain.user.entity.Wish;
 import com.moogsan.moongsan_backend.domain.user.repository.UserRepository;

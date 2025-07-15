@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.domain.user.service;
 
-import com.moogsan.moongsan_backend.groupbuy.repository.GroupBuyRepository;
+import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import com.moogsan.moongsan_backend.domain.user.repository.UserRepository;
 import com.moogsan.moongsan_backend.domain.user.repository.TokenRepository;

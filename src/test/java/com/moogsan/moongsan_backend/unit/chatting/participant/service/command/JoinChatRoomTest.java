@@ -5,9 +5,9 @@ import com.moogsan.moongsan_backend.domain.chatting.participant.exception.specif
 import com.moogsan.moongsan_backend.domain.chatting.participant.repository.ChatParticipantRepository;
 import com.moogsan.moongsan_backend.domain.chatting.participant.repository.ChatRoomRepository;
 import com.moogsan.moongsan_backend.domain.chatting.participant.service.command.JoinChatRoom;
-import com.moogsan.moongsan_backend.groupbuy.entity.GroupBuy;
-import com.moogsan.moongsan_backend.groupbuy.exception.specific.GroupBuyNotFoundException;
-import com.moogsan.moongsan_backend.groupbuy.repository.GroupBuyRepository;
+import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
+import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyNotFoundException;
+import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
 import com.moogsan.moongsan_backend.domain.order.exception.specific.OrderNotFoundException;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;

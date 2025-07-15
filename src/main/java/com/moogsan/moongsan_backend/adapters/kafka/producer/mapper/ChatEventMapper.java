@@ -1,7 +1,6 @@
 package com.moogsan.moongsan_backend.adapters.kafka.producer.mapper;
 
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.Chat.ChatMessagePersistEvent;
-import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuy.GroupBuyStatusClosedEvent;
 import org.springframework.stereotype.Component;
 
 @Component

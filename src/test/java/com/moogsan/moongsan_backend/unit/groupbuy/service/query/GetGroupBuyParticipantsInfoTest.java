@@ -2,12 +2,12 @@ package com.moogsan.moongsan_backend.unit.groupbuy.service.query;
 
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.ParticipantList.ParticipantListResponse;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.ParticipantList.ParticipantResponse;
-import com.moogsan.moongsan_backend.groupbuy.entity.GroupBuy;
-import com.moogsan.moongsan_backend.groupbuy.exception.specific.GroupBuyNotFoundException;
-import com.moogsan.moongsan_backend.groupbuy.exception.specific.GroupBuyNotHostException;
+import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
+import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyNotFoundException;
+import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyNotHostException;
 import com.moogsan.moongsan_backend.groupbuy.mapper.GroupBuyQueryMapper;
-import com.moogsan.moongsan_backend.groupbuy.repository.GroupBuyRepository;
-import com.moogsan.moongsan_backend.groupbuy.service.GroupBuyQueryService.GetGroupBuyParticipantsInfo;
+import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
+import com.moogsan.moongsan_backend.groupbuy.application.service.GroupBuyQueryService.GetGroupBuyParticipantsInfo;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;

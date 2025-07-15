@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.groupbuy.policy;
 
-import com.moogsan.moongsan_backend.groupbuy.entity.GroupBuy;
+import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
 import org.springframework.stereotype.Component;
 
 @Component
