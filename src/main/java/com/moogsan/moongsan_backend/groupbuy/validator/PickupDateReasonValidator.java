@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.groupbuy.validator;
 
-import com.moogsan.moongsan_backend.groupbuy.dto.command.request.UpdateGroupBuyRequest;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.request.UpdateGroupBuyRequest;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

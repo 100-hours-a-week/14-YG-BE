@@ -1,7 +1,7 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.controller.command;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moogsan.moongsan_backend.groupbuy.controller.command.EndGroupBuyController;
+import com.moogsan.moongsan_backend.groupbuy.presentation.controller.command.EndGroupBuyController;
 import com.moogsan.moongsan_backend.groupbuy.facade.command.GroupBuyCommandFacade;
 import com.moogsan.moongsan_backend.support.fake.InMemoryDuplicateRequestPreventer;
 import com.moogsan.moongsan_backend.support.security.WithMockCustomUser;

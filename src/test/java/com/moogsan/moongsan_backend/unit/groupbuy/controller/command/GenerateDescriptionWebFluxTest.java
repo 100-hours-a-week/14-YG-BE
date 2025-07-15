@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.controller.command;
 
-import com.moogsan.moongsan_backend.groupbuy.controller.command.GenerateDescriptionController;
+import com.moogsan.moongsan_backend.groupbuy.presentation.controller.command.GenerateDescriptionController;
 import com.moogsan.moongsan_backend.groupbuy.facade.command.GroupBuyCommandFacade;
 import com.moogsan.moongsan_backend.support.fake.InMemoryDuplicateRequestPreventer;
 import org.springframework.beans.factory.annotation.Autowired;

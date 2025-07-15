@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.groupbuy.service.GroupBuyQueryService;
 
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyUpdate.GroupBuyForUpdateResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyUpdate.GroupBuyForUpdateResponse;
 import com.moogsan.moongsan_backend.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.groupbuy.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.groupbuy.exception.specific.GroupBuyNotFoundException;

@@ -2,8 +2,8 @@ package com.moogsan.moongsan_backend.unit.groupbuy.service.query;
 
 import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatRoom;
 import com.moogsan.moongsan_backend.domain.chatting.participant.repository.ChatRoomRepository;
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyList.HostedList.HostedListResponse;
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyList.PagedResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.HostedList.HostedListResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.PagedResponse;
 import com.moogsan.moongsan_backend.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.groupbuy.mapper.GroupBuyQueryMapper;
 import com.moogsan.moongsan_backend.groupbuy.repository.GroupBuyRepository;

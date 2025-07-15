@@ -1,14 +1,14 @@
 package com.moogsan.moongsan_backend.groupbuy.facade.query;
 
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyDetail.DetailResponse;
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyDetail.UserAccountResponse;
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyList.BasicList.BasicListResponse;
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyList.HostedList.HostedListResponse;
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyList.PagedResponse;
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyList.WishList.WishListResponse;
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyList.ParticipantList.ParticipantListResponse;
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyList.ParticipatedList.ParticipatedListResponse;
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyUpdate.GroupBuyForUpdateResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyDetail.DetailResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyDetail.UserAccountResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.BasicList.BasicListResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.HostedList.HostedListResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.PagedResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.WishList.WishListResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.ParticipantList.ParticipantListResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.ParticipatedList.ParticipatedListResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyUpdate.GroupBuyForUpdateResponse;
 
 import java.time.LocalDateTime;
 

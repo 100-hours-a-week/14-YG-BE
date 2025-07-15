@@ -6,7 +6,7 @@ import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuy.GroupBu
 import com.moogsan.moongsan_backend.adapters.kafka.producer.dto.GroupBuy.GroupBuyUpdatedEvent;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.mapper.GroupBuyEventMapper;
 import com.moogsan.moongsan_backend.adapters.kafka.producer.publisher.KafkaEventPublisher;
-import com.moogsan.moongsan_backend.groupbuy.dto.command.request.UpdateGroupBuyRequest;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.request.UpdateGroupBuyRequest;
 import com.moogsan.moongsan_backend.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.groupbuy.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.groupbuy.exception.specific.GroupBuyNotFoundException;

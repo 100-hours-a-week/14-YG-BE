@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.groupbuy.mapper;
 
-import com.moogsan.moongsan_backend.groupbuy.dto.command.request.CreateGroupBuyRequest;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.request.CreateGroupBuyRequest;
 import com.moogsan.moongsan_backend.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.groupbuy.policy.DueSoonPolicy;
 import com.moogsan.moongsan_backend.domain.user.entity.User;

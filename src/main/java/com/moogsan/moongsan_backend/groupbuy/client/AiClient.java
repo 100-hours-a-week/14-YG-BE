@@ -1,9 +1,9 @@
 // 1) AiClient.java
 package com.moogsan.moongsan_backend.groupbuy.client;
 
-import com.moogsan.moongsan_backend.groupbuy.dto.command.request.DescriptionGenerationRequest;
-import com.moogsan.moongsan_backend.groupbuy.dto.command.response.ApiResponse;
-import com.moogsan.moongsan_backend.groupbuy.dto.command.response.DescriptionDto;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.request.DescriptionGenerationRequest;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.response.ApiResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.response.DescriptionDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

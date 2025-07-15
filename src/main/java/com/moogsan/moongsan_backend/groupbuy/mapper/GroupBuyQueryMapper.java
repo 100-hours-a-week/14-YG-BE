@@ -1,16 +1,16 @@
 package com.moogsan.moongsan_backend.groupbuy.mapper;
 
 import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatRoom;
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.ImageResponse;
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyDetail.DetailResponse;
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyDetail.UserAccountResponse;
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyDetail.UserProfileResponse;
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyList.BasicList.BasicListResponse;
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyList.HostedList.HostedListResponse;
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyList.ParticipantList.ParticipantResponse;
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyList.ParticipatedList.ParticipatedListResponse;
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyList.WishList.WishListResponse;
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyUpdate.GroupBuyForUpdateResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.ImageResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyDetail.DetailResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyDetail.UserAccountResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyDetail.UserProfileResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.BasicList.BasicListResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.HostedList.HostedListResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.ParticipantList.ParticipantResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.ParticipatedList.ParticipatedListResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.WishList.WishListResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyUpdate.GroupBuyForUpdateResponse;
 import com.moogsan.moongsan_backend.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.domain.image.entity.Image;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;

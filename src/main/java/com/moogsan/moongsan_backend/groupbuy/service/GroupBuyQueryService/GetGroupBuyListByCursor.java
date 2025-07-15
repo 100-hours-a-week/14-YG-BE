@@ -1,7 +1,7 @@
 package com.moogsan.moongsan_backend.groupbuy.service.GroupBuyQueryService;
 
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyList.BasicList.BasicListResponse;
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyList.PagedResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.BasicList.BasicListResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.PagedResponse;
 import com.moogsan.moongsan_backend.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.groupbuy.exception.specific.CategoryNotFoundException;
 import com.moogsan.moongsan_backend.groupbuy.mapper.GroupBuyQueryMapper;

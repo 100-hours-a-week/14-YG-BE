@@ -1,7 +1,7 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.service.query;
 
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyList.ParticipantList.ParticipantListResponse;
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyList.ParticipantList.ParticipantResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.ParticipantList.ParticipantListResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.ParticipantList.ParticipantResponse;
 import com.moogsan.moongsan_backend.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.groupbuy.exception.specific.GroupBuyNotFoundException;
 import com.moogsan.moongsan_backend.groupbuy.exception.specific.GroupBuyNotHostException;

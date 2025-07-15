@@ -1,7 +1,7 @@
 package com.moogsan.moongsan_backend.groupbuy.service.GroupBuyCommandService;
 
 import com.moogsan.moongsan_backend.domain.chatting.participant.facade.command.ChattingCommandFacade;
-import com.moogsan.moongsan_backend.groupbuy.dto.command.request.CreateGroupBuyRequest;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.request.CreateGroupBuyRequest;
 import com.moogsan.moongsan_backend.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.groupbuy.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.groupbuy.mapper.GroupBuyCommandMapper;

@@ -1,7 +1,7 @@
 package com.moogsan.moongsan_backend.groupbuy.service.GroupBuyQueryService;
 
 import com.moogsan.moongsan_backend.domain.chatting.anonymous.service.GenerateAliasIdService;
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyDetail.DetailResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyDetail.DetailResponse;
 import com.moogsan.moongsan_backend.groupbuy.entity.GroupBuy;
 import com.moogsan.moongsan_backend.groupbuy.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.groupbuy.exception.specific.GroupBuyNotFoundException;

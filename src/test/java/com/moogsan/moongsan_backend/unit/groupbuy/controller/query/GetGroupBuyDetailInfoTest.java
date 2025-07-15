@@ -1,9 +1,9 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.controller.query;
 
-import com.moogsan.moongsan_backend.groupbuy.controller.query.GroupBuyDetailController;
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.ImageResponse;
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyDetail.DetailResponse;
-import com.moogsan.moongsan_backend.groupbuy.dto.query.response.groupBuyDetail.UserProfileResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.controller.query.GroupBuyDetailController;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.ImageResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyDetail.DetailResponse;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyDetail.UserProfileResponse;
 import com.moogsan.moongsan_backend.groupbuy.facade.query.GroupBuyQueryFacade;
 import com.moogsan.moongsan_backend.support.security.WithMockCustomUser;
 import org.junit.jupiter.api.DisplayName;

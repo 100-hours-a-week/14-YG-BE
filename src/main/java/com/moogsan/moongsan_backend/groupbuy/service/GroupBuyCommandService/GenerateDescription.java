@@ -1,7 +1,7 @@
 package com.moogsan.moongsan_backend.groupbuy.service.GroupBuyCommandService;
 
 import com.moogsan.moongsan_backend.groupbuy.client.AiClient;
-import com.moogsan.moongsan_backend.groupbuy.dto.command.response.DescriptionDto;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.response.DescriptionDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

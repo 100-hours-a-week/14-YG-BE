@@ -2,7 +2,7 @@ package com.moogsan.moongsan_backend.groupbuy.entity;
 
 import com.moogsan.moongsan_backend.domain.BaseEntity;
 import com.moogsan.moongsan_backend.domain.chatting.participant.entity.ChatRoom;
-import com.moogsan.moongsan_backend.groupbuy.dto.command.request.UpdateGroupBuyRequest;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.request.UpdateGroupBuyRequest;
 import com.moogsan.moongsan_backend.groupbuy.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.groupbuy.policy.DueSoonPolicy;
 import com.moogsan.moongsan_backend.domain.image.entity.Image;

@@ -1,8 +1,8 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.controller.command;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moogsan.moongsan_backend.groupbuy.controller.command.CreateGroupBuyController;
-import com.moogsan.moongsan_backend.groupbuy.dto.command.request.CreateGroupBuyRequest;
+import com.moogsan.moongsan_backend.groupbuy.presentation.controller.command.CreateGroupBuyController;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.request.CreateGroupBuyRequest;
 import com.moogsan.moongsan_backend.groupbuy.facade.command.GroupBuyCommandFacade;
 import com.moogsan.moongsan_backend.global.lock.DuplicateRequestPreventer;
 import com.moogsan.moongsan_backend.support.security.WithMockCustomUser;
