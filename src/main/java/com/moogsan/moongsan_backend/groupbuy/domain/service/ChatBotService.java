@@ -22,7 +22,7 @@ public class ChatBotService {
     public Mono<Void> streamChatForUser(User user,
                                                    ChatMessageRequest request,
                                                    String sessionId) {
-        String key = "chat-bot:" + user.getId();
+        String key = "chat:" + user.getId();
 
         // 1) processing 이벤트
         ChatSseResponse processingEvt = new ChatSseResponse(
