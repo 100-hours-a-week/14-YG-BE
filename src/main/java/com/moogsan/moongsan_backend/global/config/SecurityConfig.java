@@ -59,7 +59,7 @@ public class SecurityConfig {
                         "/ws/chat",                             // WebSocket 핸드셰이크 직접 허용
                         "/ws/chat/**",                          // STOMP WebSocket 연결 허용
                         "/ws/participant", "/participant-ws",   // 참여자 채팅
-                        "/test-chat.html",                      // WebSocket 테스트 HTML
+                        "/chat-anon-test.html",                      // WebSocket 테스트 HTML
                         "/favicon.ico",                         // 브라우저 요청 아이콘
                         "/api/chat-anon/**",                    // 익명 채팅 내역 첫 조회
                         "/pub/api/chat-anon/message" ,           // STOMP 메시지 발신 허용

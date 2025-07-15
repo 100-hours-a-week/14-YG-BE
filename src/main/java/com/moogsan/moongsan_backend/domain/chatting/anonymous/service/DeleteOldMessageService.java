@@ -27,11 +27,7 @@ public class DeleteOldMessageService {
                 .limit(allMessages.size() - 10)
                 .toList();
 
-            List<String> idsToDelete = messagesToDelete.stream()
-                .map(ChatAnon::getId)
-                .toList();
-
-            chatAnonRepository.deleteAllById(idsToDelete);
+            chatAnonRepository.deleteAll(messagesToDelete);
         }
 
         System.out.println("🟡 [DeleteOldMessage] 현재 메시지 개수: " + chatAnonRepository.countByPostId(postId));
