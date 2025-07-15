@@ -31,7 +31,7 @@ public class KafkaConsumerService {
         deleteOldMessages.deleteOldMessages(Long.parseLong(postId));
         simpMessagingTemplate.convertAndSend("/topic/chat-anon/" + postId, message);
 
-        System.out.println("🟡 [KafkaConsumer] MongoDB 저장 및 WebSocket 토픽 발행 완료 - aliasId: " + message.getAliasId() + ", message: " + message.getMessage());
+        System.out.println("🟡 [KafkaConsumer] MongoDB 저장 및 WebSocket 토픽 발행 완료 - participantId: " + message.getParticipantId() + ", messageContent: " + message.getMessageContent());
         ack.acknowledge();
     }
 }

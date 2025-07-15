@@ -15,8 +15,12 @@ public class KafkaProducerService {
 
     public void send(ChatAnonDto message){
         kafkaTemplate.send(TOPIC, String.valueOf(message.getPostId()), message);
-        System.out.println("🟡 [KafkaProducer] Kafka 메시지 발행: postId=" + message.getPostId()
-                           + ", aliasId=" + message.getAliasId()
-                           + ", message=" + message.getMessage());
+        System.out.println("🟡 [KafkaProducer] Kafka 메시지 발행 -\n" +
+                "  messageId=" + message.getMessageId() + "\n" +
+                "  postId=" + message.getPostId() + "\n" +
+                "  participantId=" + message.getParticipantId() + "\n" +
+                "  messageContent=" + message.getMessageContent() + "\n" +
+                "  type=" + message.getType() + "\n" +
+                "  createdAt=" + message.getCreatedAt());
     }
 }
