@@ -1,5 +1,6 @@
 package com.moogsan.moongsan_backend.participantchat.presentation.controller.websocket;
 
+import com.moogsan.moongsan_backend.global.security.annotation.RequireLogin;
 import com.moogsan.moongsan_backend.participantchat.application.facade.query.ChattingQueryFacade;
 import com.moogsan.moongsan_backend.participantchat.presentation.dto.query.request.ChatStompRequest;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Controller;
 @Slf4j
 @Controller
 @RequiredArgsConstructor
+@RequireLogin
 public class GetLatestMessagesStompController {
 
     private final ChattingQueryFacade chattingQueryFacade;

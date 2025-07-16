@@ -1,5 +1,6 @@
 package com.moogsan.moongsan_backend.participantchat.presentation.controller.query;
 
+import com.moogsan.moongsan_backend.global.security.annotation.RequireLogin;
 import com.moogsan.moongsan_backend.participantchat.application.facade.query.ChattingQueryFacade;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/chats/participant")
+@RequireLogin
 public class GetLatestMessagesSseController {
     private final ChattingQueryFacade chattingQueryFacade;
 

@@ -27,10 +27,7 @@ public class EndGroupBuyController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId) {
 
-        if (userDetails == null) throw new UnauthenticatedAccessException("로그인이 필요합니다.");
-
         groupBuyFacade.endGroupBuy(userDetails.getUser(), postId);
-
         return ResponseEntity.ok(
                 WrapperResponse.<EmptyResponse>builder()
                         .message(END_SUCCESS)

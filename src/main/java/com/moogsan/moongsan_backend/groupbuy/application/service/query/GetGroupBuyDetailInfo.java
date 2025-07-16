@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,6 +36,19 @@ public class GetGroupBuyDetailInfo {
     /// 공구 게시글 상세 조회
     public DetailResponse getGroupBuyDetailInfo(Long userId, Long postId) {
 
+        // 유효성 검사
+        GroupBuy groupBuy = fetchAndValidate(postId);
+
+        // 공구 게시글 상세 정보 조회 및 매핑
+        int aliasId = generateAliasIdService.generateAliasId(groupBuy.getId());
+        boolean isHost = Objects.equals(userId, groupBuy.getUser().getId());
+        boolean isParticipant = orderRepository.existsByUserIdAndGroupBuyIdAndStatusNotIn(
+                userId, groupBuy.getId(), List.of("CANCELED", "REFUNDED"));
+        boolean isWish = wishRepository.existsByUserIdAndGroupBuyId(userId, postId);
+        return groupBuyQueryMapper.toDetailResponse(groupBuy, isHost, isParticipant, isWish, aliasId);
+    }
+
+    private GroupBuy fetchAndValidate(Long postId) {
         GroupBuy groupBuy = groupBuyRepository.findWithImagesById(postId)
                 .orElseThrow(GroupBuyNotFoundException::new);
 
@@ -44,14 +56,6 @@ public class GetGroupBuyDetailInfo {
             throw new GroupBuyInvalidStateException(AFTER_DELETED);
         }
 
-        int aliasId = generateAliasIdService.generateAliasId(groupBuy.getId());
-
-        //log.info("Checking participant: userId={}, postId={}", userId, postId);
-        boolean isHost = Objects.equals(userId, groupBuy.getUser().getId());
-        boolean isParticipant = orderRepository.existsByUserIdAndGroupBuyIdAndStatusNotIn(
-                userId, groupBuy.getId(), List.of("CANCELED", "REFUNDED"));
-        boolean isWish = wishRepository.existsByUserIdAndGroupBuyId(userId, postId);
-
-        return groupBuyQueryMapper.toDetailResponse(groupBuy, isHost, isParticipant, isWish, aliasId);
+        return groupBuy;
     }
 }

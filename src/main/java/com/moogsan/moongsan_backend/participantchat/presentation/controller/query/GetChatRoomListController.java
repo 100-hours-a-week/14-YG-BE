@@ -1,6 +1,7 @@
 package com.moogsan.moongsan_backend.participantchat.presentation.controller.query;
 
 import com.moogsan.moongsan_backend.global.dto.WrapperResponse;
+import com.moogsan.moongsan_backend.global.security.annotation.RequireLogin;
 import com.moogsan.moongsan_backend.participantchat.application.facade.query.ChattingQueryFacade;
 import com.moogsan.moongsan_backend.participantchat.presentation.dto.query.response.ChatRoomPagedResponse;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
@@ -18,6 +19,7 @@ import java.time.LocalDateTime;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/chats")
+@RequireLogin
 public class GetChatRoomListController {
 
     private final ChattingQueryFacade chattingQueryFacade;
@@ -28,7 +30,6 @@ public class GetChatRoomListController {
             @RequestParam(value = "cursorJoinedAt", required = false) LocalDateTime cursorJoinedAt,
             @RequestParam(value = "limit", required = false, defaultValue = "10") Integer limit
     ) {
-        if (userDetails == null) throw new UnauthenticatedAccessException("로그인이 필요합니다.");
 
         ChatRoomPagedResponse chatRoomResponse = chattingQueryFacade
                 .getChatRoomList(userDetails.getUser().getId(), cursorJoinedAt, limit);

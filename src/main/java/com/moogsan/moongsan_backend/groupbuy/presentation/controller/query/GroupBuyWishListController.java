@@ -1,6 +1,7 @@
 package com.moogsan.moongsan_backend.groupbuy.presentation.controller.query;
 
 import com.moogsan.moongsan_backend.global.dto.WrapperResponse;
+import com.moogsan.moongsan_backend.global.security.annotation.RequireLogin;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.PagedResponse;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.WishList.WishListResponse;
 import com.moogsan.moongsan_backend.groupbuy.application.facade.query.GroupBuyQueryFacade;
@@ -19,6 +20,7 @@ import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessa
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/group-buys/users/me/wishes")
+@RequireLogin
 public class GroupBuyWishListController {
 
     private final GroupBuyQueryFacade queryFacade;
@@ -31,9 +33,6 @@ public class GroupBuyWishListController {
             @RequestParam(value = "cursorId", required = false) Long cursorId,
             @RequestParam(value = "limit", defaultValue = "10") Integer limit
     ) {
-        if (userDetails == null) {
-            throw new UnauthenticatedAccessException("로그인이 필요합니다.");
-        }
 
         PagedResponse<WishListResponse> pagedResponse = queryFacade.getGroupBuyWishList(
                 userDetails.getUser().getId(), sort, cursorCreatedAt, cursorId, limit);

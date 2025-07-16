@@ -40,8 +40,10 @@ public class GetGroupBuyParticipantsInfo {
             throw new GroupBuyNotHostException(NOT_HOST);
         }
 
+        // 주문 리스트 조회
         List<Order> orders = orderRepository.findByGroupBuyIdAndStatusNot(postId, "CANCELED");
 
+        // DTO 매핑
         List<ParticipantResponse> participantList = orders.stream()
                 .map(groupBuyQueryMapper::toParticipantResponse)
                 .toList();

@@ -6,9 +6,9 @@ import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyN
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyNotHostException;
 import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.groupbuy.application.service.command.DeleteGroupBuy;
-import com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher.RealtimePublisher;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
+import com.moogsan.moongsan_backend.groupbuy.domain.service.GroupBuyEventService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,26 +20,21 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class DeleteGroupBuyTest {
 
-    @Mock
-    private GroupBuyRepository groupBuyRepository;
-
-    @Mock
-    private OrderRepository orderRepository;
-
-    @Mock
-    private RealtimePublisher realtimePublisher;
+    @Mock private GroupBuyRepository groupBuyRepository;
+    @Mock private OrderRepository orderRepository;
+    @Mock private GroupBuyEventService groupBuyEventService;
 
     private DeleteGroupBuy deleteGroupBuy;
     private User hostUser;
@@ -62,7 +57,7 @@ public class DeleteGroupBuyTest {
         deleteGroupBuy = new DeleteGroupBuy(
                 groupBuyRepository,
                 orderRepository,
-                realtimePublisher,
+                groupBuyEventService,
                 fixedClock
         );
     }
@@ -75,14 +70,14 @@ public class DeleteGroupBuyTest {
         when(before.getPostStatus()).thenReturn("OPEN");
         when(before.getDueDate())
                 .thenReturn(LocalDateTime.now().plusDays(1));
-        when(orderRepository.countByGroupBuyIdAndStatusNot(1L, "CANCELED"))
+        when(orderRepository.countByGroupBuyIdAndStatusNotIn(1L, List.of("CANCELED", "REFUNDED")))
                 .thenReturn(0);
         when(before.getUser()).thenReturn(hostUser);
 
         deleteGroupBuy.deleteGroupBuy(hostUser, 1L);
 
         verify(groupBuyRepository, times(1)).findById(1L);
-        verify(orderRepository, times(1)).countByGroupBuyIdAndStatusNot(1L, "CANCELED");
+        verify(orderRepository, times(1)).countByGroupBuyIdAndStatusNotIn(1L, List.of("CANCELED", "REFUNDED"));
         verify(groupBuyRepository, times(1)).save(any(GroupBuy.class));
     }
 
@@ -97,7 +92,7 @@ public class DeleteGroupBuyTest {
                 .hasMessageContaining(NOT_EXIST);
 
         verify(groupBuyRepository, times(1)).findById(1L);
-        verify(orderRepository, never()).countByGroupBuyIdAndStatusNot(1L, "CANCELED");
+        verify(orderRepository, never()).countByGroupBuyIdAndStatusNotIn(1L, List.of("CANCELED", "REFUNDED"));
         verify(groupBuyRepository, never()).save(any(GroupBuy.class));
     }
 
@@ -113,7 +108,7 @@ public class DeleteGroupBuyTest {
                 .hasMessageContaining(NOT_OPEN);
 
         verify(groupBuyRepository, times(1)).findById(1L);
-        verify(orderRepository, never()).countByGroupBuyIdAndStatusNot(1L, "CANCELED");
+        verify(orderRepository, never()).countByGroupBuyIdAndStatusNotIn(1L, List.of("CANCELED", "REFUNDED"));
         verify(groupBuyRepository, never()).save(any(GroupBuy.class));
     }
 
@@ -131,7 +126,7 @@ public class DeleteGroupBuyTest {
                 .hasMessageContaining(NOT_OPEN);
 
         verify(groupBuyRepository, times(1)).findById(1L);
-        verify(orderRepository, never()).countByGroupBuyIdAndStatusNot(1L, "CANCELED");
+        verify(orderRepository, never()).countByGroupBuyIdAndStatusNotIn(1L, List.of("CANCELED", "REFUNDED"));
         verify(groupBuyRepository, never()).save(any(GroupBuy.class));
     }
 
@@ -143,7 +138,7 @@ public class DeleteGroupBuyTest {
         when(before.getPostStatus()).thenReturn("OPEN");
         when(before.getDueDate())
                 .thenReturn(now.plusDays(1));
-        when(orderRepository.countByGroupBuyIdAndStatusNot(1L, "CANCELED"))
+        when(orderRepository.countByGroupBuyIdAndStatusNotIn(1L, List.of("CANCELED", "REFUNDED")))
                 .thenReturn(1);
 
         assertThatThrownBy(() -> deleteGroupBuy.deleteGroupBuy(hostUser, 1L))
@@ -151,7 +146,7 @@ public class DeleteGroupBuyTest {
                 .hasMessageContaining(EXIST_PARTICIPANT);
 
         verify(groupBuyRepository, times(1)).findById(1L);
-        verify(orderRepository, times(1)).countByGroupBuyIdAndStatusNot(1L, "CANCELED");
+        verify(orderRepository, times(1)).countByGroupBuyIdAndStatusNotIn(1L, List.of("CANCELED", "REFUNDED"));
         verify(groupBuyRepository, never()).save(any(GroupBuy.class));
     }
 
@@ -164,7 +159,7 @@ public class DeleteGroupBuyTest {
         when(before.getPostStatus()).thenReturn("OPEN");
         when(before.getDueDate())
                 .thenReturn(now.plusDays(1));
-        when(orderRepository.countByGroupBuyIdAndStatusNot(1L, "CANCELED"))
+        when(orderRepository.countByGroupBuyIdAndStatusNotIn(1L, List.of("CANCELED", "REFUNDED")))
                 .thenReturn(0);
         when(before.getUser()).thenReturn(hostUser);
 
@@ -173,7 +168,7 @@ public class DeleteGroupBuyTest {
                 .hasMessageContaining(NOT_HOST);
 
         verify(groupBuyRepository, times(1)).findById(1L);
-        verify(orderRepository, times(1)).countByGroupBuyIdAndStatusNot(1L, "CANCELED");
+        verify(orderRepository, times(1)).countByGroupBuyIdAndStatusNotIn(1L, List.of("CANCELED", "REFUNDED"));
         verify(groupBuyRepository, never()).save(any(GroupBuy.class));
     }
 }

@@ -1,6 +1,7 @@
 package com.moogsan.moongsan_backend.groupbuy.presentation.controller.command;
 
 import com.moogsan.moongsan_backend.global.dto.WrapperResponse;
+import com.moogsan.moongsan_backend.global.security.annotation.RequireLogin;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.request.CreateGroupBuyRequest;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.response.CommandGroupBuyResponse;
 import com.moogsan.moongsan_backend.groupbuy.application.facade.command.GroupBuyCommandFacade;
@@ -23,6 +24,7 @@ import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessa
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/group-buys")
+@RequireLogin
 public class CreateGroupBuyController {
 
     private final GroupBuyCommandFacade groupBuyFacade;
@@ -32,13 +34,10 @@ public class CreateGroupBuyController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @Valid @RequestBody CreateGroupBuyRequest request) {
 
-        if (userDetails == null) throw new UnauthenticatedAccessException("로그인이 필요합니다.");
-
+        //if (userDetails == null) throw new UnauthenticatedAccessException("로그인이 필요합니다.");
         Long postId = groupBuyFacade.createGroupBuy(userDetails.getUser(), request);
-
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}").buildAndExpand(postId).toUri();
-
         return ResponseEntity.created(location)
                 .body(WrapperResponse.<CommandGroupBuyResponse>builder()
                         .message(CREATE_SUCCESS)

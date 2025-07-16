@@ -17,8 +17,8 @@ public class ChattingCommandFacadeImpl implements ChattingCommandFacade {
     private final LeaveChatRoom leaveChatRoom;
 
     @Override
-    public Long joinChatRoom(User user, Long groupBuyId) {
-        return joinChatRoom.joinChatRoom(user, groupBuyId);
+    public void joinChatRoom(User user, Long groupBuyId) {
+         joinChatRoom.joinChatRoom(user, groupBuyId);
     }
 
     @Override

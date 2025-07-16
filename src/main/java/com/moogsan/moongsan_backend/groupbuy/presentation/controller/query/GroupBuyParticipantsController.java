@@ -1,6 +1,7 @@
 package com.moogsan.moongsan_backend.groupbuy.presentation.controller.query;
 
 import com.moogsan.moongsan_backend.global.dto.WrapperResponse;
+import com.moogsan.moongsan_backend.global.security.annotation.RequireLogin;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyList.ParticipantList.ParticipantListResponse;
 import com.moogsan.moongsan_backend.groupbuy.application.facade.query.GroupBuyQueryFacade;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
@@ -15,6 +16,7 @@ import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessa
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/group-buys/{postId}/participants")
+@RequireLogin
 public class GroupBuyParticipantsController {
 
     private final GroupBuyQueryFacade queryFacade;
@@ -23,10 +25,6 @@ public class GroupBuyParticipantsController {
     public ResponseEntity<WrapperResponse<ParticipantListResponse>> getGroupBuyParticipantsInfo(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId) {
-
-        if (userDetails == null) {
-            throw new UnauthenticatedAccessException("로그인이 필요합니다.");
-        }
 
         ParticipantListResponse participantList = queryFacade.getGroupBuyParticipantsInfo(
                 userDetails.getUser().getId(), postId);

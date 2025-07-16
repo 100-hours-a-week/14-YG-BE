@@ -27,11 +27,35 @@ public class GetGroupBuyWishList {
 
     /// 관심 공구 리스트 조회: 관심 등록 순으로 커서 적용 필요
     public PagedResponse<WishListResponse> getGroupBuyWishList(
-            Long userId,
-            String postStatus,
-            LocalDateTime cursorCreatedAt,
-            Long cursorId,
-            Integer limit) {
+            Long userId, String postStatus, LocalDateTime cursorCreatedAt, Long cursorId, Integer limit) {
+
+        // 공동구매 게시글 데이터 조회
+        List<GroupBuy> groupBuys = fetchGroupBuys(userId, postStatus, cursorCreatedAt, cursorId, limit);
+
+        // DTO 변환
+        List<WishListResponse> posts = groupBuys.stream()
+                .map(groupBuyQueryMapper::toWishListResponse)
+                .toList();
+
+        // 더보기 여부 확인
+        boolean hasMore = posts.size() > limit;
+
+        // 실제 데이터 크기로 조정
+        List<WishListResponse> wishedGroupBuys = posts.size() > limit ? posts.subList(0, limit) : posts;
+
+        // 다음 커서 지정
+        Long nextCursor = wishedGroupBuys.isEmpty() ? null : wishedGroupBuys.getLast().getPostId();
+
+        return PagedResponse.<WishListResponse>builder()
+                .count(wishedGroupBuys.size())
+                .posts(wishedGroupBuys)
+                .nextCursor(nextCursor != null ? nextCursor.intValue() : null)
+                .hasMore(hasMore)
+                .build();
+    }
+
+    private List<GroupBuy> fetchGroupBuys(
+            Long userId, String postStatus, LocalDateTime cursorCreatedAt, Long cursorId, Integer limit) {
         String status = postStatus.toUpperCase();
 
         Pageable page = PageRequest.of(
@@ -45,7 +69,7 @@ public class GetGroupBuyWishList {
         List<GroupBuy> groupBuys;
         if (cursorId == null) {
             groupBuys = wishRepository
-                    .findGroupBuysByUserAndPostStatus (
+                    .findGroupBuysByUserAndPostStatus(
                             userId,
                             status,
                             page
@@ -61,26 +85,6 @@ public class GetGroupBuyWishList {
                     );
         }
 
-        // 매핑
-        List<WishListResponse> posts = groupBuys.stream()
-                .map(groupBuyQueryMapper::toWishListResponse)
-                .toList();
-
-        List<WishListResponse> wishedGroupBuys = posts.size() > limit
-                ? posts.subList(0, limit)
-                : posts;
-
-        // 다음 커서 및 더보기 여부
-        Long nextCursor = wishedGroupBuys.isEmpty()
-                ? null
-                : wishedGroupBuys.getLast().getPostId();
-        boolean hasMore = posts.size() > limit;
-
-        return PagedResponse.<WishListResponse>builder()
-                .count(wishedGroupBuys.size())
-                .posts(wishedGroupBuys)
-                .nextCursor(nextCursor != null ? nextCursor.intValue() : null)
-                .hasMore(hasMore)
-                .build();
+        return groupBuys;
     }
 }

@@ -21,6 +21,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
+import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.NOT_EXIST;
+import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.NOT_HOST;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;

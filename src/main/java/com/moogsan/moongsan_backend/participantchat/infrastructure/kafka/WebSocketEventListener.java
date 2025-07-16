@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.participantchat.presentation.controller.websocket;
+package com.moogsan.moongsan_backend.participantchat.infrastructure.kafka;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;

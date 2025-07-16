@@ -19,6 +19,7 @@ import static com.moogsan.moongsan_backend.notification.domain.message.ResponseM
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/notifications")
+
 public class NotificationListController {
 
     private final GetPastNotifications getPastNotifications;
@@ -29,7 +30,6 @@ public class NotificationListController {
             @RequestParam(required = false) Long cursorId,
             @RequestParam(required = false, defaultValue = "10") int size
     ) {
-        if (userDetails == null) throw new UnauthenticatedAccessException("로그인이 필요합니다.");
 
         PagedResponse<NotificationResponse> response = getPastNotifications
                 .getPastNotifications(userDetails.getUser().getId(), cursorId, size);

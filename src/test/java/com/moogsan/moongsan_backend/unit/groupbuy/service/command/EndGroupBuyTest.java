@@ -1,17 +1,13 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.service.command;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moogsan.moongsan_backend.groupbuy.domain.mapper.GroupBuyEventMapper;
-import com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyNotFoundException;
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyNotHostException;
 import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.groupbuy.application.service.command.EndGroupBuy;
-import com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher.RealtimePublisher;
-import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
+import com.moogsan.moongsan_backend.groupbuy.domain.service.GroupBuyEventService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Optional;
 
+import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -32,23 +29,9 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class EndGroupBuyTest {
-    @Mock
-    private GroupBuyRepository groupBuyRepository;
-
-    @Mock
-    private OrderRepository orderRepository;
-
-    @Mock
-    private KafkaEventPublisher kafkaEventPublisher;
-
-    @Mock
-    private GroupBuyEventMapper eventMapper;
-
-    @Mock
-    private ObjectMapper objectMapper;
-
-    @Mock
-    private RealtimePublisher realtimePublisher;
+    @Mock private GroupBuyRepository groupBuyRepository;
+    @Mock private GroupBuyEventService groupBuyEventService;
+    @Mock private Clock clock;
 
     private EndGroupBuy endGroupBuy;
     private User hostUser;
@@ -72,12 +55,8 @@ public class EndGroupBuyTest {
 
         endGroupBuy = new EndGroupBuy(
                 groupBuyRepository,
-                orderRepository,
-                fixedClock,
-                kafkaEventPublisher,
-                eventMapper,
-                objectMapper,
-                realtimePublisher
+                groupBuyEventService,
+                fixedClock
         );
     }
 

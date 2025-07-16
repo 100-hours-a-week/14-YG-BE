@@ -1,14 +1,13 @@
 package com.moogsan.moongsan_backend.groupbuy.application.service.command;
 
-import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyUpdatedEvent;
 import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyNotFoundException;
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyNotHostException;
 import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
-import com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher.RealtimePublisher;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
+import com.moogsan.moongsan_backend.groupbuy.domain.service.GroupBuyEventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,12 +25,24 @@ public class DeleteGroupBuy {
 
     private final GroupBuyRepository groupBuyRepository;
     private final OrderRepository orderRepository;
-    private final RealtimePublisher realtimePublisher;
+    private final GroupBuyEventService groupBuyEventService;
     private final Clock clock;
 
     /// 공구 게시글 삭제: 참여자가 아무도 없는, 주문 레코드가 없는 경우이므로 하드 삭제
     public void deleteGroupBuy(User currentUser, Long postId) {
 
+        // 유효성 검사
+        GroupBuy groupBuy = fetchAndValidate(currentUser.getId(), postId);
+
+        // 공동구매 게시글 상태 전환
+        groupBuy.changePostStatus("DELETED");
+        groupBuyRepository.save(groupBuy);
+
+        // 공동구매 게시글 상태 전환 이벤트 발행
+        groupBuyEventService.publishGroupBuyUpdated(groupBuy);
+    }
+
+    private GroupBuy fetchAndValidate(Long userId, Long postId) {
         // 해당 공구가 존재하는지 조회 -> 아니면 404
         GroupBuy groupBuy = groupBuyRepository.findById(postId)
                 .orElseThrow(GroupBuyNotFoundException::new);
@@ -49,18 +60,10 @@ public class DeleteGroupBuy {
         }
 
         // 해당 공구의 주최자가 해당 유저인지 조회 -> 아니면 403
-        if(!groupBuy.getUser().getId().equals(currentUser.getId())) {
+        if(!groupBuy.getUser().getId().equals(userId)) {
             throw new GroupBuyNotHostException(NOT_HOST);
         }
 
-        groupBuy.changePostStatus("DELETED");
-        groupBuyRepository.save(groupBuy);
-
-        // 공구 상태 업데이트 이벤트 발행
-        GroupBuyUpdatedEvent event = GroupBuyUpdatedEvent.builder()
-                .groupBuyId(groupBuy.getId())
-                .build();
-        realtimePublisher.publish(event);
-
+        return groupBuy;
     }
 }

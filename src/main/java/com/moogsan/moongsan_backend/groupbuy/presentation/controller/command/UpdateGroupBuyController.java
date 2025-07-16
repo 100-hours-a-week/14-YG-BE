@@ -27,10 +27,7 @@ public class UpdateGroupBuyController {
             @Valid @RequestBody UpdateGroupBuyRequest request,
             @PathVariable Long postId) {
 
-        if (userDetails == null) throw new UnauthenticatedAccessException("로그인이 필요합니다.");
-
         groupBuyFacade.updateGroupBuy(userDetails.getUser(), request, postId);
-
         return ResponseEntity.ok(
                 WrapperResponse.<CommandGroupBuyResponse>builder()
                         .message(UPDATE_SUCCESS)
