@@ -11,7 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
-
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import java.time.Duration;
 import java.util.List;
 
 @Service
@@ -40,20 +42,24 @@ public class WithdrawService {
         tokenRepository.deleteByUserId(userId);
         userRepository.deleteById(userId);
 
-        // 액세스 토큰 삭제
-        jakarta.servlet.http.Cookie accessTokenCookie = new jakarta.servlet.http.Cookie("AccessToken", null);
-        accessTokenCookie.setMaxAge(0);
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(true);
-        response.addHeader("Set-Cookie", "AccessToken=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=None");
+        // 액세스 토큰 삭제 (ResponseCookie 사용)
+        ResponseCookie accessTokenCookie = ResponseCookie.from("AccessToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(Duration.ZERO)
+                .sameSite("None")
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
 
-        // 리프레시 토큰 삭제
-        jakarta.servlet.http.Cookie refreshTokenCookie = new jakarta.servlet.http.Cookie("RefreshToken", null);
-        refreshTokenCookie.setMaxAge(0);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(true);
-        response.addHeader("Set-Cookie", "RefreshToken=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=None");
+        // 리프레시 토큰 삭제 (ResponseCookie 사용)
+        ResponseCookie refreshTokenCookie = ResponseCookie.from("RefreshToken", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(Duration.ZERO)
+                .sameSite("None")
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
     }
 }

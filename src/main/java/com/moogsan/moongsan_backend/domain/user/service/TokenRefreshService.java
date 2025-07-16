@@ -12,6 +12,9 @@ import com.moogsan.moongsan_backend.domain.user.exception.code.UserErrorCode;
 import com.moogsan.moongsan_backend.global.security.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import java.time.Duration;
 
 @Service
 @RequiredArgsConstructor
@@ -46,13 +49,15 @@ public class TokenRefreshService {
         String newAccessToken = jwtUtil.generateAccessToken(user);
         long accessTokenExpireAt = jwtUtil.getAccessTokenExpireAt();
 
-        // 쿠키에 새 AccessToken 설정
-        Cookie accessTokenCookie = new Cookie("AccessToken", newAccessToken);
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(true);
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(60 * 60);
-        response.addHeader("Set-Cookie", "AccessToken=" + newAccessToken + "; HttpOnly; Secure; Path=/; SameSite=None");
+        // 쿠키에 새 AccessToken 설정 (ResponseCookie 사용)
+        ResponseCookie accessTokenCookie = ResponseCookie.from("AccessToken", newAccessToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .sameSite("None")
+                .maxAge(Duration.ofMillis(accessTokenExpireAt))
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
     }
 
     private String extractRefreshTokenFromCookie(HttpServletRequest request) {

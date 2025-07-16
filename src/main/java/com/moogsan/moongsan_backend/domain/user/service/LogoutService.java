@@ -6,7 +6,9 @@ import com.moogsan.moongsan_backend.domain.user.repository.UserRepository;
 import com.moogsan.moongsan_backend.domain.user.exception.base.UserException;
 import com.moogsan.moongsan_backend.domain.user.exception.code.UserErrorCode;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.Cookie;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,21 +35,25 @@ public class LogoutService {
             // 리프레시 토큰 DB에서 삭제
             refreshTokenRepository.deleteByUserId(userId);
 
-            // 엑세스 쿠키 삭제
-            Cookie accessTokenCookie = new Cookie("AccessToken", null);
-            accessTokenCookie.setMaxAge(0);
-            accessTokenCookie.setPath("/");
-            accessTokenCookie.setHttpOnly(true);
-            accessTokenCookie.setSecure(true);
-            response.addHeader("Set-Cookie", "AccessToken=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=None");
+            // 엑세스 토큰 삭제 (ResponseCookie 사용)
+            ResponseCookie accessTokenCookie = ResponseCookie.from("AccessToken", "")
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .maxAge(Duration.ZERO)
+                    .sameSite("None")
+                    .build();
+            response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
 
-            // 리프레시 토큰 삭제
-            Cookie refreshTokenCookie = new Cookie("RefreshToken", null);
-            refreshTokenCookie.setMaxAge(0);
-            refreshTokenCookie.setPath("/");
-            refreshTokenCookie.setHttpOnly(true);
-            refreshTokenCookie.setSecure(true);
-            response.addHeader("Set-Cookie", "RefreshToken=; Max-Age=0; Path=/; HttpOnly; Secure; SameSite=None");
+            // 리프레시 토큰 삭제 (ResponseCookie 사용)
+            ResponseCookie refreshTokenCookie = ResponseCookie.from("RefreshToken", "")
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .maxAge(Duration.ZERO)
+                    .sameSite("None")
+                    .build();
+            response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
         } catch (UserException e) {
             throw e;
