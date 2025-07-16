@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.domain.chatting.anonymous.entity;
 
-import jakarta.persistence.Id;
+import org.springframework.data.annotation.Id;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,15 +14,20 @@ import java.time.LocalDateTime;
 @Document(collection = "chat_messages_anon")
 public class ChatAnon {
     @Id
-    private String id;
+    private String messageId;
 
     @Field("post_id")
     private Long postId;
-    @Field("alias_id")
-    private int aliasId;
+
+    @Field("participant_id")
+    private Integer participantId;
 
     @Size(max = 150)
-    private String message;
+    @Field("message_content")
+    private String messageContent;
+
+    @Builder.Default
+    private String type = "Normal";
 
     @Field("created_at")
     private LocalDateTime createdAt;

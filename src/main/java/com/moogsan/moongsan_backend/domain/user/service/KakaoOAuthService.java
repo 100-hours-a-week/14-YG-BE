@@ -16,7 +16,9 @@ import com.moogsan.moongsan_backend.domain.user.component.KakaoOAuthClient;
 import com.moogsan.moongsan_backend.domain.user.dto.response.KakaoTokenResponse;
 import com.moogsan.moongsan_backend.domain.user.dto.response.KakaoUserInfoResponse;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.Cookie;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import java.time.Duration;
 import com.moogsan.moongsan_backend.domain.user.entity.Token;
 import com.moogsan.moongsan_backend.domain.user.repository.TokenRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -99,21 +101,25 @@ public class KakaoOAuthService {
         );
         refreshTokenRepository.save(newToken);
 
-        // 엑세스 쿠키 설정
-        Cookie accessTokenCookie = new Cookie("AccessToken", accessToken);
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(true);
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge((int) (accessTokenExpireAt / 1000));
-        response.addHeader("Set-Cookie", "AccessToken=" + accessToken + "; HttpOnly; Secure; Path=/; SameSite=None");
+        // 엑세스 토큰 설정 (ResponseCookie 사용)
+        ResponseCookie accessTokenCookie = ResponseCookie.from("AccessToken", accessToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .sameSite("None")
+                .maxAge(Duration.ofMillis(accessTokenExpireAt))
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
 
-        // 리프레시 토큰 설정
-        Cookie refreshTokenCookie = new Cookie("RefreshToken", refreshToken);
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(true);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge((int) (refreshTokenExpireMillis / 1000));
-        response.addHeader("Set-Cookie", "RefreshToken=" + refreshToken + "; HttpOnly; Secure; Path=/; SameSite=None");
+        // 리프레시 토큰 설정 (ResponseCookie 사용)
+        ResponseCookie refreshTokenCookie = ResponseCookie.from("RefreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .sameSite("None")
+                .maxAge(Duration.ofMillis(refreshTokenExpireMillis))
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
         return new LoginResponse(
                 user.getNickname(),

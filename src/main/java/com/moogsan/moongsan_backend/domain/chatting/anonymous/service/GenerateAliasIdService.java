@@ -16,7 +16,7 @@ public class GenerateAliasIdService {
     // 게시글 ID(postId)를 기반으로 현재까지 사용된 aliasId 중 가장 큰 값에 1을 더해서 반환
     public int generateAliasId(Long postId) {
         List<Integer> aliasIds = chatAnonRepository.findByPostId(postId).stream()
-                .map(ChatAnon::getAliasId)
+                .map(ChatAnon::getParticipantId)
                 .distinct()
                 .toList();
 
