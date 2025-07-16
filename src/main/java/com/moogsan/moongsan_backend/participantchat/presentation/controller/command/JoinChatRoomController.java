@@ -1,6 +1,7 @@
 package com.moogsan.moongsan_backend.participantchat.presentation.controller.command;
 
 import com.moogsan.moongsan_backend.global.dto.WrapperResponse;
+import com.moogsan.moongsan_backend.global.security.annotation.RequireLogin;
 import com.moogsan.moongsan_backend.participantchat.application.facade.command.ChattingCommandFacade;
 import com.moogsan.moongsan_backend.participantchat.presentation.dto.command.response.JoinChatRoomResponse;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/chats/participant")
+@RequireLogin
 public class JoinChatRoomController {
 
     private final ChattingCommandFacade chattingCommandFacade;
@@ -25,12 +27,9 @@ public class JoinChatRoomController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable("postId") Long postId
     ) {
-        if (userDetails == null) throw new UnauthenticatedAccessException("로그인이 필요합니다.");
 
         Long chatRoomId = chattingCommandFacade.joinChatRoom(userDetails.getUser(), postId);
-
         JoinChatRoomResponse response = new JoinChatRoomResponse(chatRoomId);
-
         return ResponseEntity.ok(
                 WrapperResponse.<JoinChatRoomResponse>builder()
                         .message("참여자 채팅방에 성공적으로 참여하였습니다.")

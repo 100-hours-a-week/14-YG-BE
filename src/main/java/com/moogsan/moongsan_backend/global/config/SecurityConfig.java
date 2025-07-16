@@ -65,13 +65,13 @@ public class SecurityConfig {
                         "/participant-chat-test-with-token.html"
                 ).permitAll()
                 .requestMatchers(HttpMethod.GET,
-                    "/api/group-buys",                      // 공구글 목록 조회
+                    "/api/group-buys",            // 공구글 목록 조회
                     "/api/group-buys/*"                     // 공구글 상세 조회
                 ).permitAll()
                 .requestMatchers(HttpMethod.GET,
-                    "/api/group-buys/user/wishes",          // 위시 리스트 조회
-                    "/api/group-buys/user/hosts",           // 주최 리스트 조회
-                    "/api/group-buys/user/participants",    // 참여 리스트 조회
+                    "/api/group-buys/user/wishes", // 위시 리스트 조회
+                    "/api/group-buys/user/hosts",            // 주최 리스트 조회
+                    "/api/group-buys/user/participants",     // 참여 리스트 조회
                     "/api/group-buys/*/participants"        // 공구 참여자 조회
                 ).authenticated()
                 .anyRequest().authenticated()

@@ -1,6 +1,7 @@
 package com.moogsan.moongsan_backend.participantchat.presentation.controller.command;
 
 import com.moogsan.moongsan_backend.global.dto.WrapperResponse;
+import com.moogsan.moongsan_backend.global.security.annotation.RequireLogin;
 import com.moogsan.moongsan_backend.participantchat.application.facade.command.ChattingCommandFacade;
 import com.moogsan.moongsan_backend.participantchat.presentation.dto.command.response.CommandChattingReponse;
 import com.moogsan.moongsan_backend.participantchat.presentation.dto.command.request.CreateChatMessageRequest;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/chats/participant")
+@RequireLogin
 public class CreateChatMessageController {
     private final ChattingCommandFacade chattingCommandFacade;
 
@@ -24,10 +26,8 @@ public class CreateChatMessageController {
             @Valid @RequestBody CreateChatMessageRequest request,
             @PathVariable Long chatRoomId
     ) {
-        if (userDetails == null) throw new UnauthenticatedAccessException("로그인이 필요합니다.");
 
         chattingCommandFacade.createChatMessage(userDetails.getUser(), request, chatRoomId);
-
         return ResponseEntity.ok(
                 WrapperResponse.<CommandChattingReponse>builder()
                         .message("메세지가 성공적으로 작성되었습니다.")

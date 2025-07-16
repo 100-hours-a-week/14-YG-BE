@@ -1,6 +1,7 @@
 package com.moogsan.moongsan_backend.participantchat.presentation.controller.query;
 
 import com.moogsan.moongsan_backend.global.dto.WrapperResponse;
+import com.moogsan.moongsan_backend.global.security.annotation.RequireLogin;
 import com.moogsan.moongsan_backend.participantchat.application.facade.query.ChattingQueryFacade;
 import com.moogsan.moongsan_backend.participantchat.presentation.dto.query.response.ChatMessagePageResponse;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
@@ -17,6 +18,7 @@ import java.util.concurrent.Executors;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/chats/participant")
+@RequireLogin
 public class GetPastMessagesController {
 
     private final ChattingQueryFacade chattingQueryFacade;

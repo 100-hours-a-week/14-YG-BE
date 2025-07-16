@@ -12,4 +12,7 @@ public class ResponseMessage {
 
     public static final String SOCKET_FAIL =
             "WebSocket 연결에 실패했습니다. 토큰이 유효하지 않습니다.";
+
+    public static final String UNAUTHENTICATED =
+            "로그인이 필요합니다.";
 }

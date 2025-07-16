@@ -1,6 +1,7 @@
 package com.moogsan.moongsan_backend.groupbuy.presentation.controller.query;
 
 import com.moogsan.moongsan_backend.global.dto.WrapperResponse;
+import com.moogsan.moongsan_backend.global.security.annotation.RequireLogin;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.query.response.groupBuyUpdate.GroupBuyForUpdateResponse;
 import com.moogsan.moongsan_backend.groupbuy.application.facade.query.GroupBuyQueryFacade;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
@@ -15,6 +16,7 @@ import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessa
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/group-buys/{postId}/edit")
+@RequireLogin
 public class GroupBuyEditController {
 
     private final GroupBuyQueryFacade queryFacade;
@@ -24,9 +26,7 @@ public class GroupBuyEditController {
             @PathVariable Long postId,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        if (userDetails == null) {
-            throw new UnauthenticatedAccessException("로그인이 필요합니다.");
-        }
+
         GroupBuyForUpdateResponse groupBuyForUpdate = queryFacade.getGroupBuyEditInfo(userDetails.getUser().getId(), postId);
         return ResponseEntity.ok(
                 WrapperResponse.<GroupBuyForUpdateResponse>builder()

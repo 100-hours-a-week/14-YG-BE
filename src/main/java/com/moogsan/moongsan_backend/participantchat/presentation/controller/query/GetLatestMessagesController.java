@@ -1,6 +1,7 @@
 package com.moogsan.moongsan_backend.participantchat.presentation.controller.query;
 
 import com.moogsan.moongsan_backend.global.dto.WrapperResponse;
+import com.moogsan.moongsan_backend.global.security.annotation.RequireLogin;
 import com.moogsan.moongsan_backend.participantchat.application.facade.query.ChattingQueryFacade;
 import com.moogsan.moongsan_backend.participantchat.presentation.dto.query.response.ChatMessageResponse;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
@@ -15,6 +16,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/chats/participant")
+@RequireLogin
 public class GetLatestMessagesController {
 
     private final ChattingQueryFacade chattingQueryFacade;

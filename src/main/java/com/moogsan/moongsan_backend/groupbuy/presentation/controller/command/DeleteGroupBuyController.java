@@ -1,6 +1,7 @@
 package com.moogsan.moongsan_backend.groupbuy.presentation.controller.command;
 
 import com.moogsan.moongsan_backend.global.dto.WrapperResponse;
+import com.moogsan.moongsan_backend.global.security.annotation.RequireLogin;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.response.CommandGroupBuyResponse;
 import com.moogsan.moongsan_backend.groupbuy.application.facade.command.GroupBuyCommandFacade;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
@@ -18,6 +19,7 @@ import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessa
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/group-buys")
+@RequireLogin
 public class DeleteGroupBuyController {
 
     private final GroupBuyCommandFacade groupBuyFacade;
@@ -27,10 +29,7 @@ public class DeleteGroupBuyController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long postId) {
 
-        if (userDetails == null) throw new UnauthenticatedAccessException("로그인이 필요합니다.");
-
         groupBuyFacade.deleteGroupBuy(userDetails.getUser(), postId);
-
         return ResponseEntity.ok(
                 WrapperResponse.<CommandGroupBuyResponse>builder()
                         .message(DELETE_SUCCESS)
