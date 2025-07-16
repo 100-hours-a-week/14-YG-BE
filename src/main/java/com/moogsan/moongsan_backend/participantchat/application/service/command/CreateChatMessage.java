@@ -56,7 +56,7 @@ public class CreateChatMessage {
         ChatRoom chatRoom = fetchAndValidate(chatRoomId);
 
         // 참여자인지 조회 -> 아니면 403
-        ChatParticipant participant = validateUser(chatRoomId, currentUser.getId());
+        ChatParticipant participant = validateUser(currentUser.getId(), chatRoomId);
 
         // 메세지 순번 생성 (커서 기반 페이징용)
         Long nextSeq = messageSequenceGenerator.getNextMessageSeq(chatRoomId);
