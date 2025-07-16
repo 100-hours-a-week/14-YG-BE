@@ -41,6 +41,40 @@ public class GetGroupBuyParticipatedList {
             Long cursorId,
             Integer limit
     ) {
+        // 주문 데이터 조회
+        List<Order> orders = fetchOrders(userId, sort, cursorCreatedAt, cursorId, limit);
+
+        // 공동구매 게시글 추출
+        List<GroupBuy> groupBuys = extractGroupBuys(orders);
+
+        // 찜 여부 매핑
+        Map<Long, Boolean> wishMap = fetchWishUtil.fetchWishMap(userId, groupBuys);
+
+        // 참여자 채팅방 매핑
+        List<ChatRoom> chatRooms = fetchChatRooms(groupBuys);
+
+        // DTO 매핑
+        List<ParticipatedListResponse> posts = groupBuyQueryMapper.toParticipatedListWishResponse(orders, wishMap, chatRooms);
+
+        // 더보기 여부 확인
+        boolean hasMore = posts.size() > limit;
+
+        // 실제 데이터 크기로 조정
+        List<ParticipatedListResponse> participatedGroupBuys = posts.size() > limit ? posts.subList(0, limit) : posts;
+
+        // 다음 커서 지정
+        Long nextCursor = participatedGroupBuys.isEmpty() ? null : participatedGroupBuys.getLast().getPostId();
+
+        return PagedResponse.<ParticipatedListResponse>builder()
+                .count(participatedGroupBuys.size())
+                .posts(participatedGroupBuys)
+                .nextCursor(nextCursor != null ? nextCursor.intValue() : null)
+                .hasMore(hasMore)
+                .build();
+    }
+
+    private List<Order> fetchOrders(
+            Long userId, String sort, LocalDateTime cursorCreatedAt, Long cursorId, Integer limit) {
         String status = sort.toUpperCase();
 
         Pageable page = PageRequest.of(
@@ -68,42 +102,23 @@ public class GetGroupBuyParticipatedList {
             );
         }
 
-        // 매핑
-        List<GroupBuy> groupBuys = orders.stream()
+        return orders;
+    }
+
+    private List<GroupBuy> extractGroupBuys(List<Order> orders){
+        return orders.stream()
                 .map(Order::getGroupBuy)
                 .toList();
-        Map<Long, Boolean> wishMap = fetchWishUtil.fetchWishMap(userId, groupBuys);
+    }
 
-
+    private List<ChatRoom> fetchChatRooms(List<GroupBuy> groupBuys) {
         List<Long> groupBuyIds = groupBuys.stream()
                 .map(GroupBuy::getId)
                 .collect(Collectors.toList());
 
-        List<ChatRoom> chatRooms = chatRoomRepository.findByGroupBuy_IdInAndType(
+        return chatRoomRepository.findByGroupBuy_IdInAndType(
                 groupBuyIds,
                 "PARTICIPANT"
         );
-
-        // DTO 매핑
-        List<ParticipatedListResponse> posts = groupBuyQueryMapper
-                .toParticipatedListWishResponse(orders, wishMap, chatRooms);
-
-        List<ParticipatedListResponse> participatedGroupBuys = posts.size() > limit
-                ? posts.subList(0, limit)
-                : posts;
-
-        // 다음 커서 및 더보기 여부
-        Long nextCursor = participatedGroupBuys.isEmpty()
-                ? null
-                : participatedGroupBuys.getLast().getPostId();
-        boolean hasMore = posts.size() > limit;
-
-        return PagedResponse.<ParticipatedListResponse>builder()
-                .count(participatedGroupBuys.size())
-                .posts(participatedGroupBuys)
-                .nextCursor(nextCursor != null ? nextCursor.intValue() : null)
-                .hasMore(hasMore)
-                .build();
     }
-
 }

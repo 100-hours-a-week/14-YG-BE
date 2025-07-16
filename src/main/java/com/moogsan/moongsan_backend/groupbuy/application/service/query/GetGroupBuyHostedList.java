@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -33,11 +32,41 @@ public class GetGroupBuyHostedList {
 
     /// 주최 공구 리스트 조회
     public PagedResponse<HostedListResponse> getGroupBuyHostedList(
-            Long userId,
-            String postStatus,
-            Long cursorId,
-            Integer limit) {
+            Long userId, String postStatus, Long cursorId, Integer limit) {
 
+        // 공동구매 게시글 데이터 조회
+        List<GroupBuy> groupBuys = fetchGroupBuys(userId, postStatus, cursorId, limit);
+
+        // 찜 여부 매핑
+        Map<Long, Boolean> wishMap = fetchWishUtil.fetchWishMap(userId, groupBuys);
+
+        // 공동구매 게시글 아이디 추출
+        List<Long> groupBuyIds = extractIds(groupBuys);
+
+        // 공동구매 게시글, 채팅방 정보 매핑
+        List<ChatRoom> chatRooms = chatRoomRepository.findByGroupBuy_IdInAndType(groupBuyIds, "PARTICIPANT");
+
+        // DTO 변환
+        List<HostedListResponse> posts = groupBuyQueryMapper.toHostedListWishResponses(groupBuys, wishMap, chatRooms);
+
+        // 더보기 여부 확인
+        boolean hasMore = posts.size() > limit;
+
+        // 실제 데이터 크기로 조정
+        List<HostedListResponse> hostedGroupBuys = posts.size() > limit ? posts.subList(0, limit) : posts;
+
+        // 다음 커서 지정
+        Long nextCursor = hostedGroupBuys.isEmpty() ? null : hostedGroupBuys.getLast().getPostId();
+
+        return PagedResponse.<HostedListResponse>builder()
+                .count(hostedGroupBuys.size())
+                .posts(hostedGroupBuys)
+                .nextCursor(nextCursor != null ? nextCursor.intValue() : null)
+                .hasMore(hasMore)
+                .build();
+    }
+
+    private List<GroupBuy> fetchGroupBuys(Long userId, String postStatus, Long cursorId, Integer limit) {
         String status = postStatus.toUpperCase();
 
         Pageable page = PageRequest.of(0, limit + 1, Sort.by("id").descending());
@@ -59,36 +88,12 @@ public class GetGroupBuyHostedList {
             );
         }
 
-        Map<Long, Boolean> wishMap = fetchWishUtil.fetchWishMap(userId, groupBuys);
+        return groupBuys;
+    }
 
-        List<Long> groupBuyIds = groupBuys.stream()
+    private List<Long> extractIds(List<GroupBuy> groupBuys){
+        return groupBuys.stream()
                 .map(GroupBuy::getId)
-                .collect(Collectors.toList());
-
-
-        List<ChatRoom> chatRooms = chatRoomRepository.findByGroupBuy_IdInAndType(
-                groupBuyIds,
-                "PARTICIPANT"
-        );
-
-        List<HostedListResponse> posts = groupBuyQueryMapper
-                .toHostedListWishResponses(groupBuys, wishMap, chatRooms);
-
-        List<HostedListResponse> hostedGroupBuys = posts.size() > limit
-                ? posts.subList(0, limit)
-                : posts;
-
-        // 다음 커서 및 더보기 여부
-        Long nextCursor = hostedGroupBuys.isEmpty()
-                ? null
-                : hostedGroupBuys.getLast().getPostId();
-        boolean hasMore = posts.size() > limit;
-
-        return PagedResponse.<HostedListResponse>builder()
-                .count(hostedGroupBuys.size())
-                .posts(hostedGroupBuys)
-                .nextCursor(nextCursor != null ? nextCursor.intValue() : null)
-                .hasMore(hasMore)
-                .build();
+                .toList();
     }
 }

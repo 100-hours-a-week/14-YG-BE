@@ -30,6 +30,13 @@ public class GetGroupBuyEditInfo {
 
     /// 공구 게시글 수정 전 정보 조회
     public GroupBuyForUpdateResponse getGroupBuyEditInfo(Long userId, Long postId) {
+
+        GroupBuy groupBuy = fetchAndValidate(userId, postId);
+        return groupBuyQueryMapper.toUpdateResponse(groupBuy);
+    }
+
+    private GroupBuy fetchAndValidate(Long userId, Long postId) {
+
         GroupBuy groupBuy = groupBuyRepository.findWithImagesById(postId)
                 .orElseThrow(GroupBuyNotFoundException::new);
 
@@ -43,6 +50,6 @@ public class GetGroupBuyEditInfo {
             throw new GroupBuyInvalidStateException(NOT_OPEN);
         }
 
-        return groupBuyQueryMapper.toUpdateResponse(groupBuy);
+        return groupBuy;
     }
 }
