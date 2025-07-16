@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.time.Duration;
 
-import static com.moogsan.moongsan_backend.participantchat.domain.constant.ParticipantChatConstants.CASHE_REDIS_KET;
+import static com.moogsan.moongsan_backend.participantchat.domain.constant.ParticipantChatConstants.CASHE_REDIS_KEY;
 import static com.moogsan.moongsan_backend.participantchat.domain.message.ResponseMessage.DELETED_CHAT_ROOM;
 import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.NOT_PARTICIPANT;
 import static com.moogsan.moongsan_backend.global.util.ObjectIdScoreUtil.toScore;
@@ -99,7 +99,7 @@ public class CreateChatMessage {
     }
 
     private void cacheMessage(Long chatRoomId, ChatMessageDocument document) {
-        String redisKey = CASHE_REDIS_KET + chatRoomId;
+        String redisKey = CASHE_REDIS_KEY + chatRoomId;
 
         try {
             String json = objectMapper.writeValueAsString(document);
