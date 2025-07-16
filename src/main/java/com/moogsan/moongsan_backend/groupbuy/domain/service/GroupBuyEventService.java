@@ -8,6 +8,7 @@ import com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher.KafkaE
 import com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher.RealtimePublisher;
 import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
 import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyPickupUpdatedEvent;
+import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyStatusEndedEvent;
 import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyUpdatedEvent;
 import com.moogsan.moongsan_backend.groupbuy.domain.mapper.GroupBuyEventMapper;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static com.moogsan.moongsan_backend.global.infrastructure.kafka.KafkaTopics.GROUPBUY_PICKUP_UPDATED;
+import static com.moogsan.moongsan_backend.global.infrastructure.kafka.KafkaTopics.GROUPBUY_STATUS_ENDED;
 import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SERIALIZATION_FAIL;
 
 @Slf4j
@@ -33,12 +35,6 @@ public class GroupBuyEventService {
     private final RealtimePublisher realtimePublisher;
 
     public void publishPickupUpdated(GroupBuy groupBuy) {
-        // 공구 상태 업데이트 이벤트 발행
-        GroupBuyUpdatedEvent event = GroupBuyUpdatedEvent.builder()
-                .groupBuyId(groupBuy.getId())
-                .build();
-        realtimePublisher.publish(event);
-
         List<Order> orders = orderRepository.findAllByGroupBuyIdOrderByStatusCustom(groupBuy.getId());
 
         List<Long> participantIds = orders.stream()
@@ -61,6 +57,36 @@ public class GroupBuyEventService {
             log.error("❌ Failed to serialize GroupBuyPickupUpdatedEvent: groupBuyId={}", groupBuy.getId(), e);
             throw new RuntimeException(SERIALIZATION_FAIL, e);
         }
+    }
 
+    public void publishGroupBuyEnded(GroupBuy groupBuy) {
+        try {
+            List<Order> orders = orderRepository.findAllByGroupBuyIdOrderByStatusCustom(groupBuy.getId());
+
+            List<Long> participantIds = orders.stream()
+                    .map(order -> order.getUser().getId())
+                    .distinct()
+                    .toList();
+
+            GroupBuyStatusEndedEvent eventDto =
+                    eventMapper.toGroupBuyEndedEvent(
+                            groupBuy.getId(),
+                            groupBuy.getUser().getId(),
+                            participantIds,
+                            groupBuy.getTitle()
+                    );
+            String payload = objectMapper.writeValueAsString(eventDto);
+            kafkaEventPublisher.publish(GROUPBUY_STATUS_ENDED, String.valueOf(groupBuy.getId()), payload);
+        } catch (JsonProcessingException e) {
+            log.error("❌ Failed to serialize GroupBuyStatusEndedEvent: groupBuyId={}", groupBuy.getId(), e);
+            throw new RuntimeException(SERIALIZATION_FAIL, e);
+        }
+    }
+
+    public void publishGroupBuyUpdated(GroupBuy groupBuy) {
+        GroupBuyUpdatedEvent event = GroupBuyUpdatedEvent.builder()
+                .groupBuyId(groupBuy.getId())
+                .build();
+        realtimePublisher.publish(event);
     }
 }

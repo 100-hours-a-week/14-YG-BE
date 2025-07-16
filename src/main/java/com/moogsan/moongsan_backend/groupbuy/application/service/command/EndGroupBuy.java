@@ -1,30 +1,18 @@
 package com.moogsan.moongsan_backend.groupbuy.application.service.command;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyStatusEndedEvent;
-import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyUpdatedEvent;
-import com.moogsan.moongsan_backend.groupbuy.domain.mapper.GroupBuyEventMapper;
-import com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyNotFoundException;
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyNotHostException;
 import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
-import com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher.RealtimePublisher;
-import com.moogsan.moongsan_backend.domain.order.entity.Order;
-import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
+import com.moogsan.moongsan_backend.groupbuy.domain.service.GroupBuyEventService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
-import java.util.List;
-
-import static com.moogsan.moongsan_backend.global.infrastructure.kafka.KafkaTopics.GROUPBUY_STATUS_ENDED;
-import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SERIALIZATION_FAIL;
 import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.*;
 
 @Slf4j
@@ -34,16 +22,30 @@ import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessa
 public class EndGroupBuy {
 
     private final GroupBuyRepository groupBuyRepository;
-    private final OrderRepository orderRepository;
+    private final GroupBuyEventService groupBuyEventService;
     private final Clock clock;
-    private final KafkaEventPublisher kafkaEventPublisher;
-    private final GroupBuyEventMapper eventMapper;
-    private final ObjectMapper objectMapper;
-    private final RealtimePublisher realtimePublisher;
 
     /// 공구 게시글 공구 종료
     public void endGroupBuy(User currentUser, Long postId) {
 
+        GroupBuy groupBuy = fetchAndValidate(currentUser.getId(), postId);
+
+        // 공동구매 게시글 상태 전환
+        groupBuy.changePostStatus("ENDED");
+        groupBuyRepository.save(groupBuy);
+
+        // 공구 상태 업데이트 이벤트 발행
+        groupBuyEventService.publishGroupBuyUpdated(groupBuy);
+
+        // 공구 종료 이벤트 발행
+        groupBuyEventService.publishGroupBuyEnded(groupBuy);
+
+
+        // 참여자 채팅방 해제 카운트 시작(2주- CS 고려), 익명 채팅방 즉시 해제
+
+    }
+
+    private GroupBuy fetchAndValidate(Long userId, Long postId) {
         // 해당 공구가 존재하는지 조회 -> 없으면 404
         GroupBuy groupBuy = groupBuyRepository.findById(postId)
                 .orElseThrow(GroupBuyNotFoundException::new);
@@ -63,44 +65,10 @@ public class EndGroupBuy {
         }
 
         // 해당 공구의 주최자가 해당 유저인지 조회 -> 아니면 403
-        if(!groupBuy.getUser().getId().equals(currentUser.getId())) {
+        if(!groupBuy.getUser().getId().equals(userId)) {
             throw new GroupBuyNotHostException(NOT_HOST);
         }
 
-        //공구 게시글 status ENDED로 변경
-        groupBuy.changePostStatus("ENDED");
-
-        groupBuyRepository.save(groupBuy);
-
-        // TODO V3에서는 참여자 채팅방 해제 카운트 시작(2주- CS 고려), 익명 채팅방 즉시 해제
-
-        // 공구 상태 업데이트 이벤트 발행
-        GroupBuyUpdatedEvent event = GroupBuyUpdatedEvent.builder()
-                .groupBuyId(groupBuy.getId())
-                .build();
-        realtimePublisher.publish(event);
-
-        try {
-            List<Order> orders = orderRepository.findAllByGroupBuyIdOrderByStatusCustom(groupBuy.getId());
-
-            List<Long> participantIds = orders.stream()
-                    .map(order -> order.getUser().getId())
-                    .distinct()
-                    .toList();
-
-            GroupBuyStatusEndedEvent eventDto =
-                    eventMapper.toGroupBuyEndedEvent(
-                            groupBuy.getId(),
-                            groupBuy.getUser().getId(),
-                            participantIds,
-                            groupBuy.getTitle()
-                    );
-            String payload = objectMapper.writeValueAsString(eventDto);
-            kafkaEventPublisher.publish(GROUPBUY_STATUS_ENDED, String.valueOf(groupBuy.getId()), payload);
-        } catch (JsonProcessingException e) {
-            log.error("❌ Failed to serialize GroupBuyStatusEndedEvent: groupBuyId={}", groupBuy.getId(), e);
-            throw new RuntimeException(SERIALIZATION_FAIL, e);
-        }
-
+        return groupBuy;
     }
 }
