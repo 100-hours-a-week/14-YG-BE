@@ -1,6 +1,13 @@
 package com.moogsan.moongsan_backend.image.application.service;
 
+import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.request.CreateGroupBuyRequest;
+import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.request.UpdateGroupBuyRequest;
+import com.moogsan.moongsan_backend.image.application.mapper.ImageMapper;
+import com.moogsan.moongsan_backend.image.domain.entity.Image;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,40 +18,60 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
 
+import static com.moogsan.moongsan_backend.image.domain.constant.ImageConstants.GROUP_BUYS_PREFIX;
+import static com.moogsan.moongsan_backend.image.domain.constant.ImageConstants.TMP_PREFIX;
+
 @Service
+@Transactional
+@RequiredArgsConstructor
 public class ImageService {
 
-    private static final String UPLOAD_DIR = System.getProperty("user.dir") + "/uploads/";
-    private final Path uploadPath;
+    private final ImageMapper imageMapper;
+    private final S3Service s3Service;
 
-    public ImageService() throws IOException {
-        this.uploadPath = Paths.get(UPLOAD_DIR).toAbsolutePath().normalize();
-        if (!Files.exists(this.uploadPath)) {
-            Files.createDirectories(this.uploadPath);
-        }
+    public void moveAndMapImages(CreateGroupBuyRequest request, GroupBuy groupBuy) {
+        List<String> destKeys = request.getImageKeys().stream()
+                .map(srcKey -> {
+                    String fileName = srcKey.substring(srcKey.lastIndexOf('/') + 1);
+                    String destKey  = GROUP_BUYS_PREFIX + fileName;
+                    s3Service.moveImage(srcKey, destKey);
+                    return destKey;
+                }).toList();
+
+        imageMapper.mapImagesToGroupBuy(destKeys, groupBuy);
     }
 
-    // 다중 이미지 업로드 처리
-    public List<String> storeImages(List<MultipartFile> imageFiles) throws IOException {
-        if (imageFiles == null || imageFiles.isEmpty()) {
-            return Collections.emptyList();
+    public GroupBuy syncUpdatedImages(UpdateGroupBuyRequest request, GroupBuy groupBuy) {
+        List<String> requested = Optional.ofNullable(request.getImageKeys())
+                .orElseGet(Collections::emptyList);
+        List<String> existing  = groupBuy.getImages().stream()
+                .map(Image::getImageKey)
+                .toList();
+
+        // 삭제 대상: 기존에 있었지만 요청에 없는 키
+        existing.stream()
+                .filter(key -> !requested.contains(key))
+                .forEach(key -> {
+                    s3Service.deleteImage(key);
+                });
+
+        // S3 파일 이동
+        List<String> finalKeys = new ArrayList<>();
+        for (String key : requested) {
+            if (key.startsWith(GROUP_BUYS_PREFIX)) {
+                // 이미 영구폴더에 있음 → 그대로
+                finalKeys.add(key);
+            } else if (key.startsWith(TMP_PREFIX)) {
+                String fileName = key.substring(key.lastIndexOf('/') + 1);
+                String destKey  = GROUP_BUYS_PREFIX + fileName;
+                s3Service.moveImage(key, destKey);
+                finalKeys.add(destKey);
+            } else {
+                throw new IllegalArgumentException("Invalid image key: " + key);
+            }
         }
 
-        List<String> imageUrls = new ArrayList<>();
-        for (MultipartFile file : imageFiles) {
-            if (file.isEmpty()) continue;
-
-            String originalFilename = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
-            String extension = originalFilename.contains(".")
-                    ? originalFilename.substring(originalFilename.lastIndexOf("."))
-                    : "";
-            String storedFilename = UUID.randomUUID() + extension;
-
-            Path filePath = this.uploadPath.resolve(storedFilename);
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-            imageUrls.add("/uploads/" + storedFilename);
-        }
-        return imageUrls;
+        imageMapper.mapImagesToGroupBuy(finalKeys, groupBuy);
+        return groupBuy;
     }
 }

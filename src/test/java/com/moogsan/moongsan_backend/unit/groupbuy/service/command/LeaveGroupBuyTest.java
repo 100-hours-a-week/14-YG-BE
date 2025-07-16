@@ -29,6 +29,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
+import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;

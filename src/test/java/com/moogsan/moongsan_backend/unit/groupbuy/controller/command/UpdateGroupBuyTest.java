@@ -22,6 +22,7 @@ import java.util.List;
 
 import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.BAD_REQUEST;
 import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.UPDATE_SUCCESS;
+import static com.moogsan.moongsan_backend.groupbuy.domain.message.ValidationMessage.*;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;

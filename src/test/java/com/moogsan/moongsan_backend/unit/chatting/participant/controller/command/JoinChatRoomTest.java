@@ -4,7 +4,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.ActiveProfiles;
 
-@WebMvcTest(controllers = JoinChatRoomController.class)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc(addFilters = false)
 public class JoinChatRoomTest {

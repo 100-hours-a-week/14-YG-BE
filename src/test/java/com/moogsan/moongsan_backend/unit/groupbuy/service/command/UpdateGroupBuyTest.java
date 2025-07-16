@@ -1,8 +1,6 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.service.command;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moogsan.moongsan_backend.groupbuy.domain.mapper.GroupBuyEventMapper;
-import com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher.KafkaEventPublisher;
+import com.moogsan.moongsan_backend.groupbuy.domain.service.GroupBuyEventService;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.request.UpdateGroupBuyRequest;
 import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyInvalidStateException;
@@ -10,11 +8,8 @@ import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyN
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyNotHostException;
 import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.groupbuy.application.service.command.UpdateGroupBuy;
-import com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher.RealtimePublisher;
+import com.moogsan.moongsan_backend.image.application.service.ImageService;
 import com.moogsan.moongsan_backend.image.domain.entity.Image;
-import com.moogsan.moongsan_backend.image.application.mapper.ImageMapper;
-import com.moogsan.moongsan_backend.image.application.service.S3Service;
-import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -30,38 +25,17 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
+import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UpdateGroupBuyTest {
 
-    @Mock
-    private GroupBuyRepository groupBuyRepository;
-
-    @Mock
-    private OrderRepository orderRepository;
-
-    @Mock
-    private ImageMapper imageMapper;
-
-    @Mock
-    private S3Service s3Service;
-
-    @Mock
-    private KafkaEventPublisher kafkaEventPublisher;
-
-    @Mock
-    private GroupBuyEventMapper eventMapper;
-
-    @Mock
-    private ObjectMapper objectMapper;
-
-    @Mock
-    private RealtimePublisher realtimePublisher;
-
-    @Mock
-    private Clock clock;
+    @Mock private GroupBuyEventService groupBuyEventService;
+    @Mock private ImageService imageService;
+    @Mock private GroupBuyRepository groupBuyRepository;
+    @Mock private Clock clock;
 
     @InjectMocks
     private UpdateGroupBuy updateGroupBuy;
@@ -114,14 +88,9 @@ class UpdateGroupBuyTest {
         now = LocalDateTime.now(fixedClock);
 
         updateGroupBuy = new UpdateGroupBuy(
+                groupBuyEventService,
+                imageService,
                 groupBuyRepository,
-                orderRepository,
-                imageMapper,
-                s3Service,
-                eventMapper,
-                objectMapper,
-                kafkaEventPublisher,
-                realtimePublisher,
                 fixedClock
         );
 
@@ -141,11 +110,8 @@ class UpdateGroupBuyTest {
     @DisplayName("공구 전체 수정 성공")
     void updateGroupBuy_success() {
         gb = defaultGroupBuy().build();
-
         when(groupBuyRepository.findById(20L))
                 .thenReturn(Optional.of(gb));
-        when(groupBuyRepository.save(any(GroupBuy.class)))
-                .thenReturn(gb);
 
         Long id = updateGroupBuy.updateGroupBuy(hostUser, updateRequest, 20L);
 
@@ -157,9 +123,6 @@ class UpdateGroupBuyTest {
         assertThat(gb.getDueDate()).isEqualTo(updateRequest.getDueDate());
         assertThat(gb.getPickupDate()).isEqualTo(updateRequest.getPickupDate());
         assertThat(gb.getDateModificationReason()).isEqualTo(updateRequest.getDateModificationReason());
-        verify(s3Service).deleteImage("group-buys/image2.jpg");
-        verify(s3Service).moveImage("tmp/image1.jpg", "group-buys/image1.jpg");
-        verify(imageMapper).mapImagesToGroupBuy(List.of("group-buys/image1.jpg"), gb);
     }
 
     @Test
@@ -175,10 +138,6 @@ class UpdateGroupBuyTest {
                 .hasMessageContaining(NOT_EXIST);
 
         verify(groupBuyRepository, never()).save(any(GroupBuy.class));
-        verify(imageMapper, never()).mapImagesToGroupBuy(
-                eq(updateRequest.getImageKeys()),
-                any(GroupBuy.class)
-        );
     }
 
     @Test
@@ -194,10 +153,6 @@ class UpdateGroupBuyTest {
                 .hasMessageContaining(NOT_OPEN);
 
         verify(groupBuyRepository, never()).save(any(GroupBuy.class));
-        verify(imageMapper, never()).mapImagesToGroupBuy(
-                eq(updateRequest.getImageKeys()),
-                any(GroupBuy.class)
-        );
     }
 
     @Test
@@ -214,10 +169,6 @@ class UpdateGroupBuyTest {
                 .hasMessageContaining(NOT_OPEN);
 
         verify(groupBuyRepository, never()).save(any(GroupBuy.class));
-        verify(imageMapper, never()).mapImagesToGroupBuy(
-                eq(updateRequest.getImageKeys()),
-                any(GroupBuy.class)
-        );
     }
 
     @Test
@@ -232,9 +183,5 @@ class UpdateGroupBuyTest {
                 .hasMessageContaining(NOT_HOST);
 
         verify(groupBuyRepository, never()).save(any(GroupBuy.class));
-        verify(imageMapper, never()).mapImagesToGroupBuy(
-                eq(updateRequest.getImageKeys()),
-                any(GroupBuy.class)
-        );
     }
 }

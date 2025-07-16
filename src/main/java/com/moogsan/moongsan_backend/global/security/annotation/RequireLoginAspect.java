@@ -18,7 +18,8 @@ import static com.moogsan.moongsan_backend.global.message.ResponseMessage.UNAUTH
 @RequiredArgsConstructor
 public class RequireLoginAspect {
 
-    @Before("@within(RequireLogin) || @annotation(RequireLogin)")
+    @Before("@within(package com.moogsan.moongsan_backend.global.security.annotation.RequireLogin) || " +
+            "@annotation(package com.moogsan.moongsan_backend.global.security.annotation.RequireLogin)")
     public void checkAuthentication(JoinPoint jp) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean isAuthenticated = auth != null
@@ -26,7 +27,7 @@ public class RequireLoginAspect {
                 && auth.getPrincipal() instanceof CustomUserDetails;
 
         if(!isAuthenticated) {
-            throw new UnauthorizedException();
+            throw new UnauthenticatedAccessException();
         }
     }
 }

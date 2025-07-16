@@ -1,5 +1,6 @@
 package com.moogsan.moongsan_backend.unit.groupbuy.service.command;
 
+import com.moogsan.moongsan_backend.image.application.service.ImageService;
 import com.moogsan.moongsan_backend.participantchat.application.facade.command.ChattingCommandFacade;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.request.CreateGroupBuyRequest;
 import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
@@ -7,8 +8,6 @@ import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyI
 import com.moogsan.moongsan_backend.groupbuy.application.mapper.GroupBuyCommandMapper;
 import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.groupbuy.application.service.command.CreateGroupBuy;
-import com.moogsan.moongsan_backend.image.application.mapper.ImageMapper;
-import com.moogsan.moongsan_backend.image.application.service.S3Service;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import com.moogsan.moongsan_backend.global.lock.DuplicateRequestPreventer;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,29 +33,13 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class CreateGroupBuyTest {
 
-    @Mock
-    private DuplicateRequestPreventer duplicateRequestPreventer;
-
-    @Mock
-    private GroupBuyRepository groupBuyRepository;
-
-    @Mock
-    private ImageMapper imageMapper;
-
-    @Mock
-    private GroupBuyCommandMapper groupBuyCommandMapper;
-
-    @Mock
-    private ChattingCommandFacade chattingCommandFacade;
-
-    @Mock
-    private RedisTemplate<String, String> redisTemplate;
-
-    @Mock
-    ValueOperations<String,String> valueOps;
-
-    @Mock
-    private S3Service s3Service;
+    @Mock private ImageService imageService;
+    @Mock private GroupBuyCommandMapper groupBuyCommandMapper;
+    @Mock private GroupBuyRepository groupBuyRepository;
+    @Mock private ChattingCommandFacade chattingCommandFacade;
+    @Mock private DuplicateRequestPreventer duplicateRequestPreventer;
+    @Mock private RedisTemplate<String, String> redisTemplate;
+    @Mock private ValueOperations<String, String> valueOperations;
 
     private CreateGroupBuy createGroupBuy;
     private CreateGroupBuyRequest request;
@@ -77,14 +60,13 @@ public class CreateGroupBuyTest {
         now = LocalDateTime.now(fixedClock);
 
         createGroupBuy = new CreateGroupBuy(
-                groupBuyRepository,
-                imageMapper,
+                imageService,
                 groupBuyCommandMapper,
+                groupBuyRepository,
                 chattingCommandFacade,
                 duplicateRequestPreventer,
-                s3Service,
-                fixedClock,
-                redisTemplate
+                redisTemplate,
+                fixedClock
         );
 
         request = CreateGroupBuyRequest.builder()
@@ -110,20 +92,16 @@ public class CreateGroupBuyTest {
     void createGroupBuy_success() {
         // given
         GroupBuy mockGb = mock(GroupBuy.class);
-        when(redisTemplate.opsForValue()).thenReturn(valueOps);
+        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         when(groupBuyCommandMapper.create(request, user)).thenReturn(mockGb);
         when(groupBuyRepository.save(mockGb)).thenReturn(mockGb);
         doReturn(42L).when(mockGb).getId();
-        when(chattingCommandFacade.joinChatRoom(user, mockGb.getId())).thenReturn(2L);
 
         // when
         Long result = createGroupBuy.createGroupBuy(user, request);
 
         // then
         verify(groupBuyCommandMapper, times(1)).create(request, user);
-        verify(s3Service).moveImage(eq("tmp/image1.jpg"), eq("group-buys/image1.jpg"));
-        verify(imageMapper).mapImagesToGroupBuy(eq(List.of("group-buys/image1.jpg")), eq(mockGb));
-        verify(imageMapper).mapImagesToGroupBuy(eq(List.of("group-buys/image1.jpg")), eq(mockGb));
         verify(mockGb, times(1)).increaseParticipantCount();
         verify(groupBuyRepository, times(1)).save(mockGb);
         verify(chattingCommandFacade, times(1)).joinChatRoom(user, mockGb.getId());
@@ -141,11 +119,8 @@ public class CreateGroupBuyTest {
                 .hasMessageContaining(NOT_DIVISOR);
 
         verify(groupBuyCommandMapper, never()).create(request, user);
-        verify(imageMapper, never()).mapImagesToGroupBuy(request.getImageKeys(), mockGb);
         verify(mockGb, never()).increaseParticipantCount();
         verify(groupBuyRepository, never()).save(mockGb);
-        verify(chattingCommandFacade, never()).joinChatRoom(user, mockGb.getId());
-
     }
 
     @Test
@@ -159,9 +134,7 @@ public class CreateGroupBuyTest {
                 .hasMessageContaining(NOT_DIVISOR);
 
         verify(groupBuyCommandMapper, never()).create(request, user);
-        verify(imageMapper, never()).mapImagesToGroupBuy(request.getImageKeys(), mockGb);
         verify(mockGb, never()).increaseParticipantCount();
         verify(groupBuyRepository, never()).save(mockGb);
-        verify(chattingCommandFacade, never()).joinChatRoom(user, mockGb.getId());
     }
 }
