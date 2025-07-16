@@ -21,70 +21,51 @@
 <ul id="messageLog"></ul>
 
 <script>
-    let stompClient = null;  // STOMP 클라이언트 객체
-    let postId = null;       // 현재 구독할 채팅방의 postId
+    let stompClient = null;
 
-    // WebSocket 연결 및 STOMP 구독 함수
     function connect() {
-        postId = document.getElementById("postIdInput").value;
-
+        const postId = document.getElementById("postIdInput").value;
         const socket = new WebSocket("ws://localhost:8080/ws/chat");
         stompClient = Stomp.over(socket);
 
-        stompClient.connect({}, frame => {
-            console.log('✅ 연결됨:', frame);
-
-            // 서버로부터 메시지를 구독
-            stompClient.subscribe(`/topic/chat-anon/${postId}`, message => {
-                console.log('📩 수신됨 (raw STOMP message):', message);
-                console.log('📩 수신된 본문:', message.body);
-
+       stompClient.connect({}, () => {
+           console.log("🟢 STOMP connected");
+            stompClient.subscribe(`/topic/chat-anon/${postId}`, msg => {
+                console.log("🟡 Subscribed to /topic/chat-anon/" + postId);
                 try {
-                    const msg = JSON.parse(message.body);
-                    console.log('✅ 파싱된 메시지:', msg);
-
+                    const m = JSON.parse(msg.body);
                     const item = document.createElement("li");
                     item.textContent =
-                        `messageId: ${msg.messageId ?? '??'}\n` +
-                        `postId: ${msg.postId ?? '??'}\n` +
-                        `participantId: ${msg.participantId ?? '??'}\n` +
-                        `messageContent: ${msg.messageContent ?? '??'}\n` +
-                        `type: ${msg.type ?? '??'}\n` +
-                        `createdAt: ${msg.createdAt ?? '??'}`;
+                        `messageId: ${m.messageId}\n` +
+                        `postId: ${m.postId}\n` +
+                        `participantId: ${m.participantId}\n` +
+                        `messageContent: ${m.messageContent}\n` +
+                        `isSafe: ${m.isSafe}\n` +
+                        `blurReason: ${m.blurReason}\n` +
+                        `createdAt: ${m.createdAt}`;
                     document.getElementById("messageLog").appendChild(item);
                 } catch (e) {
-                    console.error('❌ JSON 파싱 실패:', e);
+                    console.error('JSON parse error:', e);
                 }
             });
-
-            console.log(`📡 구독 완료: /topic/chat-anon/${postId}`);
-        }, error => {
-            console.error('❌ 연결 실패:', error);
+        }, err => {
+            console.error('Connection error:', err);
         });
     }
 
-    // 메시지 전송 함수
     function sendMessage() {
         if (!stompClient || !stompClient.connected) {
             alert("⚠️ 먼저 연결하세요.");
             return;
         }
 
-        // 입력값 가져오기
-        const postId = document.getElementById("postIdInput").value;
+        const postId = parseInt(document.getElementById("postIdInput").value);
         const participantId = parseInt(document.getElementById("participantIdInput").value);
         const messageContent = document.getElementById("messageInput").value;
 
-        // 전송할 메시지 객체 구성
-        const payload = {
-            postId: parseInt(postId),
-            participantId: participantId,
-            messageContent: messageContent
-        };
+        const payload = { postId, participantId, messageContent };
 
-        // 서버로 메시지 전송
         stompClient.send("/pub/chat-anon/message", {}, JSON.stringify(payload));
-        console.log('🚀 전송됨:', payload);
     }
 </script>
 </body>

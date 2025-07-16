@@ -1,5 +1,7 @@
 package com.moogsan.moongsan_backend.domain.chatting.anonymous.controller;
 
+import com.moogsan.moongsan_backend.domain.chatting.anonymous.dto.ChatAnonDto;
+
 import com.moogsan.moongsan_backend.domain.chatting.anonymous.entity.ChatAnon;
 import com.moogsan.moongsan_backend.domain.chatting.anonymous.repository.ChatAnonRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +19,10 @@ public class ChatAnonQueryController {
     private final ChatAnonRepository chatAnonRepository;
 
     @GetMapping("/{postId}")
-    public List<ChatAnon> getAllMessages(@PathVariable Long postId){
-        return chatAnonRepository.findByPostIdOrderByCreatedAtAsc(postId);
+    public List<ChatAnonDto> getAllMessages(@PathVariable Long postId){
+        List<ChatAnon> entities = chatAnonRepository.findByPostIdOrderByCreatedAtAsc(postId);
+        return entities.stream()
+                .map(ChatAnonDto::from)
+                .toList();
     }
 }

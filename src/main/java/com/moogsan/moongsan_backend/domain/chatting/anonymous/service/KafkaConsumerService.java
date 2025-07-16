@@ -30,7 +30,8 @@ public class KafkaConsumerService {
                     "  postId=" + message.getPostId() + "\n" +
                     "  participantId=" + message.getParticipantId() + "\n" +
                     "  messageContent=" + message.getMessageContent() + "\n" +
-                    "  type=" + message.getType() + "\n" +
+                    "  isSafe=" + message.isSafe() + "\n" +
+                    "  blurReason=" + message.getBlurReason() + "\n" +
                     "  createdAt=" + message.getCreatedAt());
             ack.acknowledge();
         } catch (Exception e) {

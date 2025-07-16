@@ -27,7 +27,11 @@ public class ChatAnon {
     private String messageContent;
 
     @Builder.Default
-    private String type = "Normal";
+    private boolean isSafe = true;
+
+    @Builder.Default
+    @Field("blur_reason")
+    private String blurReason = null;
 
     @Field("created_at")
     private LocalDateTime createdAt;

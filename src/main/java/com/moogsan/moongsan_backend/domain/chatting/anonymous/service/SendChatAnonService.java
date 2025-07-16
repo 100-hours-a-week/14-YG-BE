@@ -36,11 +36,6 @@ public class SendChatAnonService {
             message.setCreatedAt(now);
         }
 
-        // type이 비어 있으면 "Normal"로 설정
-        if (message.getType() == null) {
-            message.setType("Normal");
-        }
-
         // Kafka로 메시지 발행
         kafkaProducerService.send(message);
     }
