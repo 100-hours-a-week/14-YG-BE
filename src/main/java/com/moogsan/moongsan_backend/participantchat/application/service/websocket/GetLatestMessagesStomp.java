@@ -58,8 +58,12 @@ public class GetLatestMessagesStomp {
 
         try {
             String payload = objectMapper.writeValueAsString(response);
-            messagingTemplate.convertAndSend("/sub/chat-participant/" + chatRoomId, payload);
-            log.info("[WS] push to /sub/chat-participant/{}", chatRoomId);
+            Runnable broadcastTask = () -> {
+                messagingTemplate.convertAndSend("/sub/chat-participant/" + chatRoomId, payload);
+                log.info("[WS] push to /sub/chat-participant/{}", chatRoomId);
+            };
+
+            Thread.startVirtualThread(broadcastTask);
         } catch (
         JsonProcessingException e) {
             throw new RuntimeException(SERIALIZATION_FAIL, e);
