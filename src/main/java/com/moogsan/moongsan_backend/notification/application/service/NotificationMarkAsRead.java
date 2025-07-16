@@ -17,7 +17,7 @@ public class NotificationMarkAsRead {
 
     private final NotificationRepository notificationRepository;
 
-    public void execute(Long userId, Long notificationId, NotificationReadStatus request) {
+    public void execute(Long notificationId, NotificationReadStatus request) {
 
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(NotiNotFoundException::new);
