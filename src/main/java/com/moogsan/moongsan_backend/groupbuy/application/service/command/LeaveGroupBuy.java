@@ -1,18 +1,13 @@
 package com.moogsan.moongsan_backend.groupbuy.application.service.command;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyUpdatedEvent;
-import com.moogsan.moongsan_backend.domain.order.event.OrderCanceledEvent;
-import com.moogsan.moongsan_backend.domain.order.mapper.OrderEventMapper;
-import com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher.KafkaEventPublisher;
+import com.moogsan.moongsan_backend.domain.order.service.OrderEventService;
+import com.moogsan.moongsan_backend.groupbuy.domain.service.GroupBuyEventService;
 import com.moogsan.moongsan_backend.participantchat.application.facade.command.ChattingCommandFacade;
 import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyInvalidStateException;
 import com.moogsan.moongsan_backend.groupbuy.domain.exception.specific.GroupBuyNotFoundException;
 import com.moogsan.moongsan_backend.groupbuy.domain.service.DueSoonPolicy;
 import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
-import com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher.RealtimePublisher;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
 import com.moogsan.moongsan_backend.domain.order.exception.specific.OrderNotFoundException;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
@@ -26,9 +21,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.moogsan.moongsan_backend.global.infrastructure.kafka.KafkaTopics.ORDER_STATUS_CANCELED;
 import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.NOT_OPEN;
-import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SERIALIZATION_FAIL;
 
 @Slf4j
 @Service
@@ -40,15 +33,30 @@ public class LeaveGroupBuy {
     private final OrderRepository orderRepository;
     private final DueSoonPolicy dueSoonPolicy;
     private final ChattingCommandFacade chattingCommandFacade;
-    private final KafkaEventPublisher kafkaEventPublisher;
-    private final RealtimePublisher realtimePublisher;
-    private final OrderEventMapper eventMapper;
-    private final ObjectMapper objectMapper;
+    private final GroupBuyEventService groupBuyEventService;
+    private final OrderEventService orderEventService;
     private final Clock clock;
 
     /// 공구 참여 취소
     public void leaveGroupBuy(User currentUser, Long postId) {
 
+        // 유효성 검사
+        GroupBuy groupBuy = fetchAndValidate(currentUser.getId(), postId);
+
+        // 참여자 채팅방 나가기
+        chattingCommandFacade.leaveChatRoom(currentUser, postId);
+
+        // 주문 상태 변경
+        Order order = updateOrder(currentUser.getId(), groupBuy);
+
+        // 공구 상태 변경 이벤트 발행
+        groupBuyEventService.publishGroupBuyUpdated(groupBuy);
+
+        // 주문 취소 이벤트 발행
+        orderEventService.publishOrderStatusCanceled(order, groupBuy);
+    }
+
+    private GroupBuy fetchAndValidate(Long userId, Long postId) {
         // 해당 공구가 존재하는지 조회 -> 없으면 404
         GroupBuy groupBuy = groupBuyRepository.findById(postId)
                 .orElseThrow(GroupBuyNotFoundException::new);
@@ -59,18 +67,14 @@ public class LeaveGroupBuy {
             throw new GroupBuyInvalidStateException(NOT_OPEN);
         }
 
+        return groupBuy;
+    }
+
+    private Order updateOrder(Long userId, GroupBuy groupBuy) {
         // 해당 공구의 주문 테이블에 해당 유저의 주문이 존재하는지 조회 -> 아니면 404
-        Order order = orderRepository.findByUserIdAndGroupBuyIdAndStatusNotIn(currentUser.getId(), groupBuy.getId(),
+        Order order = orderRepository.findByUserIdAndGroupBuyIdAndStatusNotIn(userId, groupBuy.getId(),
                         List.of("CANCELED", "REFUNDED"))
                 .orElseThrow(OrderNotFoundException::new);
-
-        // 해당 주문의 상태가 paid인지 조회
-        //if (order.getStatus().equals("PAID")) {
-        //    // 별도의 환불 로직 처리 필요
-        //}
-
-        // 참여자 채팅방 나가기
-        chattingCommandFacade.leaveChatRoom(currentUser, postId);
 
         // 남은 수량, 참여 인원 수 업데이트
         int returnQuantity = order.getQuantity();
@@ -84,33 +88,6 @@ public class LeaveGroupBuy {
 
         orderRepository.save(order);
 
-        // 공구 상태 업데이트 이벤트 발행
-        GroupBuyUpdatedEvent event = GroupBuyUpdatedEvent.builder()
-                .groupBuyId(order.getGroupBuy().getId())
-                .build();
-        realtimePublisher.publish(event);
-
-        int price = order.getPrice();
-        int quantity = order.getQuantity();
-        int totalPrice = price * quantity;
-        try {
-            OrderCanceledEvent eventDto =
-                    eventMapper.toCanceledEvent(
-                            order.getId(),
-                            groupBuy.getId(),
-                            groupBuy.getUser().getId(),
-                            order.getUser().getNickname(),
-                            order.getUser().getAccountBank(),
-                            order.getUser().getAccountNumber(),
-                            totalPrice
-                    );
-            log.info("▶ orderCanceledEvent DTO = {}", eventDto);
-            String payload = objectMapper.writeValueAsString(eventDto);
-            kafkaEventPublisher.publish(ORDER_STATUS_CANCELED, String.valueOf(order.getId()), payload);
-        } catch (JsonProcessingException e) {
-            log.error("❌ Failed to serialize OrderCanceledEvent: orderId={}", order.getId(), e);
-            throw new RuntimeException(SERIALIZATION_FAIL, e);
-        }
-
+        return order;
     }
 }
