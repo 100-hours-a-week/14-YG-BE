@@ -1,6 +1,7 @@
 package com.moogsan.moongsan_backend.global.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.moogsan.moongsan_backend.domain.chatting.anonymous.dto.ChatAnonDto;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.message.SimpleMessage;
 import org.springframework.context.annotation.Bean;
@@ -36,11 +37,11 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, SimpleMessage> simpleMessageListenerFactory(
-            ConsumerFactory<String, SimpleMessage> cf
+    public ConcurrentKafkaListenerContainerFactory<String, ChatAnonDto> chatAnonMessageListenerFactory(
+            ConsumerFactory<String, ChatAnonDto> consumerFactory
     ) {
-        var factory = new ConcurrentKafkaListenerContainerFactory<String, SimpleMessage>();
-        factory.setConsumerFactory(cf);
+        var factory = new ConcurrentKafkaListenerContainerFactory<String, ChatAnonDto>();
+        factory.setConsumerFactory(consumerFactory);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
         factory.getContainerProperties().setSyncCommits(true);
         return factory;

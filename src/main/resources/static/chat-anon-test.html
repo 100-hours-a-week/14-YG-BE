@@ -83,7 +83,7 @@
         };
 
         // 서버로 메시지 전송
-        stompClient.send("/pub/api/chat-anon/message", {}, JSON.stringify(payload));
+        stompClient.send("/pub/chat-anon/message", {}, JSON.stringify(payload));
         console.log('🚀 전송됨:', payload);
     }
 </script>

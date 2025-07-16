@@ -6,8 +6,6 @@ import com.moogsan.moongsan_backend.domain.chatting.anonymous.repository.ChatAno
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
-import org.springframework.kafka.support.KafkaHeaders;
-import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -18,26 +16,26 @@ public class KafkaConsumerService {
     private final DeleteOldMessageService deleteOldMessages;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
-    @KafkaListener(topics = "chat.anon.message.created", groupId = "chat-anon-message", containerFactory = "simpleMessageListenerFactory")
-    public void consume(ChatAnonDto message, @Header(KafkaHeaders.RECEIVED_KEY) Long postId, Acknowledgment ack) {
-        if (postId == null) {
-            System.out.println("🟡 [KafkaConsumer] Kafka 메시지 키(postId)가 null입니다.");
-            return;
+    @KafkaListener(topics = "chat.anon.message.created", groupId = "chat-anon-message", containerFactory = "chatAnonMessageListenerFactory")
+    public void consume(ChatAnonDto message, Acknowledgment ack) {
+        try {
+            ChatAnon entity = message.toEntity();
+
+            chatAnonRepository.save(entity);
+            deleteOldMessages.deleteOldMessages(message.getPostId());
+            simpMessagingTemplate.convertAndSend("/topic/chat-anon/" + message.getPostId(), message);
+
+            System.out.println("🟡 [KafkaConsumer] MongoDB 저장 및 WebSocket 토픽 발행 완료 -\n" +
+                    "  messageId=" + message.getMessageId() + "\n" +
+                    "  postId=" + message.getPostId() + "\n" +
+                    "  participantId=" + message.getParticipantId() + "\n" +
+                    "  messageContent=" + message.getMessageContent() + "\n" +
+                    "  type=" + message.getType() + "\n" +
+                    "  createdAt=" + message.getCreatedAt());
+            ack.acknowledge();
+        } catch (Exception e) {
+            System.err.println("Kafka 메시지 역직렬화 실패: " + e.getMessage());
+            e.printStackTrace();
         }
-
-        ChatAnon entity = message.toEntity();
-
-        chatAnonRepository.save(entity);
-        deleteOldMessages.deleteOldMessages(postId);
-        simpMessagingTemplate.convertAndSend("/topic/chat-anon/" + postId, message);
-
-        System.out.println("🟡 [KafkaConsumer] MongoDB 저장 및 WebSocket 토픽 발행 완료 -\n" +
-                "  messageId=" + message.getMessageId() + "\n" +
-                "  postId=" + message.getPostId() + "\n" +
-                "  participantId=" + message.getParticipantId() + "\n" +
-                "  messageContent=" + message.getMessageContent() + "\n" +
-                "  type=" + message.getType() + "\n" +
-                "  createdAt=" + message.getCreatedAt());
-        ack.acknowledge();
     }
 }
