@@ -32,7 +32,7 @@ public class JoinChatRoom {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatParticipantRepository chatParticipantRepository;
 
-    public Long joinChatRoom(User currentUser,Long postId) {
+    public void joinChatRoom(User currentUser,Long postId) {
 
         // 해당 공구가 존재하는지 조회 -> 없으면 404
         GroupBuy groupBuy = groupBuyRepository.findById(postId)
@@ -80,8 +80,6 @@ public class JoinChatRoom {
             chatRoomRepository.save(chatRoom);
 
             groupBuy.setParticipantChatRoom(chatRoom);
-
-            return chatRoom.getId();
         }
     }
 }
