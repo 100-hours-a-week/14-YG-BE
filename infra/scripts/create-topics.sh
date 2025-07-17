@@ -10,6 +10,9 @@ docker exec -it kafka-1 kafka-topics.sh --create --bootstrap-server ${BROKER} \
 docker exec -it kafka-1 kafka-topics.sh --create --bootstrap-server ${BROKER} \
   --partitions 3 --replication-factor 3 --topic chat.anon.message.created
 
+docker exec -it kafka-1 kafka-topics.sh --create --bootstrap-server ${BROKER} \
+  --partitions 3 --replication-factor 3 --topic chat.anon.moderation.created
+
 # 유저 프로필
 docker exec -it kafka-1 kafka-topics.sh --create --bootstrap-server ${BROKER} \
   --partitions 2 --replication-factor 3 --topic user.profile.updated

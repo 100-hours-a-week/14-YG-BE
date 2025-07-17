@@ -1,6 +1,7 @@
 package com.moogsan.moongsan_backend.global.config;
 
 import com.moogsan.moongsan_backend.global.security.jwt.JwtHandshakeInterceptor;
+import org.springframework.web.socket.server.support.DefaultHandshakeHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -12,11 +13,16 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.context.event.EventListener;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.web.socket.messaging.SessionSubscribeEvent;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @EnableWebSocketMessageBroker
 @RequiredArgsConstructor
 @Order(0)
+@Slf4j
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
@@ -24,7 +30,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
         // 익명 채팅방용 엔드포인트
         registry.addEndpoint("/ws/chat")
-                .setAllowedOriginPatterns("*");
+                .setAllowedOriginPatterns("*")
+                .setHandshakeHandler(new DefaultHandshakeHandler())
+                .withSockJS()
+                .setSessionCookieNeeded(true);
     }
 
     @Override
@@ -53,5 +62,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 System.out.println("📤 [Broker] 클라이언트로 전송된 메시지: " + message);
             }
         });
+    }
+
+    @EventListener
+    public void handleSubscribe(SessionSubscribeEvent event) {
+        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
+        String sessionId = accessor.getSessionId();
+        String destination = accessor.getDestination();
+        log.info("📡 WebSocket 구독됨: sessionId={}, destination={}", sessionId, destination);
     }
 }

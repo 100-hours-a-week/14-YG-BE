@@ -1,5 +1,6 @@
 package com.moogsan.moongsan_backend.domain.chatting.anonymous.entity;
 
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
@@ -10,6 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.time.LocalDateTime;
 
 @Getter
+@Setter
 @Builder
 @Document(collection = "chat_messages_anon")
 public class ChatAnon {
@@ -35,4 +37,6 @@ public class ChatAnon {
 
     @Field("created_at")
     private LocalDateTime createdAt;
+
+    public void setIsSafe(boolean isSafe) {this.isSafe = isSafe;}
 }

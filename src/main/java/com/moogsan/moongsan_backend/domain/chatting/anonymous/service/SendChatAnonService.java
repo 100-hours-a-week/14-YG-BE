@@ -32,7 +32,7 @@ public class SendChatAnonService {
 
         // createdAt이 비어있으면 현재 시간으로 설정
         if (message.getCreatedAt() == null) {
-            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime now = LocalDateTime.now().plusHours(9); // 한국 시간(UTC+9) 기준
             message.setCreatedAt(now);
         }
 

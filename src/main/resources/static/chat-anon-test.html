@@ -9,7 +9,7 @@
 <h2>익명 채팅 테스트</h2>
 
 <!-- 사용자 입력 폼 -->
-<label>Post ID: <input id="postIdInput" type="number" value="10"/></label><br>
+<label>Post ID: <input id="postIdInput" type="number" value="10" disabled/></label><br>
 <label>Participant ID: <input id="participantIdInput" type="number" value="10"/></label><br>
 <label>Message: <input id="messageInput" type="text" value="테스트 메시지입니다." size="50"/></label><br><br>
 
@@ -24,30 +24,30 @@
     let stompClient = null;
 
     function connect() {
-        const postId = document.getElementById("postIdInput").value;
-        const socket = new WebSocket("ws://localhost:8080/ws/chat");
+        const postId = 10;
+        const socket = new SockJS("http://localhost:8080/ws/chat");
         stompClient = Stomp.over(socket);
 
        stompClient.connect({}, () => {
            console.log("🟢 STOMP connected");
-            stompClient.subscribe(`/topic/chat-anon/${postId}`, msg => {
-                console.log("🟡 Subscribed to /topic/chat-anon/" + postId);
-                try {
-                    const m = JSON.parse(msg.body);
-                    const item = document.createElement("li");
-                    item.textContent =
-                        `messageId: ${m.messageId}\n` +
-                        `postId: ${m.postId}\n` +
-                        `participantId: ${m.participantId}\n` +
-                        `messageContent: ${m.messageContent}\n` +
-                        `isSafe: ${m.isSafe}\n` +
-                        `blurReason: ${m.blurReason}\n` +
-                        `createdAt: ${m.createdAt}`;
-                    document.getElementById("messageLog").appendChild(item);
-                } catch (e) {
-                    console.error('JSON parse error:', e);
-                }
-            });
+           stompClient.subscribe("/topic/chat-anon/10", msg => {
+               console.log("🟡 Subscribed to /topic/chat-anon/" + postId);
+               try {
+                   const m = JSON.parse(msg.body);
+                   const item = document.createElement("li");
+                   item.textContent =
+                       `messageId: ${m.messageId}\n` +
+                       `postId: ${m.postId}\n` +
+                       `participantId: ${m.participantId}\n` +
+                       `messageContent: ${m.messageContent}\n` +
+                       `isSafe: ${m.isSafe}\n` +
+                       `blurReason: ${m.blurReason}\n` +
+                       `createdAt: ${m.createdAt}`;
+                   document.getElementById("messageLog").appendChild(item);
+               } catch (e) {
+                   console.error('JSON parse error:', e);
+               }
+           }, { id: "chat-anon-sub-10" });
         }, err => {
             console.error('Connection error:', err);
         });
@@ -59,7 +59,7 @@
             return;
         }
 
-        const postId = parseInt(document.getElementById("postIdInput").value);
+        const postId = 10;
         const participantId = parseInt(document.getElementById("participantIdInput").value);
         const messageContent = document.getElementById("messageInput").value;
 
