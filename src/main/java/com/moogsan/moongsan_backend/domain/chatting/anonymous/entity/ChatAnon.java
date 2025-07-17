@@ -29,6 +29,7 @@ public class ChatAnon {
     private String messageContent;
 
     @Builder.Default
+    @Field("is_safe")
     private boolean isSafe = true;
 
     @Builder.Default
