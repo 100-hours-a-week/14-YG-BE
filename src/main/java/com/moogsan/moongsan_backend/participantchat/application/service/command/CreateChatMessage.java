@@ -2,9 +2,6 @@ package com.moogsan.moongsan_backend.participantchat.application.service.command
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moogsan.moongsan_backend.participantchat.domain.event.ChatMessagePersistEvent;
-import com.moogsan.moongsan_backend.participantchat.domain.mapper.ChatEventMapper;
-import com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.participantchat.presentation.dto.command.request.CreateChatMessageRequest;
 import com.moogsan.moongsan_backend.participantchat.domain.entity.ChatMessageDocument;
 import com.moogsan.moongsan_backend.participantchat.domain.entity.ChatParticipant;
@@ -24,18 +21,15 @@ import com.moogsan.moongsan_backend.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.Duration;
 
-import static com.moogsan.moongsan_backend.global.infrastructure.kafka.KafkaTopics.CHAT_PART_MESSAGE_CREATED;
+import static com.moogsan.moongsan_backend.participantchat.domain.constant.ParticipantChatConstants.CASHE_REDIS_KEY;
 import static com.moogsan.moongsan_backend.participantchat.domain.message.ResponseMessage.DELETED_CHAT_ROOM;
 import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.NOT_PARTICIPANT;
-import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SERIALIZATION_FAIL;
 import static com.moogsan.moongsan_backend.global.util.ObjectIdScoreUtil.toScore;
 
 @Slf4j
@@ -53,54 +47,59 @@ public class CreateChatMessage {
     private final GetLatestMessageSse getLatestMessageSse;
     private final GetLatestMessagesStomp getLatestMessagesStomp;
     private final RedisTemplate<String, String> redisTemplate;
-    private final KafkaEventPublisher kafkaEventPublisher;
-    private final ChatEventMapper eventMapper;
     private final ObjectMapper objectMapper;
     private final Clock clock;
 
     public void createChatMessage(User currentUser, CreateChatMessageRequest request, Long chatRoomId) {
 
-        // 채팅방 조회 -> 없으면 404
-        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(ChatRoomNotFoundException::new);
-
-        // 채팅방이 삭제되지 않았는지 조회
-        if(chatRoom.getDeletedAt() != null) {
-            throw new ChatRoomInvalidStateException(DELETED_CHAT_ROOM);
-        }
+        // 채팅방 조회 및 유효성 검사
+        ChatRoom chatRoom = fetchAndValidate(chatRoomId);
 
         // 참여자인지 조회 -> 아니면 403
-        ChatParticipant participant = chatParticipantRepository
-                .findByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoomId, currentUser.getId())
-                .orElseThrow(() -> new NotParticipantException(NOT_PARTICIPANT));
-
+        ChatParticipant participant = validateUser(currentUser.getId(), chatRoomId);
 
         // 메세지 순번 생성 (커서 기반 페이징용)
         Long nextSeq = messageSequenceGenerator.getNextMessageSeq(chatRoomId);
 
-        // 메세지 작성
-        ChatMessageDocument document = chatMessageCommandMapper
-                .toMessageDocument(chatRoom, participant.getId(), request, nextSeq);
-        SecurityContext context = SecurityContextHolder.getContext();
+        // 메세지 작성 및 저장
+        ChatMessageDocument document = chatMessageCommandMapper.toMessageDocument(chatRoom, participant.getId(), request, nextSeq);
         chatMessageRepository.save(document);
 
+        /* SecurityContext context = SecurityContextHolder.getContext();
         // 롱 폴링
-        // getLatestMessages.notifyNewMessage(document, currentUser.getNickname(), currentUser.getImageKey(), context);
-
+        getLatestMessages.notifyNewMessage(document, currentUser.getNickname(), currentUser.getImageKey(), context);
         // sse
-        /*
-        getLatestMessageSse.notifyNewMessageSse(
-                document,
-                currentUser.getNickname(),
-                currentUser.getImageKey(),
-                context
-        );
-         */
+        getLatestMessageSse.notifyNewMessageSse(document,currentUser.getNickname(),currentUser.getImageKey(),context); */
 
         // socket
         getLatestMessagesStomp.notifyNewMessage(document, currentUser.getNickname(), currentUser.getImageKey());
 
-        String redisKey = "chatting:messages:" + chatRoomId;
+        // 메세지 캐싱
+        cacheMessage(chatRoomId, document);
+
+    }
+
+    private ChatRoom fetchAndValidate(Long chatRoomId) {
+        // 채팅방 조회 -> 없으면 404
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(ChatRoomNotFoundException::new);
+
+        // 채팅방 삭제 여부 조회 -> 409
+        if(chatRoom.getDeletedAt() != null) {
+            throw new ChatRoomInvalidStateException(DELETED_CHAT_ROOM);
+        }
+
+        return chatRoom;
+    }
+
+    private ChatParticipant validateUser(Long userId, Long chatRoomId) {
+        return chatParticipantRepository
+                .findByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoomId, userId)
+                .orElseThrow(() -> new NotParticipantException(NOT_PARTICIPANT));
+    }
+
+    private void cacheMessage(Long chatRoomId, ChatMessageDocument document) {
+        String redisKey = CASHE_REDIS_KEY + chatRoomId;
 
         try {
             String json = objectMapper.writeValueAsString(document);
@@ -111,16 +110,6 @@ public class CreateChatMessage {
             }
         } catch (JsonProcessingException e) {
             log.warn("❌ Redis 캐싱 실패 [chatRoomId={}]: {}", chatRoomId, e.getMessage());
-        }
-
-        try {
-            ChatMessagePersistEvent eventDto =
-                    eventMapper.toChatMessagePersistEvent(chatRoom.getId(), document.getId());
-            String payload = objectMapper.writeValueAsString(eventDto);
-            kafkaEventPublisher.publish(CHAT_PART_MESSAGE_CREATED, String.valueOf(document.getId()), payload);
-        } catch (JsonProcessingException e) {
-            log.error("❌ Failed to serialize ParticipantChatMessageCreatedEvent: documentId={}", document.getId(), e);
-            throw new RuntimeException(SERIALIZATION_FAIL, e);
         }
     }
 }

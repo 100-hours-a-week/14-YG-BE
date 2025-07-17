@@ -26,7 +26,7 @@ public class NotificationCommandController {
             @PathVariable Long notificationId,
             @RequestBody NotificationReadStatus request) {
 
-        notificationMarkAsRead.execute(userDetails.getUser().getId(), notificationId, request);
+        notificationMarkAsRead.execute(notificationId, request);
 
         return ResponseEntity.noContent().build();
     }

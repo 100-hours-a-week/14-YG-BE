@@ -22,8 +22,39 @@ public class GetChatRoomList {
     private final ChatParticipantRepository chatParticipantRepository;
     private final ChatMessageQueryMapper chatMessageQueryMapper;
 
-    public ChatRoomPagedResponse getChatRoomList (Long userId, LocalDateTime cursorJoinedAt, Integer limit) {
+    public ChatRoomPagedResponse getChatRoomList (
+            Long userId, LocalDateTime cursorJoinedAt, Integer limit) {
 
+        // 참여자 조회
+        List<ChatParticipant> participants = fetchAndValidate(userId, cursorJoinedAt, limit);
+
+        // 더보기 여부 확인
+        boolean hasMore = participants.size() > limit;
+
+        // 실제 데이터 크기로 조정
+        List<ChatParticipant> paginatedParticipants = participants.size() > limit ? participants.subList(0, limit) : participants;
+
+        // 다음 커서 지정
+        LocalDateTime nextJoinedAt = null;
+        if (!paginatedParticipants.isEmpty()) {
+            ChatParticipant last = paginatedParticipants.getLast();
+            nextJoinedAt = last.getJoinedAt();
+        }
+
+        // 채팅방 매핑
+         List<ChatRoom> rooms = extractChatRoom(paginatedParticipants);
+
+        // DTO 매핑
+        List<ChatRoomResponse> results = chatMessageQueryMapper.toChatRoomList(rooms);
+
+        return ChatRoomPagedResponse.builder()
+                .chatRooms(results)
+                .nextCursorJoinedAt(nextJoinedAt)
+                .hasMore(hasMore)
+                .build();
+    }
+
+    private List<ChatParticipant> fetchAndValidate(Long userId, LocalDateTime cursorJoinedAt, Integer limit) {
         // 결과 조회 -> 없으면 빈 리스트 리턴
         Pageable page = PageRequest.of(0,
                 limit + 1,
@@ -38,28 +69,12 @@ public class GetChatRoomList {
             participants = chatParticipantRepository.findParticipantsAfter(userId, cursorJoinedAt, page);
         }
 
-        List<ChatParticipant> pageOf = participants.size() > limit
-                ? participants.subList(0, limit)
-                : participants;
+        return participants;
+    }
 
-        LocalDateTime nextJoinedAt = null;
-        if (!pageOf.isEmpty()) {
-            ChatParticipant last = pageOf.getLast();
-            nextJoinedAt = last.getJoinedAt();
-        }
-
-        boolean hasMore = participants.size() > limit;
-
-         List<ChatRoom> rooms = pageOf.stream()
+    private List<ChatRoom> extractChatRoom(List<ChatParticipant> paginatedParticipants) {
+        return paginatedParticipants.stream()
                 .map(ChatParticipant::getChatRoom)
                 .toList();
-
-        List<ChatRoomResponse> results = chatMessageQueryMapper.toChatRoomList(rooms);
-
-        return ChatRoomPagedResponse.builder()
-                .chatRooms(results)
-                .nextCursorJoinedAt(nextJoinedAt)
-                .hasMore(hasMore)
-                .build();
     }
 }

@@ -2,8 +2,6 @@ package com.moogsan.moongsan_backend.unit.chatting.participant.service.command;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moogsan.moongsan_backend.participantchat.domain.mapper.ChatEventMapper;
-import com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.participantchat.presentation.dto.command.request.CreateChatMessageRequest;
 import com.moogsan.moongsan_backend.participantchat.domain.entity.ChatMessageDocument;
 import com.moogsan.moongsan_backend.participantchat.domain.entity.ChatParticipant;
@@ -42,44 +40,18 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class CreateChatMessageTest {
 
-    @Mock
-    private ChatRoomRepository chatRoomRepository;
-
-    @Mock
-    private ChatParticipantRepository chatParticipantRepository;
-
-    @Mock
-    private ChatMessageRepository chatMessageRepository;
-
-    @Mock
-    private MessageSequenceGenerator messageSequenceGenerator;
-
-    @Mock
-    private ChatMessageCommandMapper chatMessageCommandMapper;
-
-    @Mock
-    private GetLatestMessages getLatestMessages;
-
-    @Mock
-    private GetLatestMessageSse getLatestMessageSse;
-
-    @Mock
-    private RedisTemplate<String, String> redisTemplate;
-
-    @Mock
-    private GetLatestMessagesStomp getLatestMessagesStomp;
-
-    @Mock
-    private KafkaEventPublisher kafkaEventPublisher;
-
-    @Mock
-    private ChatEventMapper eventMapper;
-
-    @Mock
-    private ObjectMapper objectMapper;
-
-    @Mock
-    private ZSetOperations<String, String> zSetOperations;
+    @Mock private ChatRoomRepository chatRoomRepository;
+    @Mock private ChatParticipantRepository chatParticipantRepository;
+    @Mock private ChatMessageRepository chatMessageRepository;
+    @Mock private MessageSequenceGenerator messageSequenceGenerator;
+    @Mock private ChatMessageCommandMapper chatMessageCommandMapper;
+    @Mock private GetLatestMessages getLatestMessages;
+    @Mock private GetLatestMessageSse getLatestMessageSse;
+    @Mock private GetLatestMessagesStomp getLatestMessagesStomp;
+    @Mock private RedisTemplate<String, String> redisTemplate;
+    @Mock private ObjectMapper objectMapper;
+    @Mock private Clock clock;
+    @Mock private ZSetOperations<String, String> zSetOperations;
 
     private CreateChatMessage createChatMessage;
     private ChatRoom chatRoom;
@@ -119,8 +91,6 @@ public class CreateChatMessageTest {
                 getLatestMessageSse,
                 getLatestMessagesStomp,
                 redisTemplate,
-                kafkaEventPublisher,
-                eventMapper,
                 objectMapper,
                 fixedClock
         );
@@ -130,7 +100,7 @@ public class CreateChatMessageTest {
     @DisplayName("참여자 채팅방 메세지 작성 성공")
     void createChatMessage_success() throws JsonProcessingException{
         when(chatRoomRepository.findById(20L)).thenReturn(Optional.of(chatRoom));
-        when(chatParticipantRepository.findByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoom.getId(), participantUser.getId()))
+        when(chatParticipantRepository.findByChatRoom_IdAndUser_IdAndLeftAtIsNull(participantUser.getId(), chatRoom.getId()))
                 .thenReturn(Optional.ofNullable(chatParticipant));
         when(messageSequenceGenerator.getNextMessageSeq(chatRoom.getId())).thenReturn(2L);
         when(chatMessageCommandMapper.toMessageDocument(chatRoom, chatParticipant.getId(), request, 2L))
@@ -145,7 +115,7 @@ public class CreateChatMessageTest {
 
         verify(chatRoomRepository, times(1)).findById(20L);
         verify(chatParticipantRepository, times(1))
-                .findByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoom.getId(), participantUser.getId());
+                .findByChatRoom_IdAndUser_IdAndLeftAtIsNull(participantUser.getId(), chatRoom.getId());
         verify(messageSequenceGenerator, times(1)).getNextMessageSeq(chatRoom.getId());
         verify(chatMessageCommandMapper, times(1)).toMessageDocument(chatRoom, chatParticipant.getId(), request, 2L);
         verify(redisTemplate.opsForZSet(), times(1)).add(anyString(), anyString(), anyDouble());
@@ -189,7 +159,7 @@ public class CreateChatMessageTest {
     @DisplayName("참여자 채팅방 메세지 작성 실패 - 참여자가 아님")
     void createChatMessage_fail_not_participant() {
         when(chatRoomRepository.findById(20L)).thenReturn(Optional.of(chatRoom));
-        when(chatParticipantRepository.findByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoom.getId(), participantUser.getId()))
+        when(chatParticipantRepository.findByChatRoom_IdAndUser_IdAndLeftAtIsNull(participantUser.getId(), chatRoom.getId()))
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> createChatMessage.createChatMessage(participantUser, request, 20L))
@@ -198,7 +168,7 @@ public class CreateChatMessageTest {
 
         verify(chatRoomRepository, times(1)).findById(20L);
         verify(chatParticipantRepository, times(1))
-                .findByChatRoom_IdAndUser_IdAndLeftAtIsNull(chatRoom.getId(), participantUser.getId());
+                .findByChatRoom_IdAndUser_IdAndLeftAtIsNull(participantUser.getId(), chatRoom.getId());
         verify(messageSequenceGenerator, never()).getNextMessageSeq(chatRoom.getId());
         verify(chatMessageCommandMapper, never()).toMessageDocument(chatRoom, chatParticipant.getId(), request, 2L);
     }

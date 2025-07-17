@@ -80,7 +80,6 @@ public class GetLatestMessages {
         return dr;
     }
 
-
     public void notifyNewMessage(
             ChatMessageDocument newMessage,
             String nickname,
