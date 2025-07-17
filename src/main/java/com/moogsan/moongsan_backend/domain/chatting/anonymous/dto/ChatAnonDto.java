@@ -26,21 +26,26 @@ public class ChatAnonDto {
     @JsonProperty("messageContent")
     private String messageContent;
 
-    @JsonProperty("type")
-    private String type;
+    @JsonProperty("isSafe")
+    private boolean isSafe = true;
+
+    @JsonProperty("blurReason")
+    private String blurReason;
 
     @JsonProperty("createdAt")
     private LocalDateTime createdAt;
 
     public static ChatAnonDto from(ChatAnon entity) {
-        return new ChatAnonDto(
+        ChatAnonDto dto = new ChatAnonDto(
                 entity.getMessageId(),
                 entity.getPostId(),
                 entity.getParticipantId(),
                 entity.getMessageContent(),
-                entity.getType(),
+                entity.isSafe(),
+                entity.getBlurReason(),
                 entity.getCreatedAt()
         );
+        return dto;
     }
 
     public ChatAnon toEntity() {
@@ -49,7 +54,8 @@ public class ChatAnonDto {
                 .postId(this.postId)
                 .participantId(this.participantId)
                 .messageContent(this.messageContent)
-                .type(this.type)
+                .isSafe(this.isSafe)
+                .blurReason(this.blurReason)
                 .createdAt(this.createdAt)
                 .build();
     }

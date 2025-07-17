@@ -16,7 +16,10 @@ public class KafkaConsumerService {
     private final DeleteOldMessageService deleteOldMessages;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
-    @KafkaListener(topics = "chat.anon.message.created", groupId = "chat-anon-message", containerFactory = "chatAnonMessageListenerFactory")
+    @KafkaListener(
+            topics = "chat.anon.message.created",
+            groupId = "chat-anon-message",
+            containerFactory = "chatAnonMessageListenerFactory")
     public void consume(ChatAnonDto message, Acknowledgment ack) {
         try {
             ChatAnon entity = message.toEntity();
@@ -24,14 +27,7 @@ public class KafkaConsumerService {
             chatAnonRepository.save(entity);
             deleteOldMessages.deleteOldMessages(message.getPostId());
             simpMessagingTemplate.convertAndSend("/topic/chat-anon/" + message.getPostId(), message);
-
-            System.out.println("🟡 [KafkaConsumer] MongoDB 저장 및 WebSocket 토픽 발행 완료 -\n" +
-                    "  messageId=" + message.getMessageId() + "\n" +
-                    "  postId=" + message.getPostId() + "\n" +
-                    "  participantId=" + message.getParticipantId() + "\n" +
-                    "  messageContent=" + message.getMessageContent() + "\n" +
-                    "  type=" + message.getType() + "\n" +
-                    "  createdAt=" + message.getCreatedAt());
+            System.out.println("🟡 [KafkaConsumer] MongoDB 저장 및 WebSocket 토픽 발행 완료 - " + message.getMessageContent());
             ack.acknowledge();
         } catch (Exception e) {
             System.err.println("Kafka 메시지 역직렬화 실패: " + e.getMessage());

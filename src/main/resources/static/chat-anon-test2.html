@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>WebSocket Chat Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    button, input { margin: 5px; }
+    #log { white-space: pre-line; margin-top: 20px; border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: scroll; }
+  </style>
+</head>
+<body>
+  <h2>🔧 익명 채팅 테스트</h2>
+  <p><strong>postId:</strong> 10</p>
+  <p><strong>participantId:</strong> 20</p>
+
+  <button onclick="connect()">1️⃣ WebSocket 연결</button>
+  <button onclick="subscribe()">2️⃣ 채팅방 구독</button><br />
+
+  <input type="text" id="messageInput" placeholder="메시지를 입력하세요" size="40" />
+  <button onclick="sendMessage()">3️⃣ 메시지 전송</button>
+
+  <div id="log"></div>
+
+  <script>
+    const postId = 10;
+    const participantId = 20;
+    let stompClient = null;
+
+    function log(message) {
+      const logBox = document.getElementById('log');
+      logBox.textContent += message + '\n';
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function connect() {
+      const socket = new SockJS('http://localhost:8080/ws/chat');
+      stompClient = Stomp.over(socket);
+      stompClient.connect({}, function(frame) {
+        log('✅ 연결됨: ' + frame);
+      }, function(error) {
+        log('❌ 연결 실패: ' + error);
+      });
+    }
+
+    function subscribe() {
+      if (!stompClient || !stompClient.connected) {
+        log('⚠️ 먼저 연결을 해주세요.');
+        return;
+      }
+      const destination = `/topic/chat-anon/10`;
+      stompClient.subscribe(destination, function(message) {
+        log('📩 수신됨: ' + message.body);
+      });
+      log('📡 구독 요청됨: ' + destination);
+    }
+
+    function sendMessage() {
+      if (!stompClient || !stompClient.connected) {
+        log('⚠️ 먼저 연결을 해주세요.');
+        return;
+      }
+
+      const messageContent = document.getElementById('messageInput').value.trim();
+      if (!messageContent) {
+        log('⚠️ 메시지를 입력해주세요.');
+        return;
+      }
+
+      const payload = { postId, participantId, messageContent };
+      stompClient.send('/pub/chat-anon/message', {}, JSON.stringify(payload));
+      log('📤 전송됨: ' + JSON.stringify(payload));
+    }
+  </script>
+</body>
+</html>
