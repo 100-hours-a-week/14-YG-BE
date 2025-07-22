@@ -31,8 +31,17 @@ public class SignUpService {
     private final PasswordEncoder passwordEncoder; // 비밀번호 암호화기
     private final JwtUtil jwtUtil;
 
-    @Value("${custom.cookie.secure:true}")
     private boolean cookieSecure;
+
+    @jakarta.annotation.PostConstruct
+    public void init() {
+        try {
+            String hostName = java.net.InetAddress.getLocalHost().getHostName();
+            cookieSecure = hostName.contains("moongsan.com");
+        } catch (Exception e) {
+            cookieSecure = true; // fallback to secure
+        }
+    }
 
     @Transactional
     public LoginResponse signUp(SignUpRequest request, HttpServletResponse response) {
@@ -59,7 +68,7 @@ public class SignUpService {
             userRepository.flush();
             String accessToken = jwtUtil.generateAccessToken(savedUser);
             String refreshToken = jwtUtil.generateRefreshToken(savedUser);
-            Long accessTokenExpireAt = jwtUtil.getAccessTokenExpireAt();
+            long accessTokenExpireAt = jwtUtil.getAccessTokenExpireAt();
 
             // 액세스 토큰 설정 (ResponseCookie 사용)
             ResponseCookie accessTokenCookie = ResponseCookie.from("AccessToken", accessToken)
