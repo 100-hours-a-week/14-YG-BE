@@ -21,8 +21,17 @@ import org.springframework.beans.factory.annotation.Value;
 @RequiredArgsConstructor
 public class TokenRefreshService {
 
-    @Value("${custom.cookie.secure:true}")
     private boolean cookieSecure;
+
+    @jakarta.annotation.PostConstruct
+    public void init() {
+        try {
+            String hostName = java.net.InetAddress.getLocalHost().getHostName();
+            cookieSecure = hostName.contains("moongsan.com");
+        } catch (Exception e) {
+            cookieSecure = true; // fallback to secure
+        }
+    }
 
     private final JwtUtil jwtUtil;
     private final TokenRepository tokenRepository;

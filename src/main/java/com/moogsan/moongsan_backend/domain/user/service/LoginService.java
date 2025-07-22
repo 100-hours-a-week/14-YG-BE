@@ -16,11 +16,12 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import org.springframework.beans.factory.annotation.Value;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+
+import static java.net.InetAddress.getLocalHost;
 
 @Service
 @RequiredArgsConstructor
@@ -31,8 +32,16 @@ public class LoginService {
     private final JwtUtil jwtUtil;
     private final TokenRepository refreshTokenRepository;
 
-    @Value("${custom.cookie.secure:true}")
     private boolean cookieSecure;
+
+    @jakarta.annotation.PostConstruct
+    public void init() {
+        try {
+            cookieSecure = getLocalHost().getHostName().contains("moongsan.com");
+        } catch (Exception e) {
+            cookieSecure = true; // fallback to secure
+        }
+    }
 
     @Transactional
     public LoginResponse login(LoginRequest request, HttpServletResponse response) {
@@ -67,8 +76,8 @@ public class LoginService {
             // JWT 토큰 발급
             String accessToken = jwtUtil.generateAccessToken(user);
             String refreshToken = jwtUtil.generateRefreshToken(user);
-            Long accessTokenExpireAt = jwtUtil.getAccessTokenExpireAt();
-            Long refreshTokenExpireMillis = jwtUtil.getRefreshTokenExpireMillis();
+            long accessTokenExpireAt = jwtUtil.getAccessTokenExpireAt();
+            long refreshTokenExpireMillis = jwtUtil.getRefreshTokenExpireMillis();
 
             // 기존 리프레시 토큰 DB에서 제거
             refreshTokenRepository.deleteByUserId(user.getId());

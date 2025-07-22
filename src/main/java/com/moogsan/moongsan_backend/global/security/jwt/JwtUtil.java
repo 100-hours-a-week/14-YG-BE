@@ -60,7 +60,7 @@ public class JwtUtil {
         }
     }
 
-    public Long getUserIdFromToken(String token) {
+    public long getUserIdFromToken(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(secretKey)
                 .build()
@@ -69,7 +69,7 @@ public class JwtUtil {
         return Long.parseLong(claims.getSubject());
     }
 
-    public Long getAccessTokenExpireAt() {
+    public long getAccessTokenExpireAt() {
         return System.currentTimeMillis() + accessTokenExpireMs;
     }
 

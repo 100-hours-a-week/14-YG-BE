@@ -26,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+import static java.net.InetAddress.getLocalHost;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -37,8 +39,17 @@ public class KakaoOAuthService {
     private final JwtUtil jwtUtil;
     private final TokenRepository refreshTokenRepository;
 
-    @Value("${custom.cookie.secure:true}")
     private boolean cookieSecure;
+
+    @jakarta.annotation.PostConstruct
+    public void init() {
+        try {
+            String hostName = getLocalHost().getHostName();
+            cookieSecure = hostName.contains("moongsan.com");
+        } catch (Exception e) {
+            cookieSecure = true; // fallback to secure
+        }
+    }
 
     @Transactional
     public Object kakaoLogin(String code, String redirectUri, HttpServletResponse response) {
@@ -90,8 +101,8 @@ public class KakaoOAuthService {
         // JWT 토큰 발급
         String accessToken = jwtUtil.generateAccessToken(user);
         String refreshToken = jwtUtil.generateRefreshToken(user);
-        Long accessTokenExpireAt = jwtUtil.getAccessTokenExpireAt();
-        Long refreshTokenExpireMillis = jwtUtil.getRefreshTokenExpireMillis();
+        long accessTokenExpireAt = jwtUtil.getAccessTokenExpireAt();
+        long refreshTokenExpireMillis = jwtUtil.getRefreshTokenExpireMillis();
 
         // 기존 리프레시 토큰 DB에서 제거
         refreshTokenRepository.deleteByUserId(user.getId());
