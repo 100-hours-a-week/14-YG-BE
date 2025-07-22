@@ -20,18 +20,23 @@ import java.util.List;
 @Transactional
 public class GetPastNotifications {
 
+    private static final long RANGE      = 1_000_000_000_000L;
+
     private final NotificationRepository notificationRepository;
 
     public PagedResponse<NotificationResponse> getPastNotifications(Long userId, Long cursorId, int size) {
 
-        Pageable page = PageRequest.of(0, size + 1);
+        int  level  = 0;
+        Long lastId = null;          // 첫 페이지
+        if (cursorId != null && cursorId > 0) {
+            level  = (int) (cursorId / RANGE);
+            lastId = cursorId % RANGE;
+        }
 
-        List<Notification> raw = (cursorId == null)
-                ? notificationRepository.findByReceiverIdOrderByIdDesc(userId, page)
-                : notificationRepository.findByReceiverIdAndIdLessThanOrderByIdDesc(userId, cursorId, page);
+        Pageable page = PageRequest.of(0, size + 1);
+        List<Notification> raw = notificationRepository.fetchPage(userId, level, lastId, page);
 
         boolean hasNext = raw.size() > size;
-
         if (hasNext) raw = raw.subList(0, size);
 
         List<NotificationResponse> items = raw.stream()
