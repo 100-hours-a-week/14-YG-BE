@@ -17,6 +17,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 
@@ -28,6 +30,9 @@ public class LoginService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final TokenRepository refreshTokenRepository;
+
+    @Value("${custom.cookie.secure:true}")
+    private boolean cookieSecure;
 
     @Transactional
     public LoginResponse login(LoginRequest request, HttpServletResponse response) {
@@ -80,7 +85,7 @@ public class LoginService {
             // 엑세스 토큰 설정 (ResponseCookie 사용)
             ResponseCookie accessTokenCookie = ResponseCookie.from("AccessToken", accessToken)
                     .httpOnly(true)
-                    .secure(true)
+                    .secure(cookieSecure)
                     .path("/")
                     .sameSite("None")
                     .maxAge(Duration.ofMillis(accessTokenExpireAt))
@@ -90,7 +95,7 @@ public class LoginService {
             // 리프레시 토큰 설정 (ResponseCookie 사용)
             ResponseCookie refreshTokenCookie = ResponseCookie.from("RefreshToken", refreshToken)
                     .httpOnly(true)
-                    .secure(true)
+                    .secure(cookieSecure)
                     .path("/")
                     .sameSite("None")
                     .maxAge(Duration.ofMillis(refreshTokenExpireMillis))

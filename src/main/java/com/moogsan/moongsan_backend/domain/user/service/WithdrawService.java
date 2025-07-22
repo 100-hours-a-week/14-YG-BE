@@ -15,10 +15,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import java.time.Duration;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
 
 @Service
 @RequiredArgsConstructor
 public class WithdrawService {
+
+    @Value("${custom.cookie.secure:true}")
+    private boolean cookieSecure;
 
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
@@ -45,7 +49,7 @@ public class WithdrawService {
         // 액세스 토큰 삭제 (ResponseCookie 사용)
         ResponseCookie accessTokenCookie = ResponseCookie.from("AccessToken", "")
                 .httpOnly(true)
-                .secure(true)
+                .secure(cookieSecure)
                 .path("/")
                 .maxAge(Duration.ZERO)
                 .sameSite("None")
@@ -55,7 +59,7 @@ public class WithdrawService {
         // 리프레시 토큰 삭제 (ResponseCookie 사용)
         ResponseCookie refreshTokenCookie = ResponseCookie.from("RefreshToken", "")
                 .httpOnly(true)
-                .secure(true)
+                .secure(cookieSecure)
                 .path("/")
                 .maxAge(Duration.ZERO)
                 .sameSite("None")
