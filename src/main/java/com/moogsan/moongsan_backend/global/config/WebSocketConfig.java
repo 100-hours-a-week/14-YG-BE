@@ -26,7 +26,15 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
         // 익명 채팅방용 엔드포인트
         registry.addEndpoint("/ws/chat")
-                .setAllowedOriginPatterns("*")
+                .setAllowedOrigins(
+                        "https://test.moongsan.com",
+                        "https://dev.moongsan.com",
+                        "http://localhost:3000",
+                        "http://localhost:5173",
+                        "http://localhost:8080",
+                        "http://localhost:63342",
+                        "https://moongsan.com"
+                )
                 .setHandshakeHandler(new DefaultHandshakeHandler())
                 .withSockJS()
                 .setSessionCookieNeeded(true);
