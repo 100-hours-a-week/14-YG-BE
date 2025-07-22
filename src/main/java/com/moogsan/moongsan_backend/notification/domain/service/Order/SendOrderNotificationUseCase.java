@@ -63,7 +63,6 @@ public class SendOrderNotificationUseCase {
 
         String title = templateRegistry.title(NotificationType.ORDER_CONFIRMED);
         String body = templateRegistry.body(NotificationType.ORDER_CONFIRMED)
-                .replace("{groupBuyTitle}", event.getGroupBuyName())
                 .replace("{buyerName}", event.getBuyerName());
 
         notificationPublisher.publish(
@@ -113,7 +112,6 @@ public class SendOrderNotificationUseCase {
 
         String title = templateRegistry.title(NotificationType.ORDER_REFUNDED);
         String body = templateRegistry.body(NotificationType.ORDER_REFUNDED)
-                .replace("{groupBuyTitle}", event.getGroupBuyName())
                 .replace("{buyerName}", event.getBuyerName());
 
         notificationPublisher.publish(

@@ -27,10 +27,7 @@ public class SendGroupBuyClosedNotiUseCase {
         }
 
         String title = templateRegistry.title(NotificationType.GROUPBUY_STATUS_CLOSED);
-        String body = templateRegistry.body(NotificationType.GROUPBUY_STATUS_CLOSED)
-                .replace("{groupBuyTitle}", event.getGroupBuyTitle())
-                .replace("{participantCount}", String.valueOf(event.getParticipantCount()))
-                .replace("{totalQty}", String.valueOf(event.getTotalQty()));
+        String body = templateRegistry.body(NotificationType.GROUPBUY_STATUS_CLOSED);
 
         // host에게 알림 발행
         notificationPublisher.publish(
