@@ -34,7 +34,6 @@ services:
     environment:
       SPRING_CONFIG_ADDITIONAL_LOCATION: file:/config/
       SPRING_PROFILES_ACTIVE: docker
-      CUSTOM_COOKIE_SECURE: "false"
 
   # ------- Zookeeper 3대 -------
   zookeeper-1:
