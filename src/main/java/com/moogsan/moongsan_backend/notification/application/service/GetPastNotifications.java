@@ -26,29 +26,24 @@ public class GetPastNotifications {
 
     public PagedResponse<NotificationResponse> getPastNotifications(Long userId, Long cursorId, int size) {
 
-        int  level  = 3;       // default: 최상위부터 시작
-        Long lastId = null;    // 첫 호출
-
+        int  level  = 0;
+        Long lastId = null;          // 첫 페이지
         if (cursorId != null && cursorId > 0) {
-            level  = (int)(cursorId / RANGE);   // priority
-            lastId = cursorId %  RANGE;         // id
+            level  = (int) (cursorId / RANGE);
+            lastId = cursorId % RANGE;
         }
 
         Pageable page = PageRequest.of(0, size + 1);
+        List<Notification> raw = notificationRepository.fetchPage(userId, level, lastId, page);
 
-        List<Notification> raw = notificationRepository
-                .fetchPage(userId, level, lastId, page);
-        boolean hasNext = raw.size() == size + 1;
+        boolean hasNext = raw.size() > size;
         if (hasNext) raw = raw.subList(0, size);
-
-        Long nextCursor = hasNext
-                ? raw.getLast().getPriorityLevel() * RANGE   // priority 보존
-                + raw.getLast().getId()                    // id
-                : null;
 
         List<NotificationResponse> items = raw.stream()
                 .map(NotificationMapper::toNotificationResponse)
                 .toList();
+
+        Long nextCursor = hasNext ? raw.getLast().getId() : null;
 
         return PagedResponse.<NotificationResponse>builder()
                 .items(items)
