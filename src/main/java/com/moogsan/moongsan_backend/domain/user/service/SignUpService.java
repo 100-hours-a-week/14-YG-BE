@@ -20,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+import org.springframework.beans.factory.annotation.Value;
+
 @Service
 @RequiredArgsConstructor
 public class SignUpService {
@@ -28,6 +30,9 @@ public class SignUpService {
     private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder; // 비밀번호 암호화기
     private final JwtUtil jwtUtil;
+
+    @Value("${custom.cookie.secure:true}")
+    private boolean cookieSecure;
 
     @Transactional
     public LoginResponse signUp(SignUpRequest request, HttpServletResponse response) {
@@ -59,7 +64,7 @@ public class SignUpService {
             // 액세스 토큰 설정 (ResponseCookie 사용)
             ResponseCookie accessTokenCookie = ResponseCookie.from("AccessToken", accessToken)
                     .httpOnly(true)
-                    .secure(true)
+                    .secure(cookieSecure)
                     .path("/")
                     .sameSite("None")
                     .maxAge(Duration.ofMillis(accessTokenExpireAt))
@@ -69,7 +74,7 @@ public class SignUpService {
             // 리프레시 토큰 설정 (ResponseCookie 사용)
             ResponseCookie refreshTokenCookie = ResponseCookie.from("RefreshToken", refreshToken)
                     .httpOnly(true)
-                    .secure(true)
+                    .secure(cookieSecure)
                     .path("/")
                     .sameSite("None")
                     .maxAge(Duration.ofMillis(jwtUtil.getRefreshTokenExpireMillis()))

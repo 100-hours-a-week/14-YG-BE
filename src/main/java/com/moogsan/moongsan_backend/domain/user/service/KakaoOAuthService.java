@@ -1,4 +1,5 @@
 package com.moogsan.moongsan_backend.domain.user.service;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.moogsan.moongsan_backend.domain.user.exception.base.UserException;
 import com.moogsan.moongsan_backend.domain.user.exception.code.UserErrorCode;
@@ -35,6 +36,9 @@ public class KakaoOAuthService {
     private final OAuthRepository oauthRepository;
     private final JwtUtil jwtUtil;
     private final TokenRepository refreshTokenRepository;
+
+    @Value("${custom.cookie.secure:true}")
+    private boolean cookieSecure;
 
     @Transactional
     public Object kakaoLogin(String code, String redirectUri, HttpServletResponse response) {
@@ -104,7 +108,7 @@ public class KakaoOAuthService {
         // 엑세스 토큰 설정 (ResponseCookie 사용)
         ResponseCookie accessTokenCookie = ResponseCookie.from("AccessToken", accessToken)
                 .httpOnly(true)
-                .secure(true)
+                .secure(cookieSecure)
                 .path("/")
                 .sameSite("None")
                 .maxAge(Duration.ofMillis(accessTokenExpireAt))
@@ -114,7 +118,7 @@ public class KakaoOAuthService {
         // 리프레시 토큰 설정 (ResponseCookie 사용)
         ResponseCookie refreshTokenCookie = ResponseCookie.from("RefreshToken", refreshToken)
                 .httpOnly(true)
-                .secure(true)
+                .secure(cookieSecure)
                 .path("/")
                 .sameSite("None")
                 .maxAge(Duration.ofMillis(refreshTokenExpireMillis))

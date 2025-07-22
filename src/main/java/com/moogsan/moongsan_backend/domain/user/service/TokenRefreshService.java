@@ -15,10 +15,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import java.time.Duration;
+import org.springframework.beans.factory.annotation.Value;
 
 @Service
 @RequiredArgsConstructor
 public class TokenRefreshService {
+
+    @Value("${custom.cookie.secure:true}")
+    private boolean cookieSecure;
 
     private final JwtUtil jwtUtil;
     private final TokenRepository tokenRepository;
@@ -52,7 +56,7 @@ public class TokenRefreshService {
         // 쿠키에 새 AccessToken 설정 (ResponseCookie 사용)
         ResponseCookie accessTokenCookie = ResponseCookie.from("AccessToken", newAccessToken)
                 .httpOnly(true)
-                .secure(true)
+                .secure(cookieSecure)
                 .path("/")
                 .sameSite("None")
                 .maxAge(Duration.ofMillis(accessTokenExpireAt))
