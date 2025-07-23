@@ -17,10 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
-
-import org.springframework.beans.factory.annotation.Value;
 
 @Service
 @RequiredArgsConstructor
@@ -30,18 +27,6 @@ public class SignUpService {
     private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder; // 비밀번호 암호화기
     private final JwtUtil jwtUtil;
-
-    private boolean cookieSecure;
-
-    @jakarta.annotation.PostConstruct
-    public void init() {
-        try {
-            String hostName = java.net.InetAddress.getLocalHost().getHostName();
-            cookieSecure = hostName.contains("moongsan.com");
-        } catch (Exception e) {
-            cookieSecure = true; // fallback to secure
-        }
-    }
 
     @Transactional
     public LoginResponse signUp(SignUpRequest request, HttpServletResponse response) {
@@ -73,7 +58,7 @@ public class SignUpService {
             // 액세스 토큰 설정 (ResponseCookie 사용)
             ResponseCookie accessTokenCookie = ResponseCookie.from("AccessToken", accessToken)
                     .httpOnly(true)
-                    .secure(cookieSecure)
+                    .secure(true)
                     .path("/")
                     .sameSite("None")
                     .maxAge(Duration.ofMillis(accessTokenExpireAt))
@@ -83,7 +68,7 @@ public class SignUpService {
             // 리프레시 토큰 설정 (ResponseCookie 사용)
             ResponseCookie refreshTokenCookie = ResponseCookie.from("RefreshToken", refreshToken)
                     .httpOnly(true)
-                    .secure(cookieSecure)
+                    .secure(true)
                     .path("/")
                     .sameSite("None")
                     .maxAge(Duration.ofMillis(jwtUtil.getRefreshTokenExpireMillis()))
@@ -152,9 +137,5 @@ public class SignUpService {
         if (userRepository.existsByNickname(request.getNickname())) {
             throw new UserException(UserErrorCode.DUPLICATE_VALUE, "이미 등록된 닉네임입니다.");
         }
-        // 전화번호 중복 검사 안함
-//        if (userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
-//            throw new UserException(UserErrorCode.DUPLICATE_VALUE, "이미 등록된 전화번호입니다.");
-//        }
     }
 }

@@ -1,5 +1,4 @@
 package com.moogsan.moongsan_backend.domain.user.service;
-import org.springframework.beans.factory.annotation.Value;
 
 import com.moogsan.moongsan_backend.domain.user.exception.base.UserException;
 import com.moogsan.moongsan_backend.domain.user.exception.code.UserErrorCode;
@@ -23,10 +22,7 @@ import java.time.Duration;
 import com.moogsan.moongsan_backend.domain.user.entity.Token;
 import com.moogsan.moongsan_backend.domain.user.repository.TokenRepository;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Optional;
-
-import static java.net.InetAddress.getLocalHost;
 
 @Service
 @RequiredArgsConstructor
@@ -38,18 +34,6 @@ public class KakaoOAuthService {
     private final OAuthRepository oauthRepository;
     private final JwtUtil jwtUtil;
     private final TokenRepository refreshTokenRepository;
-
-    private boolean cookieSecure;
-
-    @jakarta.annotation.PostConstruct
-    public void init() {
-        try {
-            String hostName = getLocalHost().getHostName();
-            cookieSecure = hostName.contains("moongsan.com");
-        } catch (Exception e) {
-            cookieSecure = true; // fallback to secure
-        }
-    }
 
     @Transactional
     public Object kakaoLogin(String code, String redirectUri, HttpServletResponse response) {
@@ -119,7 +103,7 @@ public class KakaoOAuthService {
         // 엑세스 토큰 설정 (ResponseCookie 사용)
         ResponseCookie accessTokenCookie = ResponseCookie.from("AccessToken", accessToken)
                 .httpOnly(true)
-                .secure(cookieSecure)
+                .secure(true)
                 .path("/")
                 .sameSite("None")
                 .maxAge(Duration.ofMillis(accessTokenExpireAt))
@@ -129,7 +113,7 @@ public class KakaoOAuthService {
         // 리프레시 토큰 설정 (ResponseCookie 사용)
         ResponseCookie refreshTokenCookie = ResponseCookie.from("RefreshToken", refreshToken)
                 .httpOnly(true)
-                .secure(cookieSecure)
+                .secure(true)
                 .path("/")
                 .sameSite("None")
                 .maxAge(Duration.ofMillis(refreshTokenExpireMillis))
