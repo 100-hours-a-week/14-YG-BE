@@ -28,11 +28,9 @@ public class SendGroupBuyEndedNotiUseCase {
 
         String title = templateRegistry.title(NotificationType.GROUPBUY_STATUS_ENDED);
         String hostBody = templateRegistry.body(NotificationType.GROUPBUY_STATUS_ENDED)
-                .replace("{groupBuyTitle}", event.getGroupBuyTitle())
                 .replace("{extraMessage}", "다음 공구에서 만나요!");
 
         String partiBody = templateRegistry.body(NotificationType.GROUPBUY_STATUS_ENDED)
-                .replace("{groupBuyTitle}", event.getGroupBuyTitle())
                 .replace("{extraMessage}", "참여해 주셔서 감사합니다! 🎉");
 
         // host에게 알림 발행

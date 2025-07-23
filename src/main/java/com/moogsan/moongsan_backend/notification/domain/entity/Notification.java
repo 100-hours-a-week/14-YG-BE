@@ -25,6 +25,7 @@ public class Notification {
     private Long id;
 
     private Long receiverId;
+
     private String title;
     private String body;
 
@@ -42,10 +43,17 @@ public class Notification {
     @Column(columnDefinition = "bit(1) default 0", name = "`read`")
     private Boolean read = false;
 
+    @Column(name = "priority_level", insertable = false, updatable = false)
+    private Integer priorityLevel;
+
     public void markAsRead(Boolean read) {
         if (!Boolean.TRUE.equals(this.read)) {
             this.read = true;
             this.readAt = LocalDateTime.now();
         }
+    }
+
+    public int getPriorityLevel() {
+        return priorityLevel != null ? priorityLevel : 2;
     }
 }

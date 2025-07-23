@@ -28,15 +28,9 @@ public class SendGroupBuyDueApproachingNotiUseCase {
 
         String title = templateRegistry.title(NotificationType.GROUPBUY_DUE_APPROACHING);
         String hostBody = templateRegistry.body(NotificationType.GROUPBUY_DUE_APPROACHING)
-                .replace("{groupBuyTitle}", event.getGroupBuyTitle())
-                .replace("{participantCount}", String.valueOf(event.getParticipantCount()))
-                .replace("{totalQty}", String.valueOf(event.getLeftQty()))
                 .replace("{extraMessage}", "채팅방에 확인 메세지를 보내주세요!");
 
         String partiBody = templateRegistry.body(NotificationType.GROUPBUY_DUE_APPROACHING)
-                .replace("{groupBuyTitle}", event.getGroupBuyTitle())
-                .replace("{participantCount}", String.valueOf(event.getParticipantCount()))
-                .replace("{totalQty}", String.valueOf(event.getLeftQty()))
                 .replace("{extraMessage}", "주최자의 메세지를 확인해주세요!");
 
         // host에게 알림 발행

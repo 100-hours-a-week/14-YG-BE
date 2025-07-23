@@ -32,15 +32,9 @@ public class SendGroupBuyFinalizedNotiUseCase {
         }
 
         String title = templateRegistry.title(NotificationType.GROUPBUY_STATUS_FINALIZED);
-        String hostBody = templateRegistry.body(NotificationType.GROUPBUY_STATUS_FINALIZED)
-                .replace("{groupBuyTitle}", event.getGroupBuyTitle())
-                .replace("{participantCount}", String.valueOf(event.getParticipantCount()))
-                .replace("{totalQty}", String.valueOf(event.getTotalQty()));
+        String hostBody = templateRegistry.body(NotificationType.GROUPBUY_STATUS_FINALIZED);
 
-        String partiBody = templateRegistry.body(NotificationType.GROUPBUY_STATUS_FINALIZED)
-                .replace("{groupBuyTitle}", event.getGroupBuyTitle())
-                .replace("{participantCount}", String.valueOf(event.getParticipantCount()))
-                .replace("{totalQty}", String.valueOf(event.getTotalQty()));
+        String partiBody = templateRegistry.body(NotificationType.GROUPBUY_STATUS_FINALIZED);
 
         // host에게 알림 발행
         notificationPublisher.publish(

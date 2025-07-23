@@ -1,4 +1,4 @@
-#!/bin/bash
+vc#!/bin/bash
 # create-topics.sh
 
 BROKER="kafka-1:9092"

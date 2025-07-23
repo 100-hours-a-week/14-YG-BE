@@ -34,6 +34,7 @@ services:
     environment:
       SPRING_CONFIG_ADDITIONAL_LOCATION: file:/config/
       SPRING_PROFILES_ACTIVE: docker
+      CUSTOM_COOKIE_SECURE: "false"
 
   # ------- Zookeeper 3대 -------
   zookeeper-1:
@@ -78,7 +79,7 @@ services:
     environment:
       ALLOW_ANONYMOUS_LOGIN: "yes"
       ZOO_SERVER_ID: 3
-      ZOO_SERVERS: |
+      ZOO_SERVERS:
         zookeeper-1:2888:3888;zookeeper-2:2888:3888;0.0.0.0:2888:3888
 
   # ------- Kafka 브로커 3대 -------
