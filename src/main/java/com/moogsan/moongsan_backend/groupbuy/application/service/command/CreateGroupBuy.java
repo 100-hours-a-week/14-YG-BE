@@ -55,6 +55,7 @@ public class CreateGroupBuy {
         // 주문 관리용 Redis 재고 초기화
         redisTemplate.opsForValue().set(GROUPBUY_STOCK_PREFIX + groupBuy.getId(), String.valueOf(groupBuy.getLeftAmount()));
 
+        // 참여자 채팅방 참가
         chattingCommandFacade.joinChatRoom(currentUser, groupBuy.getId());
 
         return groupBuy.getId();
