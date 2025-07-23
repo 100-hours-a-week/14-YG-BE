@@ -2,6 +2,7 @@ package com.moogsan.moongsan_backend.global.infrastructure.sse;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -71,5 +72,16 @@ public class SseEmitterService {
     private void remove(String key, SseEmitter emitter) {
         List<SseEmitter> list = emitters.get(key);
         if (list != null) list.remove(emitter);
+    }
+
+    @Scheduled(fixedRateString = "${sse.heartbeat-interval-ms:15000}")
+    public void heartbeat() {
+        emitters.forEach((key, list) -> list.forEach(emitter -> {
+            try {
+                emitter.send(SseEmitter.event().name("heartbeat").data("ping"));
+            } catch (Exception e) {
+                emitter.completeWithError(e);
+            }
+        }));
     }
 }
