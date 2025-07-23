@@ -15,23 +15,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import java.time.Duration;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Value;
 
 @Service
 @RequiredArgsConstructor
 public class WithdrawService {
-
-    private boolean cookieSecure;
-
-    @jakarta.annotation.PostConstruct
-    public void init() {
-        try {
-            String hostName = java.net.InetAddress.getLocalHost().getHostName();
-            cookieSecure = hostName.contains("moongsan.com");
-        } catch (Exception e) {
-            cookieSecure = true; // fallback to secure
-        }
-    }
 
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
@@ -58,7 +45,7 @@ public class WithdrawService {
         // 액세스 토큰 삭제 (ResponseCookie 사용)
         ResponseCookie accessTokenCookie = ResponseCookie.from("AccessToken", "")
                 .httpOnly(true)
-                .secure(cookieSecure)
+                .secure(true)
                 .path("/")
                 .maxAge(Duration.ZERO)
                 .sameSite("None")
@@ -68,7 +55,7 @@ public class WithdrawService {
         // 리프레시 토큰 삭제 (ResponseCookie 사용)
         ResponseCookie refreshTokenCookie = ResponseCookie.from("RefreshToken", "")
                 .httpOnly(true)
-                .secure(cookieSecure)
+                .secure(true)
                 .path("/")
                 .maxAge(Duration.ZERO)
                 .sameSite("None")

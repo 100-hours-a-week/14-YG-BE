@@ -12,25 +12,11 @@ import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Value;
-
 import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
 public class LogoutService {
-
-    private boolean cookieSecure;
-
-    @jakarta.annotation.PostConstruct
-    public void init() {
-        try {
-            String hostName = java.net.InetAddress.getLocalHost().getHostName();
-            cookieSecure = hostName.contains("moongsan.com");
-        } catch (Exception e) {
-            cookieSecure = true; // fallback to secure
-        }
-    }
 
     private final UserRepository userRepository;
     private final TokenRepository refreshTokenRepository;
@@ -51,7 +37,7 @@ public class LogoutService {
             // 엑세스 토큰 삭제 (ResponseCookie 사용)
             ResponseCookie accessTokenCookie = ResponseCookie.from("AccessToken", "")
                     .httpOnly(true)
-                    .secure(cookieSecure)
+                    .secure(true)
                     .path("/")
                     .maxAge(Duration.ZERO)
                     .sameSite("None")
@@ -61,7 +47,7 @@ public class LogoutService {
             // 리프레시 토큰 삭제 (ResponseCookie 사용)
             ResponseCookie refreshTokenCookie = ResponseCookie.from("RefreshToken", "")
                     .httpOnly(true)
-                    .secure(cookieSecure)
+                    .secure(true)
                     .path("/")
                     .maxAge(Duration.ZERO)
                     .sameSite("None")
