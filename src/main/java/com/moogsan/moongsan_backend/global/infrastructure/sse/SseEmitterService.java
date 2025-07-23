@@ -1,6 +1,7 @@
 package com.moogsan.moongsan_backend.global.infrastructure.sse;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -18,7 +19,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 @Component
-public class SseEmitterRepository {
+@EnableScheduling
+public class SseEmitterService {
 
     private final Map<String, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
 

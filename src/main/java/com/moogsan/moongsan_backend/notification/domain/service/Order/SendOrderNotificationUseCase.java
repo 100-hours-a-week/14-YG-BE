@@ -5,7 +5,7 @@ import com.moogsan.moongsan_backend.domain.order.event.OrderCanceledEvent;
 import com.moogsan.moongsan_backend.domain.order.event.OrderConfirmedEvent;
 import com.moogsan.moongsan_backend.domain.order.event.OrderPendingEvent;
 import com.moogsan.moongsan_backend.domain.order.event.OrderRefundedEvent;
-import com.moogsan.moongsan_backend.global.infrastructure.sse.SseEmitterRepository;
+import com.moogsan.moongsan_backend.global.infrastructure.sse.SseEmitterService;
 import com.moogsan.moongsan_backend.notification.domain.entity.NotificationType;
 import com.moogsan.moongsan_backend.notification.application.factory.NotificationFactory;
 import com.moogsan.moongsan_backend.notification.domain.repository.NotificationRepository;
@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class SendOrderNotificationUseCase {
 
-    private final SseEmitterRepository emitterRepository;
+    private final SseEmitterService emitterRepository;
     private final NotificationTemplateRegistry templateRegistry;
     private final NotificationFactory notificationFactory;
     private final NotificationRepository notificationRepository;

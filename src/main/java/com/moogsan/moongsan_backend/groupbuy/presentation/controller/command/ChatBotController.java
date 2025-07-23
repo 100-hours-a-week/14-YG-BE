@@ -1,9 +1,7 @@
 package com.moogsan.moongsan_backend.groupbuy.presentation.controller.command;
 
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
-import com.moogsan.moongsan_backend.global.infrastructure.sse.SseEmitterRepository;
-import com.moogsan.moongsan_backend.groupbuy.domain.dto.ChatSseResponse;
-import com.moogsan.moongsan_backend.groupbuy.domain.service.AiClient;
+import com.moogsan.moongsan_backend.global.infrastructure.sse.SseEmitterService;
 import com.moogsan.moongsan_backend.groupbuy.domain.service.ChatBotService;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.request.ChatMessageRequest;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,10 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import reactor.core.publisher.Mono;
 
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.util.Map;
-
 import static com.moogsan.moongsan_backend.global.util.CookieUtils.extractCookie;
 
 @RestController
@@ -25,7 +19,7 @@ import static com.moogsan.moongsan_backend.global.util.CookieUtils.extractCookie
 @RequestMapping("/api/chat-bot")
 public class ChatBotController {
 
-    private final SseEmitterRepository sseEmitterRepository;
+    private final SseEmitterService sseEmitterService;
     private final ChatBotService chatBotService;
 
     @GetMapping(value = "/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -33,7 +27,7 @@ public class ChatBotController {
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         String key = "chat:" + userDetails.getUser().getId();
-        return sseEmitterRepository.add(String.valueOf(key));
+        return sseEmitterService.add(String.valueOf(key));
     }
 
     @PostMapping("/message")
