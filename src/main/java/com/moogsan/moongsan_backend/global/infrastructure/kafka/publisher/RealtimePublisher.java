@@ -2,7 +2,7 @@ package com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyUpdatedEvent;
-import com.moogsan.moongsan_backend.global.infrastructure.sse.SseEmitterRepository;
+import com.moogsan.moongsan_backend.global.infrastructure.sse.SseEmitterService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class RealtimePublisher {
-    private final SseEmitterRepository emitterRepository;
+    private final SseEmitterService emitterRepository;
     private final ObjectMapper objectMapper;
 
     public void publish(GroupBuyUpdatedEvent event) {

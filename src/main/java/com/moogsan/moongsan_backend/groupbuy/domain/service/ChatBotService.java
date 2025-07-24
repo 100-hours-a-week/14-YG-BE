@@ -1,12 +1,11 @@
 package com.moogsan.moongsan_backend.groupbuy.domain.service;
 
 import com.moogsan.moongsan_backend.domain.user.entity.User;
-import com.moogsan.moongsan_backend.global.infrastructure.sse.SseEmitterRepository;
+import com.moogsan.moongsan_backend.global.infrastructure.sse.SseEmitterService;
 import com.moogsan.moongsan_backend.groupbuy.domain.dto.ChatSseResponse;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.request.ChatMessageRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
@@ -17,7 +16,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ChatBotService {
     private final AiClient aiClient;
-    private final SseEmitterRepository sseEmitterRepository;
+    private final SseEmitterService sseEmitterService;
 
     public Mono<Void> streamChatForUser(User user,
                                                    ChatMessageRequest request,
@@ -31,12 +30,12 @@ public class ChatBotService {
                 "chat",
                 Instant.now().atOffset(ZoneOffset.UTC).toString()
         );
-        sseEmitterRepository.send(key, processingEvt);
+        sseEmitterService.send(key, processingEvt);
 
         return aiClient.streamChat(user, request, sessionId)
-                .doOnNext(chunk -> sseEmitterRepository.send(key, chunk))
+                .doOnNext(chunk -> sseEmitterService.send(key, chunk))
                 .then(Mono.fromRunnable(() ->
-                        sseEmitterRepository.send(key, Map.of(
+                        sseEmitterService.send(key, Map.of(
                                 "type",      "completion",
                                 "content",   "응답 완료",
                                 "agent",     "chat",

@@ -61,8 +61,8 @@ public class EndPastPickupGroupBuys {
                         eventMapper.toGroupBuyEndedEvent(
                                 gb.getId(),
                                 gb.getUser().getId(),
-                                participantIds,
-                                gb.getTitle()
+                                gb.getTitle(),
+                                participantIds
                         );
                 String payload = objectMapper.writeValueAsString(eventDto);
                 kafkaEventPublisher.publish(GROUPBUY_STATUS_ENDED, String.valueOf(gb.getId()), payload);

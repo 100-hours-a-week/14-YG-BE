@@ -2,7 +2,7 @@ package com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moogsan.moongsan_backend.global.infrastructure.sse.SseEmitterRepository;
+import com.moogsan.moongsan_backend.global.infrastructure.sse.SseEmitterService;
 import com.moogsan.moongsan_backend.notification.presentation.dto.NotificationResponse;
 import com.moogsan.moongsan_backend.notification.domain.entity.Notification;
 import com.moogsan.moongsan_backend.notification.domain.entity.NotificationType;
@@ -17,7 +17,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class NotificationPublisher {
     private final NotificationRepository notificationRepository;
-    private final SseEmitterRepository emitterRepository;
+    private final SseEmitterService emitterRepository;
     private final ObjectMapper objectMapper;
 
     public void publish(Long userId,

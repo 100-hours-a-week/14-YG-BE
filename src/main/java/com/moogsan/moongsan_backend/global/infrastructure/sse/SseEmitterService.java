@@ -1,6 +1,8 @@
 package com.moogsan.moongsan_backend.global.infrastructure.sse;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -18,7 +20,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 @Component
-public class SseEmitterRepository {
+@EnableScheduling
+public class SseEmitterService {
 
     private final Map<String, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
 
@@ -59,6 +62,7 @@ public class SseEmitterRepository {
         for (SseEmitter emitter : list) {
             try {
                 // event 이름 없이 data 만 전송
+                log.debug("📡 SSE Broadcast 준비 → key={}, emitters={}", key, list.size());
                 emitter.send(data);
             } catch (Exception ex) {
                 emitter.completeWithError(ex);
@@ -69,5 +73,16 @@ public class SseEmitterRepository {
     private void remove(String key, SseEmitter emitter) {
         List<SseEmitter> list = emitters.get(key);
         if (list != null) list.remove(emitter);
+    }
+
+    @Scheduled(fixedRateString = "${sse.heartbeat-interval-ms:15000}")
+    public void heartbeat() {
+        emitters.forEach((key, list) -> list.forEach(emitter -> {
+            try {
+                emitter.send(SseEmitter.event().name("heartbeat").data("ping"));
+            } catch (Exception e) {
+                emitter.completeWithError(e);
+            }
+        }));
     }
 }

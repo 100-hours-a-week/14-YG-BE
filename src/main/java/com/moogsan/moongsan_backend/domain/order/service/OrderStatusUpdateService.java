@@ -55,6 +55,7 @@ public class OrderStatusUpdateService {
                     eventDto = eventMapper.toConfirmedEvent(
                             order.getId(),
                             groupBuy.getId(),
+                            groupBuy.getTitle(),
                             order.getUser().getId(),
                             order.getUser().getNickname(),
                             groupBuy.getTitle()
@@ -65,6 +66,7 @@ public class OrderStatusUpdateService {
                     eventDto = eventMapper.toRefundedEvent(
                             order.getId(),
                             groupBuy.getId(),
+                            groupBuy.getTitle(),
                             order.getUser().getId(),
                             order.getUser().getNickname(),
                             groupBuy.getTitle()

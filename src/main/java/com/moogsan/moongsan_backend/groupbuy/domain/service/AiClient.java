@@ -1,9 +1,7 @@
 // 1) AiClient.java
 package com.moogsan.moongsan_backend.groupbuy.domain.service;
 
-import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
-import com.moogsan.moongsan_backend.global.infrastructure.sse.SseEmitterRepository;
 import com.moogsan.moongsan_backend.groupbuy.domain.dto.ChatBotRequest;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.request.ChatMessageRequest;
 import com.moogsan.moongsan_backend.groupbuy.presentation.dto.command.request.DescriptionGenerationRequest;
@@ -16,7 +14,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
