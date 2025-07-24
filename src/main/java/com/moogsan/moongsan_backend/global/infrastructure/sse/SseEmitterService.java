@@ -62,6 +62,7 @@ public class SseEmitterService {
         for (SseEmitter emitter : list) {
             try {
                 // event 이름 없이 data 만 전송
+                log.debug("📡 SSE Broadcast 준비 → key={}, emitters={}", key, list.size());
                 emitter.send(data);
             } catch (Exception ex) {
                 emitter.completeWithError(ex);
