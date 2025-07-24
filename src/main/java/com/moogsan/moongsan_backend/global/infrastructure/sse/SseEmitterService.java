@@ -55,6 +55,7 @@ public class SseEmitterService {
                 emitter.send(SseEmitter.event().name(eventName).data(data));
             } catch (Exception ex) {
                 log.warn("⚠️ SSE send 실패, 제거 → key={}, emitter={}", key, emitter, ex);
+                remove(key, emitter);
                 emitter.completeWithError(ex);
             }
         }
@@ -69,6 +70,7 @@ public class SseEmitterService {
                 emitter.send(data);
             } catch (Exception ex) {
                 log.warn("⚠️ SSE send 실패, 제거 → key={}, emitter={}", key, emitter, ex);
+                remove(key, emitter);
                 emitter.completeWithError(ex);
             }
         }
@@ -85,7 +87,9 @@ public class SseEmitterService {
             try {
                 emitter.send(SseEmitter.event().name("heartbeat").data("ping"));
             } catch (Exception e) {
-                emitter.completeWithError(e);
+                emitter.complete();
+                remove(key, emitter);
+                log.debug("💀 heartbeat용 emitter 제거 → key={}, emitter={}", key, emitter);
             }
         }));
     }
