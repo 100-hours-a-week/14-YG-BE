@@ -18,8 +18,8 @@ import java.util.List;
 @SuperBuilder
 public class GroupBuyPickupUpdatedEvent extends BaseEvent {
     private Long groupBuyId;                // 공구 게시글 아이디
+    private String title;                   // 공구 게시글 제목
     private List<Long> participantIds;      // 공구 참여자 아이디 리스트
-    private String groupBuyTitle;           // 공구 게시글 제목
     private String pickupDate;              // 새로운 공구 픽업일자
     private String dateModificationReason;  // 공구 픽업일자 변경 사유
 }

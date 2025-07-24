@@ -35,6 +35,7 @@ public class OrderEventService {
                     eventMapper.toCanceledEvent(
                             order.getId(),
                             groupBuy.getId(),
+                            groupBuy.getTitle(),
                             groupBuy.getUser().getId(),
                             order.getUser().getNickname(),
                             order.getUser().getAccountBank(),

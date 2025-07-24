@@ -72,8 +72,8 @@ public class GroupBuyEventService {
                     eventMapper.toGroupBuyEndedEvent(
                             groupBuy.getId(),
                             groupBuy.getUser().getId(),
-                            participantIds,
-                            groupBuy.getTitle()
+                            groupBuy.getTitle(),
+                            participantIds
                     );
             String payload = objectMapper.writeValueAsString(eventDto);
             kafkaEventPublisher.publish(GROUPBUY_STATUS_ENDED, String.valueOf(groupBuy.getId()), payload);

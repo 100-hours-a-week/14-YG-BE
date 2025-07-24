@@ -18,7 +18,7 @@ public class GroupBuyEventMapper {
                 .groupBuyId(groupBuyId)
                 .hostId(hostId)
                 .participantIds(participantIds)
-                .groupBuyTitle(groupBuyTitle)
+                .title(groupBuyTitle)
                 .participantCount(participantCount)
                 .totalQty(totalQty)
                 .occurredAt(Instant.now().toString())
@@ -27,27 +27,27 @@ public class GroupBuyEventMapper {
 
     // 공동구매 마감 이벤트
     public GroupBuyStatusEndedEvent toGroupBuyEndedEvent(
-            Long groupBuyId, Long hostId, List<Long> participantIds, String groupBuyTitle
+            Long groupBuyId, Long hostId, String title, List<Long> participantIds
     ) {
         return GroupBuyStatusEndedEvent.builder()
                 .groupBuyId(groupBuyId)
                 .hostId(hostId)
+                .title(title)
                 .participantIds(participantIds)
-                .groupBuyTitle(groupBuyTitle)
                 .occurredAt(Instant.now().toString())
                 .build();
     }
 
     // 공동구매 마감 이벤트
     public GroupBuyStatusFinalizedEvent toGroupBuyFinalizedEvent(
-            Long groupBuyId, Long hostId, List<Long> participantIds, String groupBuyTitle,
+            Long groupBuyId, Long hostId, List<Long> participantIds, String title,
             String participantCount, String totalQty
     ) {
         return GroupBuyStatusFinalizedEvent.builder()
                 .groupBuyId(groupBuyId)
                 .hostId(hostId)
+                .title(title)
                 .participantIds(participantIds)
-                .groupBuyTitle(groupBuyTitle)
                 .participantCount(participantCount)
                 .occurredAt(Instant.now().toString())
                 .build();
@@ -62,7 +62,7 @@ public class GroupBuyEventMapper {
                 .groupBuyId(groupBuyId)
                 .hostId(hostId)
                 .participantIds(participantIds)
-                .groupBuyTitle(groupBuyTitle)
+                .title(groupBuyTitle)
                 .participantCount(participantCount)
                 .leftQty(leftQty)
                 .occurredAt(Instant.now().toString())
@@ -78,7 +78,7 @@ public class GroupBuyEventMapper {
                 .groupBuyId(groupBuyId)
                 .hostId(hostId)
                 .participantIds(participantIds)
-                .groupBuyTitle(groupBuyTitle)
+                .title(groupBuyTitle)
                 .participantCount(participantCount)
                 .totalQty(totalQty)
                 .occurredAt(Instant.now().toString())
@@ -93,7 +93,7 @@ public class GroupBuyEventMapper {
         return GroupBuyPickupUpdatedEvent.builder()
                 .groupBuyId(groupBuyId)
                 .participantIds(participantIds)
-                .groupBuyTitle(groupBuyTitle)
+                .title(groupBuyTitle)
                 .pickupDate(pickupDate)
                 .dateModificationReason(dateModificationReason)
                 .occurredAt(Instant.now().toString())

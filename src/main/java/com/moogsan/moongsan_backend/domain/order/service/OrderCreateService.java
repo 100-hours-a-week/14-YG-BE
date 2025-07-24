@@ -173,8 +173,8 @@ public class OrderCreateService {
 
         try {
             OrderPendingEvent pendingEvt = orderEventMapper.toPendingEvent(
-                    order.getId(), groupBuy.getId(), groupBuy.getUser().getId(),
-                    order.getUser().getNickname(), order.getQuantity()
+                    order.getId(), groupBuy.getId(), groupBuy.getTitle(),
+                    groupBuy.getUser().getId(), order.getUser().getNickname(), order.getQuantity()
             );
 
             outboxEventPublisher.publish(
