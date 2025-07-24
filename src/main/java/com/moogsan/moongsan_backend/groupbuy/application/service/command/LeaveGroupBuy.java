@@ -14,12 +14,16 @@ import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static com.moogsan.moongsan_backend.groupbuy.domain.message.ResponseMessage.NOT_OPEN;
 
@@ -36,6 +40,8 @@ public class LeaveGroupBuy {
     private final GroupBuyEventService groupBuyEventService;
     private final OrderEventService orderEventService;
     private final Clock clock;
+    private final RedisTemplate<String, String> redisTemplate;
+    private final RedissonClient redissonClient;
 
     /// 공구 참여 취소
     public void leaveGroupBuy(User currentUser, Long postId) {
@@ -85,6 +91,27 @@ public class LeaveGroupBuy {
         order.setStatus("CANCELED");
 
         groupBuy.updateDueSoonStatus(dueSoonPolicy);
+
+        String stockKey = "order:groupbuy:stock:" + groupBuy.getId();
+        String orderCheckKey = "order:user:" + userId + ":groupbuy:" + groupBuy.getId();
+        String lockKey = "order:lock:groupbuy:" + groupBuy.getId();
+        // 재고 및 중복 주문 방지를 위한 분산 락 획득
+        RLock lock = redissonClient.getLock(lockKey);
+
+        try {
+            if (!lock.tryLock(3, 2, TimeUnit.SECONDS)) {
+                throw new RuntimeException("잠시 후 다시 시도해주세요."); // Consider using a proper BusinessException
+            }
+            // 주문 수량만큼 Redis 재고를 복구
+            redisTemplate.opsForValue().increment(stockKey, returnQuantity);
+            // 해당 유저의 중복 주문 체크 키 제거
+            redisTemplate.delete(orderCheckKey);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("락 획득 중 오류 발생"); // Consider using a proper BusinessException
+        } finally {
+            if (lock.isHeldByCurrentThread()) lock.unlock();
+        }
 
         orderRepository.save(order);
 
