@@ -23,7 +23,7 @@ public enum NotificationType {
             KafkaTopics.ORDER_STATUS_CANCELED,
             "주문이 취소됐어요!",
             "{buyerName}님이 주문에 대해 환불을 요청했습니다.\n" +
-                    "참여자 리스트에서 요청을 확인하고 하루 이내로 환불을 처리해주세요"
+                    "모달을 통해 요청을 확인하고 환불 절차 후 모달 하단 환불 완료 버튼을 눌러주세요!"
     ),
 
     ORDER_REFUNDED(
