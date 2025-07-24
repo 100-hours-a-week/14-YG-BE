@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @Transactional(readOnly=true)
@@ -34,8 +36,11 @@ public class GetGroupBuyHostAccountInfo {
         }
 
         // 해당 공구의 주문 테이블에 해당 유저의 주문이 존재하는지 조회 -> 아니면 404
-        Order order = orderRepository.findByUserIdAndGroupBuyIdAndStatusNot(userId, groupBuy.getId(), "CANCELED")
-                .orElseThrow(GroupBuyNotParticipantException::new);
+        boolean exists = orderRepository.existsByUserIdAndGroupBuyIdAndStatusIn(userId, postId, List.of("PENDING", "CONFIRMED"));
+
+        if (!exists) {
+            throw new GroupBuyNotParticipantException();
+        }
 
         return groupBuyQueryMapper.toHostAccount(groupBuy);
     }
