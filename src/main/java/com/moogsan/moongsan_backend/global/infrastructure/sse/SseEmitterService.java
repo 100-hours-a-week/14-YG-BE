@@ -85,7 +85,9 @@ public class SseEmitterService {
             try {
                 emitter.send(SseEmitter.event().name("heartbeat").data("ping"));
             } catch (Exception e) {
-                emitter.completeWithError(e);
+                emitter.complete();
+                remove(key, emitter);
+                log.debug("💀 heartbeat용 emitter 제거 → key={}, emitter={}", key, emitter);
             }
         }));
     }
