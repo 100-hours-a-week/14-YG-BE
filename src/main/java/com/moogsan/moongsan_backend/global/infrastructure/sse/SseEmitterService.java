@@ -35,6 +35,7 @@ public class SseEmitterService {
         emitter.onTimeout   (() -> { emitter.complete(); remove(key, emitter); });
 
         try {
+            log.debug("➕ SSE 구독 등록 → key={}, totalEmitters={}", key, emitters.get(key).size());
             emitter.send(SseEmitter.event()
                     .name("connect")
                     .data("SSE 연결 성공"));
@@ -50,8 +51,10 @@ public class SseEmitterService {
         List<SseEmitter> list = emitters.getOrDefault(key, Collections.emptyList());
         for (SseEmitter emitter : list) {
             try {
+                log.debug("📡 SSE Broadcast 준비 → key={}, emitters={}", key, list.size());
                 emitter.send(SseEmitter.event().name(eventName).data(data));
             } catch (Exception ex) {
+                log.warn("⚠️ SSE send 실패, 제거 → key={}, emitter={}", key, emitter, ex);
                 emitter.completeWithError(ex);
             }
         }
@@ -65,6 +68,7 @@ public class SseEmitterService {
                 log.debug("📡 SSE Broadcast 준비 → key={}, emitters={}", key, list.size());
                 emitter.send(data);
             } catch (Exception ex) {
+                log.warn("⚠️ SSE send 실패, 제거 → key={}, emitter={}", key, emitter, ex);
                 emitter.completeWithError(ex);
             }
         }
