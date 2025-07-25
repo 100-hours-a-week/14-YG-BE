@@ -92,26 +92,26 @@ public class LeaveGroupBuy {
 
         groupBuy.updateDueSoonStatus(dueSoonPolicy);
 
-        String stockKey = "order:groupbuy:stock:" + groupBuy.getId();
-        String orderCheckKey = "order:user:" + userId + ":groupbuy:" + groupBuy.getId();
-        String lockKey = "order:lock:groupbuy:" + groupBuy.getId();
-        // 재고 및 중복 주문 방지를 위한 분산 락 획득
-        RLock lock = redissonClient.getLock(lockKey);
-
-        try {
-            if (!lock.tryLock(3, 2, TimeUnit.SECONDS)) {
-                throw new RuntimeException("잠시 후 다시 시도해주세요."); // Consider using a proper BusinessException
-            }
-            // 주문 수량만큼 Redis 재고를 복구
-            redisTemplate.opsForValue().increment(stockKey, returnQuantity);
-            // 해당 유저의 중복 주문 체크 키 제거
-            redisTemplate.delete(orderCheckKey);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("락 획득 중 오류 발생"); // Consider using a proper BusinessException
-        } finally {
-            if (lock.isHeldByCurrentThread()) lock.unlock();
-        }
+//        String stockKey = "order:groupbuy:stock:" + groupBuy.getId();
+//        String orderCheckKey = "order:user:" + userId + ":groupbuy:" + groupBuy.getId();
+//        String lockKey = "order:lock:groupbuy:" + groupBuy.getId();
+//        // 재고 및 중복 주문 방지를 위한 분산 락 획득
+//        RLock lock = redissonClient.getLock(lockKey);
+//
+//        try {
+//            if (!lock.tryLock(3, 2, TimeUnit.SECONDS)) {
+//                throw new RuntimeException("잠시 후 다시 시도해주세요."); // Consider using a proper BusinessException
+//            }
+//            // 주문 수량만큼 Redis 재고를 복구
+//            redisTemplate.opsForValue().increment(stockKey, returnQuantity);
+//            // 해당 유저의 중복 주문 체크 키 제거
+//            redisTemplate.delete(orderCheckKey);
+//        } catch (InterruptedException e) {
+//            Thread.currentThread().interrupt();
+//            throw new RuntimeException("락 획득 중 오류 발생"); // Consider using a proper BusinessException
+//        } finally {
+//            if (lock.isHeldByCurrentThread()) lock.unlock();
+//        }
 
         orderRepository.save(order);
 
