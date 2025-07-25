@@ -36,7 +36,7 @@
     }
 
     function connect() {
-      const socket = new SockJS('http://localhost:8080/ws/chat');
+      const socket = new WebSocket('ws://localhost:8080/ws/chat');
       stompClient = Stomp.over(socket);
       stompClient.connect({}, function(frame) {
         log('✅ 연결됨: ' + frame);
