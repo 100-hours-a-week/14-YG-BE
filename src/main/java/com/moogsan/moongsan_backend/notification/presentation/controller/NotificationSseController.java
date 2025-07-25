@@ -8,6 +8,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import static com.moogsan.moongsan_backend.notification.domain.constant.NotificationConstants.NOTI_SSE_PREFIX;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/notifications")
@@ -19,7 +21,7 @@ public class NotificationSseController {
     public SseEmitter subscribe(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        String key = "notification:" + userDetails.getUser().getId();
+        String key = NOTI_SSE_PREFIX + userDetails.getUser().getId();
         return sseEmitterService.add(String.valueOf(key));
     }
 
