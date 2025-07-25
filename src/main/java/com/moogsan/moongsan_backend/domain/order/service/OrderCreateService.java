@@ -103,31 +103,31 @@ public class OrderCreateService {
         RLock lock = redissonClient.getLock(lockKey);
 
         // 4. Redis 잠금 및 재고 감소
-        try {
-            if (!lock.tryLock(3, 2, TimeUnit.SECONDS)) {
-                throw new BusinessException(ErrorCode.TOO_MANY_REQUESTS, "잠시 후 다시 시도해주세요.");
-            }
-            Boolean isNew = redisTemplate.opsForValue()
-                    .setIfAbsent(orderCheckKey, "1", Duration.ofMinutes(10));
-            if (Boolean.FALSE.equals(isNew)) {
-                throw new BusinessException(ErrorCode.DUPLICATE_REQUEST, "이미 공동구매에 참여하였습니다.");
-            }
-            DefaultRedisScript<Long> script = new DefaultRedisScript<>();
-            script.setScriptText(
-                    "local stock = redis.call('get', KEYS[1]);" +
-                            "if (stock and tonumber(stock) >= tonumber(ARGV[1])) then return redis.call('decrby', KEYS[1], ARGV[1]); else return -1; end"
-            );
-            script.setResultType(Long.class);
-            Long result = redisTemplate.execute(script, List.of(stockKey), String.valueOf(request.getQuantity()));
-            if (result == null || result < 0) {
-                throw new BusinessException(ErrorCode.BAD_REQUEST, "남은 수량을 초과하여 주문할 수 없습니다.");
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "락 획득 중 오류가 발생했습니다.");
-        } finally {
-            if (lock.isHeldByCurrentThread()) lock.unlock();
-        }
+//        try {
+//            if (!lock.tryLock(3, 2, TimeUnit.SECONDS)) {
+//                throw new BusinessException(ErrorCode.TOO_MANY_REQUESTS, "잠시 후 다시 시도해주세요.");
+//            }
+//            Boolean isNew = redisTemplate.opsForValue()
+//                    .setIfAbsent(orderCheckKey, "1", Duration.ofMinutes(10));
+//            if (Boolean.FALSE.equals(isNew)) {
+//                throw new BusinessException(ErrorCode.DUPLICATE_REQUEST, "이미 공동구매에 참여하였습니다.");
+//            }
+//            DefaultRedisScript<Long> script = new DefaultRedisScript<>();
+//            script.setScriptText(
+//                    "local stock = redis.call('get', KEYS[1]);" +
+//                            "if (stock and tonumber(stock) >= tonumber(ARGV[1])) then return redis.call('decrby', KEYS[1], ARGV[1]); else return -1; end"
+//            );
+//            script.setResultType(Long.class);
+//            Long result = redisTemplate.execute(script, List.of(stockKey), String.valueOf(request.getQuantity()));
+//            if (result == null || result < 0) {
+//                throw new BusinessException(ErrorCode.BAD_REQUEST, "남은 수량을 초과하여 주문할 수 없습니다.");
+//            }
+//        } catch (InterruptedException e) {
+//            Thread.currentThread().interrupt();
+//            throw new BusinessException(ErrorCode.INTERNAL_SERVER_ERROR, "락 획득 중 오류가 발생했습니다.");
+//        } finally {
+//            if (lock.isHeldByCurrentThread()) lock.unlock();
+//        }
 
         // 5. DB 업데이트 및 채팅방 조인
         groupBuy.decreaseLeftAmount(request.getQuantity());
