@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher;
+package com.moogsan.moongsan_backend.global.infrastructure.kafka;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @EnableKafka
 @Component
 @RequiredArgsConstructor
-public class KafkaEventPublisher implements EventPublisher{
+public class KafkaEventPublisher implements EventPublisher {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 

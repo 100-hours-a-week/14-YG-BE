@@ -1,6 +1,6 @@
 package com.moogsan.moongsan_backend.groupbuy.presentation.controller.sse;
 
-import com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher.GroupBuyRealtime;
+import com.moogsan.moongsan_backend.groupbuy.infrastructure.kafka.GroupBuyRealtime;
 import com.moogsan.moongsan_backend.domain.user.entity.CustomUserDetails;
 import com.moogsan.moongsan_backend.global.exception.specific.UnauthenticatedAccessException;
 import lombok.RequiredArgsConstructor;

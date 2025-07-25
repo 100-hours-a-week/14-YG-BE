@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher;
+package com.moogsan.moongsan_backend.groupbuy.infrastructure.kafka;
 
 import com.moogsan.moongsan_backend.global.infrastructure.sse.SseEmitterService;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher;
+package com.moogsan.moongsan_backend.notification.infrastructure.publisher;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

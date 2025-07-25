@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyDueApproachingEvent;
 import com.moogsan.moongsan_backend.groupbuy.domain.mapper.GroupBuyEventMapper;
-import com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher.KafkaEventPublisher;
+import com.moogsan.moongsan_backend.global.infrastructure.kafka.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
 import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;

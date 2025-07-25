@@ -2,7 +2,7 @@ package com.moogsan.moongsan_backend.notification.domain.service.GroupBuy;
 
 import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyStatusEndedEvent;
 import com.moogsan.moongsan_backend.notification.domain.entity.NotificationType;
-import com.moogsan.moongsan_backend.global.infrastructure.kafka.publisher.NotificationPublisher;
+import com.moogsan.moongsan_backend.notification.infrastructure.publisher.NotificationPublisher;
 import com.moogsan.moongsan_backend.notification.infrastructure.template.NotificationTemplateRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
