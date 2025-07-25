@@ -96,7 +96,7 @@ public class SseEmitterService {
                 try {
                     emitter.send(SseEmitter.event()
                             .name("heartbeat")
-                            .comment("ping"));
+                            .data("{\"type\":\"HEARTBEAT\"}"));
                     log.debug("💓 SSE heartbeat sent → key={}, emitter={}", key, emitter);
                 } catch (IOException | IllegalStateException e) {
                     log.debug("💀 heartbeat용 emitter 제거 → key={}, emitter={}", key, emitter);
