@@ -35,9 +35,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                         "http://localhost:63342",
                         "https://moongsan.com"
                 )
-                .setHandshakeHandler(new DefaultHandshakeHandler())
-                .withSockJS()
-                .setSessionCookieNeeded(true);
+                .setHandshakeHandler(new DefaultHandshakeHandler());
     }
 
     @Override
