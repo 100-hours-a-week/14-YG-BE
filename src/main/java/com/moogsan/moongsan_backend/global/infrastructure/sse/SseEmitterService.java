@@ -24,15 +24,27 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SseEmitterService {
 
     private final Map<String, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
+    private static final long DEFAULT_TIMEOUT = 1000_000L; // 45초
 
     /** 신규 연결 등록 */
     public SseEmitter add(String key) {
-        SseEmitter emitter = new SseEmitter(0L);
+        SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT);
         emitters
                 .computeIfAbsent(key, k -> Collections.synchronizedList(new ArrayList<>()))
                 .add(emitter);
+
+        // 콜백 등록
         emitter.onCompletion(() -> remove(key, emitter));
-        emitter.onTimeout   (() -> { emitter.complete(); remove(key, emitter); });
+        emitter.onTimeout(() -> {
+            log.debug("⏱ SSE timeout, remove emitter → key={}, emitter={}", key, emitter);
+            emitter.complete();
+            remove(key, emitter);
+        });
+        emitter.onError(e -> {
+            log.debug("⚠️ SSE error, remove emitter → key={}, emitter={}", key, emitter, e);
+            emitter.completeWithError(e);
+            remove(key, emitter);
+        });
 
         try {
             log.debug("➕ SSE 구독 등록 → key={}, totalEmitters={}", key, emitters.get(key).size());
@@ -40,6 +52,7 @@ public class SseEmitterService {
                     .name("connect")
                     .data("SSE 연결 성공"));
         } catch (IOException e) {
+            log.warn("Failed to send connect event, remove emitter → key={}, emitter={}", key, emitter, e);
             remove(key, emitter);
         }
 
@@ -49,48 +62,48 @@ public class SseEmitterService {
     /** 대상 키에 연결된 모든 emitter 에 이벤트 전송 */
     public <T> void send(String key, String eventName, T data) {
         List<SseEmitter> list = emitters.getOrDefault(key, Collections.emptyList());
+        log.debug("📡 SSE Broadcast 시작 → key={}, emitters={}", key, list.size());
         for (SseEmitter emitter : list) {
             try {
-                log.debug("📡 SSE Broadcast 준비 → key={}, emitters={}", key, list.size());
-                emitter.send(SseEmitter.event().name(eventName).data(data));
-            } catch (Exception ex) {
+                emitter.send(SseEmitter.event()
+                        .name(eventName)
+                        .data(data));
+                log.debug("✅ SSE send 성공 → key={}, emitter={}", key, emitter);
+            } catch (IOException | IllegalStateException ex) {
                 log.warn("⚠️ SSE send 실패, 제거 → key={}, emitter={}", key, emitter, ex);
                 remove(key, emitter);
-                emitter.completeWithError(ex);
             }
         }
     }
 
     public <T> void send(String key, T data) {
-        List<SseEmitter> list = emitters.getOrDefault(key, Collections.emptyList());
-        for (SseEmitter emitter : list) {
-            try {
-                // event 이름 없이 data 만 전송
-                log.debug("📡 SSE Broadcast 준비 → key={}, emitters={}", key, list.size());
-                emitter.send(data);
-            } catch (Exception ex) {
-                log.warn("⚠️ SSE send 실패, 제거 → key={}, emitter={}", key, emitter, ex);
-                remove(key, emitter);
-                emitter.completeWithError(ex);
-            }
-        }
+        send(key, null, data);
     }
 
     private void remove(String key, SseEmitter emitter) {
         List<SseEmitter> list = emitters.get(key);
         if (list != null) list.remove(emitter);
+        log.debug("➖ SSE emitter removed → key={}, remaining={}", key, list != null ? list.size() : 0);
     }
 
+    /**
+     * 15초마다 heartbeat 전송
+     */
     @Scheduled(fixedRateString = "${sse.heartbeat-interval-ms:15000}")
     public void heartbeat() {
-        emitters.forEach((key, list) -> list.forEach(emitter -> {
-            try {
-                emitter.send(SseEmitter.event().name("heartbeat").data("ping"));
-            } catch (Exception e) {
-                emitter.complete();
-                remove(key, emitter);
-                log.debug("💀 heartbeat용 emitter 제거 → key={}, emitter={}", key, emitter);
+        emitters.forEach((key, list) -> {
+            for (SseEmitter emitter : new ArrayList<>(list)) {
+                try {
+                    emitter.send(SseEmitter.event()
+                            .name("heartbeat")
+                            .comment("ping"));
+                    log.debug("💓 SSE heartbeat sent → key={}, emitter={}", key, emitter);
+                } catch (IOException | IllegalStateException e) {
+                    log.debug("💀 heartbeat용 emitter 제거 → key={}, emitter={}", key, emitter);
+                    emitter.complete();
+                    remove(key, emitter);
+                }
             }
-        }));
+        });
     }
 }

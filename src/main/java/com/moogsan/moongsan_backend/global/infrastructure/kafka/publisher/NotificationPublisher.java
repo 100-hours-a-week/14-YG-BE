@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+import static com.moogsan.moongsan_backend.notification.domain.constant.NotificationConstants.NOTI_SSE_PREFIX;
+
 @Component
 @RequiredArgsConstructor
 public class NotificationPublisher {
@@ -57,7 +59,7 @@ public class NotificationPublisher {
 
             // 3) SSE 전송
             emitterRepository.send(
-                    userId.toString(),
+                    NOTI_SSE_PREFIX + userId,
                     entity.getNotificationType().name(),
                     dto
             );
