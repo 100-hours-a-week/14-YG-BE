@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <title>Notification SSE Tester (Auto Login)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 24px; }
+    h1 { font-size: 28px; margin-bottom: 8px; }
+    fieldset { border: 1px solid #ddd; padding: 12px; margin-bottom: 14px; border-radius: 6px; }
+    legend { padding: 0 6px; color: #333; font-weight: 600; }
+    label { display: inline-flex; align-items: center; gap: 6px; margin-right: 8px; }
+    input[type="text"], input[type="password"], input[type="url"] { padding: 6px 8px; border: 1px solid #ccc; border-radius: 4px; min-width: 280px; }
+    input.small { min-width: 120px; }
+    button { padding: 6px 12px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; background: #f7f7f7; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 6px 0; }
+    #status { font-weight: 700; }
+    #log { white-space: pre-wrap; background: #fafafa; border: 1px solid #eee; padding: 10px; height: 260px; overflow: auto; border-radius: 6px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .hint { color:#666; font-size: 12px; }
+    .ok { color: #0b6b00; }
+    .err { color: #b20000; }
+    .pill { padding: 2px 8px; border-radius: 999px; border: 1px solid #ddd; }
+    .w100 { min-width: 100px; }
+  </style>
+</head>
+<body>
+  <h1>Notification SSE Tester</h1>
+
+  <fieldset>
+    <legend>1) 서버/엔드포인트</legend>
+    <div class="row">
+      <label>기본 URL:
+        <input id="baseUrl" type="url" />
+      </label>
+      <span class="hint">예) https://dev.moongsan.com 또는 현재 오리진</span>
+    </div>
+    <div class="row">
+      <label>로그인 경로:
+        <input id="loginPath" type="text" value="/api/users/token" class="small" />
+      </label>
+      <label>SSE 경로:
+        <input id="ssePath" type="text" value="/api/notifications/sse" class="small" />
+      </label>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>2) 자동 로그인</legend>
+    <div class="row">
+      <label>이메일: <input id="email" type="text" class="w100" placeholder="user@example.com" /></label>
+      <label>비밀번호: <input id="password" type="password" class="w100" placeholder="••••••••" /></label>
+      <button id="btnLogin">로그인</button>
+      <span id="loginStatus" class="pill">미로그인</span>
+    </div>
+    <div class="row">
+      <label><input id="credInclude" type="checkbox" checked /> fetch에 credentials: "include" 사용 (Set-Cookie 수신)</label>
+    </div>
+    <div class="hint">
+      * 서버가 CORS 환경이라면 <b>Access-Control-Allow-Credentials: true</b> 와 특정 <b>Access-Control-Allow-Origin</b>이 설정되어 있어야 쿠키가 저장됩니다.
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>3) SSE 연결</legend>
+    <div class="row">
+      <label><input id="withCreds" type="checkbox" checked /> withCredentials (쿠키 포함)</label>
+      <label><input id="useTokenParam" type="checkbox" /> 토큰을 쿼리스트링으로 전달</label>
+      <label>파라미터명: <input id="tokenParamName" type="text" value="access_token" class="small" /></label>
+      <label>토큰 값: <input id="tokenValue" type="text" placeholder="응답 본문에서 자동 채움 시도" /></label>
+    </div>
+    <div class="row">
+      <button id="btnConnect">연결</button>
+      <button id="btnClose" disabled>연결 해제</button>
+      <span>상태: <span id="status">CLOSED</span></span>
+      <span style="margin-left: 12px;">(마지막 PING: <span id="lastPing">-</span>)</span>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>로그</legend>
+    <div id="log" class="mono"></div>
+  </fieldset>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const logBox = $("log");
+    function ts() {
+      const d = new Date();
+      const z = (n) => String(n).padStart(2, "0");
+      return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}:${z(d.getSeconds())}`;
+    }
+    function log(msg, cls) {
+      const line = `[${ts()}] ${msg}`;
+      const div = document.createElement("div");
+      if (cls) div.className = cls;
+      div.textContent = line;
+      logBox.appendChild(div);
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    // Initialize base URL to current origin
+    (function init() {
+      $("baseUrl").value = window.location.origin;
+    })();
+
+    let es = null;
+
+    async function login() {
+      const base = $("baseUrl").value.trim().replace(/\/+$/, "");
+      const path = $("loginPath").value.trim();
+      const url = base + path;
+      const email = $("email").value.trim();
+      const password = $("password").value;
+
+      const useCred = $("credInclude").checked;
+      log(`로그인 시도: url=${url}, credentials=${useCred ? "include" : "same-origin"}`);
+
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: useCred ? "include" : "same-origin",
+          body: JSON.stringify({ email, password })
+        });
+
+        let bodyText = await res.text();
+        let data = {};
+        try { data = bodyText ? JSON.parse(bodyText) : {}; } catch(_) {}
+
+        // Try to detect token-like fields in body for query-string auth
+        const tokenCandidate = data.accessToken || data.token || data.jwt || data.access_token || "";
+        if (tokenCandidate) {
+          $("tokenValue").value = tokenCandidate;
+          log(`응답 본문에서 토큰 감지 → ${tokenCandidate.substring(0, 12)}…`, "ok");
+        }
+
+        // Cookies (HttpOnly) are set by the browser; we can't read them here.
+        if (res.ok) {
+          $("loginStatus").textContent = "로그인 성공";
+          $("loginStatus").className = "pill ok";
+          log(`로그인 성공 (status=${res.status}). 쿠키 기반이면 브라우저에 저장됨.`,"ok");
+        } else {
+          $("loginStatus").textContent = `로그인 실패 (${res.status})`;
+          $("loginStatus").className = "pill err";
+          log(`로그인 실패 (status=${res.status}) body=${bodyText}`, "err");
+        }
+      } catch (e) {
+        $("loginStatus").textContent = "로그인 오류";
+        $("loginStatus").className = "pill err";
+        log(`로그인 오류: ${e}`, "err");
+      }
+    }
+
+    function connect() {
+      if (es) {
+        log("이미 연결되어 있습니다.");
+        return;
+      }
+      const base = $("baseUrl").value.trim().replace(/\/+$/, "");
+      const ssePath = $("ssePath").value.trim();
+      const withCreds = $("withCreds").checked;
+      const useTokenParam = $("useTokenParam").checked;
+      const tokenParamName = $("tokenParamName").value.trim() || "access_token";
+      const tokenValue = $("tokenValue").value.trim();
+
+      const u = new URL(base + ssePath);
+      if (useTokenParam && tokenValue) {
+        u.searchParams.set(tokenParamName, tokenValue);
+      }
+
+      if (useTokenParam && withCreds) {
+        log("주의: withCredentials와 토큰 쿼리 파라미터를 동시에 쓰는 경우, 서버 인증 로직과 CORS 설정 모두 충족해야 합니다.");
+      }
+
+      log(`연결 시도: url=${u.toString()} withCredentials=${withCreds}`);
+
+      try {
+        es = new EventSource(u.toString(), { withCredentials: withCreds });
+      } catch (e) {
+        log(`EventSource 생성 실패: ${e}`, "err");
+        es = null;
+        return;
+      }
+
+      es.onopen = () => {
+        $("status").textContent = "OPEN";
+        $("btnClose").disabled = false;
+        $("btnConnect").disabled = true;
+        log("onopen: 연결됨.", "ok");
+      };
+
+      es.onmessage = (ev) => {
+        log(`message ▶ ${ev.data}`);
+      };
+
+      es.onerror = (ev) => {
+        const rs = es ? es.readyState : 2;
+        $("status").textContent = ["CONNECTING","OPEN","CLOSED"][rs] || String(rs);
+        log(`onerror 발생. readyState=${rs} (0:CONNECTING,1:OPEN,2:CLOSED)`, "err");
+        if (rs === 2) {
+          cleanup();
+        }
+      };
+
+      // Common ping event names
+      ["PING","ping","heartbeat","HEARTBEAT"].forEach(evt => {
+        es.addEventListener(evt, (ev) => {
+          $("lastPing").textContent = `${ts()} (${evt})`;
+          log(`${evt} ▶ ${ev.data}`);
+        });
+      });
+    }
+
+    function cleanup() {
+      if (es) {
+        try { es.close(); } catch(_) {}
+      }
+      es = null;
+      $("status").textContent = "CLOSED";
+      $("btnClose").disabled = true;
+      $("btnConnect").disabled = false;
+    }
+
+    $("btnLogin").addEventListener("click", login);
+    $("btnConnect").addEventListener("click", connect);
+    $("btnClose").addEventListener("click", cleanup);
+  </script>
+</body>
+</html>
