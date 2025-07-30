@@ -20,7 +20,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 @Component
-@EnableScheduling
 public class SseEmitterService {
 
     private final Map<String, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
@@ -89,14 +88,12 @@ public class SseEmitterService {
     /**
      * 15초마다 heartbeat 전송
      */
-    @Scheduled(fixedRateString = "${sse.heartbeat-interval-ms:15000}")
+    @Scheduled(fixedRate = 15000)
     public void heartbeat() {
         emitters.forEach((key, list) -> {
             for (SseEmitter emitter : new ArrayList<>(list)) {
                 try {
-                    emitter.send(SseEmitter.event()
-                            .name("heartbeat")
-                            .data("{\"type\":\"HEARTBEAT\"}"));
+                    emitter.send(SseEmitter.event().name("ping").data("keep-alive"));
                     log.debug("💓 SSE heartbeat sent → key={}, emitter={}", key, emitter);
                 } catch (IOException | IllegalStateException e) {
                     log.debug("💀 heartbeat용 emitter 제거 → key={}, emitter={}", key, emitter);

@@ -63,7 +63,8 @@ public class SecurityConfig {
                         "/favicon.ico",                         // 브라우저 요청 아이콘
                         "/api/chat-anon/**",                    // 익명 채팅 내역 첫 조회
                         "/pub/api/chat-anon/message" ,           // STOMP 메시지 발신 허용
-                        "/participant-chat-test-with-token.html"
+                        "/participant-chat-test-with-token.html",
+                        "/sse-tester-auto-login.html"
                 ).permitAll()
                 .requestMatchers(HttpMethod.GET,
                     "/api/group-buys",            // 공구글 목록 조회
