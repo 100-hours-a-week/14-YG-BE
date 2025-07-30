@@ -21,6 +21,8 @@ import com.moogsan.moongsan_backend.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,14 +67,15 @@ public class CreateChatMessage {
         ChatMessageDocument document = chatMessageCommandMapper.toMessageDocument(chatRoom, participant.getId(), request, nextSeq);
         chatMessageRepository.save(document);
 
-        /* SecurityContext context = SecurityContextHolder.getContext();
+         SecurityContext context = SecurityContextHolder.getContext();
         // 롱 폴링
         getLatestMessages.notifyNewMessage(document, currentUser.getNickname(), currentUser.getImageKey(), context);
+        /*
         // sse
         getLatestMessageSse.notifyNewMessageSse(document,currentUser.getNickname(),currentUser.getImageKey(),context); */
 
         // socket
-        getLatestMessagesStomp.notifyNewMessage(document, currentUser.getNickname(), currentUser.getImageKey());
+        //getLatestMessagesStomp.notifyNewMessage(document, currentUser.getNickname(), currentUser.getImageKey());
 
         // 메세지 캐싱
         cacheMessage(chatRoomId, document);
