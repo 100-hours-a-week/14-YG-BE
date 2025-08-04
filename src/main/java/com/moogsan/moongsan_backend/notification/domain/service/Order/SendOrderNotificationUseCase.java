@@ -1,14 +1,10 @@
 package com.moogsan.moongsan_backend.notification.domain.service.Order;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.domain.order.event.OrderCanceledEvent;
 import com.moogsan.moongsan_backend.domain.order.event.OrderConfirmedEvent;
 import com.moogsan.moongsan_backend.domain.order.event.OrderPendingEvent;
 import com.moogsan.moongsan_backend.domain.order.event.OrderRefundedEvent;
-import com.moogsan.moongsan_backend.global.infrastructure.sse.SseEmitterService;
 import com.moogsan.moongsan_backend.notification.domain.entity.NotificationType;
-import com.moogsan.moongsan_backend.notification.application.factory.NotificationFactory;
-import com.moogsan.moongsan_backend.notification.domain.repository.NotificationRepository;
 import com.moogsan.moongsan_backend.notification.infrastructure.publisher.NotificationPublisher;
 import com.moogsan.moongsan_backend.notification.infrastructure.template.NotificationTemplateRegistry;
 import lombok.RequiredArgsConstructor;
@@ -22,12 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class SendOrderNotificationUseCase {
 
-    private final SseEmitterService emitterRepository;
     private final NotificationTemplateRegistry templateRegistry;
-    private final NotificationFactory notificationFactory;
-    private final NotificationRepository notificationRepository;
     private final NotificationPublisher notificationPublisher;
-    private final ObjectMapper objectMapper;
 
     public void handleOrderPending(OrderPendingEvent event) {
 

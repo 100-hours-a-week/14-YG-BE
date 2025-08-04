@@ -1,10 +1,7 @@
 package com.moogsan.moongsan_backend.notification.domain.service.GroupBuy;
 
 import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyStatusFinalizedEvent;
-import com.moogsan.moongsan_backend.global.infrastructure.sse.SseEmitterService;
 import com.moogsan.moongsan_backend.notification.domain.entity.NotificationType;
-import com.moogsan.moongsan_backend.notification.application.factory.NotificationFactory;
-import com.moogsan.moongsan_backend.notification.domain.repository.NotificationRepository;
 import com.moogsan.moongsan_backend.notification.infrastructure.publisher.NotificationPublisher;
 import com.moogsan.moongsan_backend.notification.infrastructure.template.NotificationTemplateRegistry;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @RequiredArgsConstructor
 public class SendGroupBuyFinalizedNotiUseCase {
-    private final SseEmitterService emitterRepository;
     private final NotificationTemplateRegistry templateRegistry;
-    private final NotificationFactory notificationFactory;
-    private final NotificationRepository notificationRepository;
     private final NotificationPublisher notificationPublisher;
 
     public void handleGroupBuyFinalized(GroupBuyStatusFinalizedEvent event) {

@@ -2,7 +2,7 @@ package com.moogsan.moongsan_backend.notification.infrastructure.publisher;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moogsan.moongsan_backend.global.infrastructure.sse.SseEmitterService;
+import com.moogsan.moongsan_backend.global.infrastructure.sse.SseHub;
 import com.moogsan.moongsan_backend.notification.presentation.dto.NotificationResponse;
 import com.moogsan.moongsan_backend.notification.domain.entity.Notification;
 import com.moogsan.moongsan_backend.notification.domain.entity.NotificationType;
@@ -13,13 +13,11 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.Map;
 
-import static com.moogsan.moongsan_backend.notification.domain.constant.NotificationConstants.NOTI_SSE_PREFIX;
-
 @Component
 @RequiredArgsConstructor
 public class NotificationPublisher {
     private final NotificationRepository notificationRepository;
-    private final SseEmitterService emitterRepository;
+    private final SseHub sseHub;
     private final ObjectMapper objectMapper;
 
     public void publish(Long userId,
@@ -47,7 +45,7 @@ public class NotificationPublisher {
             notificationRepository.save(entity);
 
             // 2) DTO 변환
-            NotificationResponse dto = NotificationResponse.builder()
+            NotificationResponse payload = NotificationResponse.builder()
                     .id(entity.getId())
                     .type(entity.getNotificationType().name())
                     .title(entity.getTitle())
@@ -58,11 +56,7 @@ public class NotificationPublisher {
                     .build();
 
             // 3) SSE 전송
-            emitterRepository.send(
-                    NOTI_SSE_PREFIX + userId,
-                    entity.getNotificationType().name(),
-                    dto
-            );
+            sseHub.publish("user:" + userId, "NOTIFICATION", payload);
         } catch (Exception e) {
             throw new RuntimeException("Notification publish failed", e);
         }
