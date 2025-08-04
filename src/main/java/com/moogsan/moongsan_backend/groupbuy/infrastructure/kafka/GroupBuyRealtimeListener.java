@@ -2,8 +2,8 @@ package com.moogsan.moongsan_backend.groupbuy.infrastructure.kafka;
 
 import com.moogsan.moongsan_backend.global.infrastructure.kafka.ConsumerGroups;
 import com.moogsan.moongsan_backend.global.infrastructure.kafka.KafkaTopics;
+import com.moogsan.moongsan_backend.global.realtime.GroupBuyRealtimeNotifier;
 import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyUpdatedEvent;
-import com.moogsan.moongsan_backend.groupbuy.application.port.BroadcastGroupBuyUpdatedEventUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -17,7 +17,7 @@ import static com.moogsan.moongsan_backend.global.message.ResponseMessage.SERIAL
 @RequiredArgsConstructor
 public class GroupBuyRealtimeListener {
 
-    private final BroadcastGroupBuyUpdatedEventUseCase useCase;
+    private final GroupBuyRealtimeNotifier notifier;
 
     @KafkaListener(
             topics = KafkaTopics.GROUPBUY_DETAIL_UPDATED,
@@ -28,11 +28,13 @@ public class GroupBuyRealtimeListener {
         try {
 
             log.debug("groupBuy.detail.updated 수신: {}", event);
-            useCase.handleGroupBuyUpdated(event);
+            notifier.publishUpdated(event);
             ack.acknowledge();
         } catch (Exception e) {
             log.error("❌ GroupBuyUpdatedEvent 역직렬화 실패. raw", e);
             throw new RuntimeException(SERIALIZATION_FAIL, e);
         }
     }
+
+
 }
