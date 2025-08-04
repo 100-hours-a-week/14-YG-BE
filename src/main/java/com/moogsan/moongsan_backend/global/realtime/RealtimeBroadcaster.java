@@ -13,7 +13,7 @@ import java.time.Instant;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class SseRealtimeBroadcaster {
+public class RealtimeBroadcaster {
 
     private final SseHub sseHub;
 
