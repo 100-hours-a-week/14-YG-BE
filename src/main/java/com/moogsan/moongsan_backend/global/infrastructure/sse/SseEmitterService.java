@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SseEmitterService {
 
     private final Map<String, List<SseEmitter>> emitters = new ConcurrentHashMap<>();
-    private static final long DEFAULT_TIMEOUT = 1000_000L; // 45초
+    private static final long DEFAULT_TIMEOUT = 130_000L; // 130초
 
     /** 신규 연결 등록 */
     public SseEmitter add(String key) {

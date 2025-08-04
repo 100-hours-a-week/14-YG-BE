@@ -2,8 +2,8 @@ package com.moogsan.moongsan_backend.domain.order.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.moogsan.moongsan_backend.global.realtime.GroupBuyRealtimeNotifier;
 import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyStatusClosedEvent;
-import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyUpdatedEvent;
 import com.moogsan.moongsan_backend.domain.order.event.OrderPendingEvent;
 import com.moogsan.moongsan_backend.groupbuy.domain.mapper.GroupBuyEventMapper;
 import com.moogsan.moongsan_backend.domain.order.mapper.OrderEventMapper;
@@ -13,7 +13,6 @@ import com.moogsan.moongsan_backend.participantchat.application.facade.command.C
 import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
 import com.moogsan.moongsan_backend.groupbuy.domain.service.DueSoonPolicy;
 import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
-import com.moogsan.moongsan_backend.groupbuy.infrastructure.kafka.RealtimePublisher;
 import com.moogsan.moongsan_backend.domain.order.dto.request.OrderCreateRequest;
 import com.moogsan.moongsan_backend.domain.order.dto.response.OrderCreateResponse;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
@@ -27,13 +26,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static com.moogsan.moongsan_backend.global.infrastructure.kafka.KafkaTopics.GROUPBUY_STATUS_CLOSED;
 import static com.moogsan.moongsan_backend.global.infrastructure.kafka.KafkaTopics.ORDER_STATUS_PENDING;
@@ -56,7 +52,7 @@ public class OrderCreateService {
     private final ObjectMapper objectMapper;
     private final RedisTemplate<String, String> redisTemplate;
     private final RedissonClient redissonClient;
-    private final RealtimePublisher realtimePublisher;
+    private final GroupBuyRealtimeNotifier groupBuyRealtimeNotifier;
     private final OutboxEventPublisher outboxEventPublisher;
 
     @Transactional
@@ -165,11 +161,7 @@ public class OrderCreateService {
         }
 
         // 7. Pending 이벤트
-
-        GroupBuyUpdatedEvent event = GroupBuyUpdatedEvent.builder()
-                .groupBuyId(groupBuy.getId())
-                .build();
-        realtimePublisher.publish(event);
+        groupBuyRealtimeNotifier.publishUpdated(groupBuy);
 
         try {
             OrderPendingEvent pendingEvt = orderEventMapper.toPendingEvent(

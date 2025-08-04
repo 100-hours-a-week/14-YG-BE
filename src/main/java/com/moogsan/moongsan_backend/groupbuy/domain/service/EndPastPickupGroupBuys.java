@@ -2,13 +2,12 @@ package com.moogsan.moongsan_backend.groupbuy.domain.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.moogsan.moongsan_backend.global.realtime.GroupBuyRealtimeNotifier;
 import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyStatusEndedEvent;
-import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyUpdatedEvent;
 import com.moogsan.moongsan_backend.groupbuy.domain.mapper.GroupBuyEventMapper;
 import com.moogsan.moongsan_backend.global.infrastructure.kafka.KafkaEventPublisher;
 import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
 import com.moogsan.moongsan_backend.groupbuy.domain.repository.GroupBuyRepository;
-import com.moogsan.moongsan_backend.groupbuy.infrastructure.kafka.RealtimePublisher;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +32,7 @@ public class EndPastPickupGroupBuys {
     private final KafkaEventPublisher kafkaEventPublisher;
     private final GroupBuyEventMapper eventMapper;
     private final ObjectMapper objectMapper;
-    private RealtimePublisher realtimePublisher;
+    private final GroupBuyRealtimeNotifier groupBuyRealtimeNotifier;
 
     /// 공구 종료 (백그라운드 API)
     public void endPastPickupGroupBuys(LocalDateTime now) {
@@ -44,10 +43,7 @@ public class EndPastPickupGroupBuys {
             gb.changePostStatus("ENDED");
 
             // 공구 상태 업데이트 이벤트 발행
-            GroupBuyUpdatedEvent event = GroupBuyUpdatedEvent.builder()
-                    .groupBuyId(gb.getId())
-                    .build();
-            realtimePublisher.publish(event);
+            groupBuyRealtimeNotifier.publishUpdated(gb);
 
             try {
                 List<Order> orders = orderRepository.findAllByGroupBuyIdOrderByStatusCustom(gb.getId());

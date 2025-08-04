@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import com.moogsan.moongsan_backend.global.infrastructure.kafka.KafkaEventPublisher;
-import com.moogsan.moongsan_backend.groupbuy.infrastructure.kafka.RealtimePublisher;
+import com.moogsan.moongsan_backend.global.realtime.GroupBuyRealtimeNotifier;
 import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
 import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyPickupUpdatedEvent;
 import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyStatusEndedEvent;
@@ -31,7 +31,7 @@ public class GroupBuyEventService {
     private final OrderRepository orderRepository;
     private final ObjectMapper objectMapper;
     private final KafkaEventPublisher kafkaEventPublisher;
-    private final RealtimePublisher realtimePublisher;
+    private final GroupBuyRealtimeNotifier groupBuyRealtimeNotifier;
 
     public void publishPickupUpdated(GroupBuy groupBuy) {
         List<Order> orders = orderRepository.findAllByGroupBuyIdOrderByStatusCustom(groupBuy.getId());
@@ -83,9 +83,6 @@ public class GroupBuyEventService {
     }
 
     public void publishGroupBuyUpdated(GroupBuy groupBuy) {
-        GroupBuyUpdatedEvent event = GroupBuyUpdatedEvent.builder()
-                .groupBuyId(groupBuy.getId())
-                .build();
-        realtimePublisher.publish(event);
+        groupBuyRealtimeNotifier.publishUpdated(groupBuy);
     }
 }

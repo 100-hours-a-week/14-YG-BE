@@ -1,8 +1,7 @@
 package com.moogsan.moongsan_backend.groupbuy.domain.service;
 
-import com.moogsan.moongsan_backend.groupbuy.domain.event.GroupBuyUpdatedEvent;
+import com.moogsan.moongsan_backend.global.realtime.GroupBuyRealtimeNotifier;
 import com.moogsan.moongsan_backend.groupbuy.domain.entity.GroupBuy;
-import com.moogsan.moongsan_backend.groupbuy.infrastructure.kafka.RealtimePublisher;
 import com.moogsan.moongsan_backend.domain.order.entity.Order;
 import com.moogsan.moongsan_backend.domain.order.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +18,7 @@ import java.util.List;
 public class CancelGroupBuyParticipant {
 
     private final OrderRepository orderRepository;
-    private final RealtimePublisher realtimePublisher;
+    private final GroupBuyRealtimeNotifier groupBuyRealtimeNotifier;
     private final DueSoonPolicy dueSoonPolicy;
 
     /**
@@ -45,10 +44,7 @@ public class CancelGroupBuyParticipant {
             order.setStatus("CANCELED");
 
             // 공구 상태 업데이트 이벤트 발행
-            GroupBuyUpdatedEvent event = GroupBuyUpdatedEvent.builder()
-                    .groupBuyId(order.getGroupBuy().getId())
-                    .build();
-            realtimePublisher.publish(event);
+            groupBuyRealtimeNotifier.publishUpdated(groupBuy);
 
             // dueSoon 상태 업데이트
             groupBuy.updateDueSoonStatus(dueSoonPolicy);
