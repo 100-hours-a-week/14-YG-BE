@@ -16,4 +16,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class GroupBuyUpdatedEvent extends BaseEvent {
     private Long groupBuyId;  // 공구 게시글 아이디
+    private int soldAmount;   // 팔린 개수
+    private int leftAmount;   // 남은 개수
 }
